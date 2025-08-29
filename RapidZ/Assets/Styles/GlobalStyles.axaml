@@ -1,0 +1,142 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:customControls="using:RapidZ.Controls">
+    <!-- Card Style -->
+    <Style Selector="Border.Card">
+        <Setter Property="Background" Value="#E5FFFFFF"/>
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Padding" Value="12"/>
+        <Setter Property="BoxShadow" Value="0 2 8 0 #25000000"/>
+        <Setter Property="Margin" Value="6"/>
+    </Style>
+
+    <Style Selector="Border.Card:pointerover">
+        <Setter Property="BoxShadow" Value="0 3 12 0 #30000000"/>
+    </Style>
+    
+    <!-- Header Style -->
+    <Style Selector="StackPanel.AppHeader">
+        <Setter Property="Orientation" Value="Horizontal"/>
+        <Setter Property="Spacing" Value="8"/>
+        <Setter Property="Margin" Value="0,6,0,0"/>
+    </Style>
+    
+    <Style Selector="TextBlock.HeaderText">
+        <Setter Property="FontSize" Value="22"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Effect" Value="drop-shadow(0 1 3 #50000000)"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="LetterSpacing" Value="0.3"/>
+    </Style>
+    
+    <!-- Card Header Style -->
+    <Style Selector="Border.CardHeader">
+        <Setter Property="Background" Value="#E8EFFF"/>
+        <Setter Property="BorderBrush" Value="#C8D4FF"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="Padding" Value="12,10,12,10"/>
+        <Setter Property="Margin" Value="-12,-12,-12,12"/>
+        <Setter Property="CornerRadius" Value="16,16,0,0"/>
+        <Setter Property="BoxShadow" Value="0 1 3 0 #20000000"/>
+    </Style>
+    
+    <!-- Section Title Style -->
+    <Style Selector="TextBlock.SectionTitle">
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Margin" Value="4,0,0,0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="#333333"/>
+    </Style>
+    
+    <!-- Field Label Style -->
+    <Style Selector="TextBlock.FieldLabel">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="#444444"/>
+        <Setter Property="Margin" Value="0,0,8,0"/>
+        <Setter Property="Width" Value="110"/>
+    </Style>
+    
+    <!-- TextBox Style -->
+    <Style Selector="TextBox.FormInput">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="Margin" Value="0,0,0,8"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    
+    <!-- Radio Button Style -->
+    <Style Selector="RadioButton.FormRadio">
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Margin" Value="0,0,12,0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    
+    <!-- Primary Button Style -->
+    <Style Selector="Button.PrimaryButton">
+        <Setter Property="Background" Value="#3A5BDC"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Padding" Value="14,8"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="0,0,6,0"/>
+        <Setter Property="Transitions">
+            <Setter.Value>
+                <Transitions>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+                </Transitions>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <Style Selector="Button.PrimaryButton:pointerover">
+        <Setter Property="Background" Value="#4A6BEC"/>
+        <Setter Property="RenderTransform" Value="scale(1.03)"/>
+        <Setter Property="Effect" Value="drop-shadow(0 2 5 #30000000)"/>
+    </Style>
+    
+    <!-- Secondary Button Style -->
+    <Style Selector="Button.SecondaryButton">
+        <Setter Property="Background" Value="#6C757D"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Padding" Value="14,8"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Transitions">
+            <Setter.Value>
+                <Transitions>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+                </Transitions>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <Style Selector="Button.SecondaryButton:pointerover">
+        <Setter Property="Background" Value="#7C858D"/>
+        <Setter Property="RenderTransform" Value="scale(1.03)"/>
+        <Setter Property="Effect" Value="drop-shadow(0 2 5 #30000000)"/>
+    </Style>
+    
+    <!-- Filter Section Style -->
+    <Style Selector="Border.FilterSection">
+        <Setter Property="Background" Value="#F5F7FA"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="10"/>
+        <Setter Property="Margin" Value="0,0,0,8"/>
+    </Style>
+    
+    <!-- YearMonthPicker Style -->
+    <Style Selector="customControls|YearMonthPicker">
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="Height" Value="36"/>
+    </Style>
+</Styles>

@@ -1,0 +1,46 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:RapidZ.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="RapidZ.Views.Controls.LoadingControl"
+             x:DataType="vm:MainViewModel">
+
+    <Grid IsVisible="{Binding IsBusy}"
+          Background="#90000000">
+        <Border Background="#FFFFFF"
+                CornerRadius="16"
+                BoxShadow="0 4 20 0 #40000000"
+                Width="260"
+                Height="110"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+            <Grid>
+                <StackPanel HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Spacing="14">
+                    <Grid>
+                        <ProgressBar IsIndeterminate="True"
+                                     Width="200"
+                                     Height="5"
+                                     Foreground="#3A5BDC"
+                                     Background="#E0E0E0"
+                                     CornerRadius="3" />
+                    </Grid>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Canvas Width="18" Height="18">
+                            <Path Fill="#3A5BDC" Data="M13,3H11V13H13V3M13,17H11V21H13V17Z" />
+                        </Canvas>
+                        <TextBlock Text="Processing... Please wait."
+                                   Foreground="#333333"
+                                   FontSize="13"
+                                   FontWeight="Medium"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+    
+</UserControl>

@@ -1,0 +1,4 @@
+<Canvas xmlns="https://github.com/avaloniaui"
+        Width="24" Height="24">
+    <Path Fill="White" Data="M13,3H11V13H13V3M13,17H11V21H13V17Z" />
+</Canvas>
