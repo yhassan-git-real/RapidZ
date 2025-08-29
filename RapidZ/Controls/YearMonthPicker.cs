@@ -108,21 +108,23 @@ public class YearMonthPicker : UserControl
         {
             Width = 80,
             PlaceholderText = "Year",
-            Margin = new Thickness(0, 0, 5, 0)
+            Margin = new Thickness(0, 0, 2, 0)
         };
         
         // Create month combobox
         _monthComboBox = new ComboBox
         {
-            Width = 80,
+            Width = 65,
             PlaceholderText = "Month",
-            Margin = new Thickness(5, 0, 0, 0)
+            Margin = new Thickness(2, 0, 3, 0)
         };
         
         // Create main layout grid
         _mainGrid = new Grid
         {
-            ColumnDefinitions = new ColumnDefinitions("*, *"),
+            ColumnDefinitions = new ColumnDefinitions("Auto, Auto"),
+            HorizontalAlignment = HorizontalAlignment.Left,
+            Margin = new Thickness(0, 0, 3, 0) 
         };
         
         // Add controls to grid

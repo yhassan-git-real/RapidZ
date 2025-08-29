@@ -91,7 +91,7 @@
                             <!-- Filter Controls -->
                             <StackPanel Grid.Row="1" Spacing="10" Margin="0,5,0,0">
                                 <!-- Date Range Section -->
-                                <Border Classes="FilterSection">
+                                <Border Classes="FilterSection" Padding="2,4">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto" />
@@ -99,27 +99,32 @@
                                         </Grid.RowDefinitions>
                                         
                                         <TextBlock Grid.Row="0" Text="Date Range" 
-                                                  FontWeight="SemiBold" FontSize="13" Margin="0,0,0,6" />
+                                                  FontWeight="Bold" FontSize="15" Margin="0,0,0,8"
+                                                  FontFamily="Segoe UI" Foreground="#1E88E5" />
                                                   
-                                        <Grid Grid.Row="1">
+                                        <Grid Grid.Row="1" Margin="0,0,0,0">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" MinWidth="160" />
                                                 <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" MinWidth="160" />
                                             </Grid.ColumnDefinitions>
                                             
                                             <TextBlock Grid.Column="0" Text="From:" VerticalAlignment="Center" 
-                                                      Margin="0,0,6,0" FontSize="12" />
+                                                      Margin="0,0,8,0" FontSize="14" FontWeight="SemiBold"
+                                                      FontFamily="Segoe UI" Foreground="#333333" />
                                             <customControls:YearMonthPicker Grid.Column="1" 
                                                                            Year="{Binding FromYear}" 
-                                                                           Month="{Binding FromMonth}" />
+                                                                           Month="{Binding FromMonth}"
+                                                                           HorizontalAlignment="Left" />
                                             
                                             <TextBlock Grid.Column="2" Text="To:" VerticalAlignment="Center" 
-                                                      Margin="10,0,6,0" FontSize="12" />
+                                                      Margin="16,0,8,0" FontSize="14" FontWeight="SemiBold"
+                                                      FontFamily="Segoe UI" Foreground="#333333" />
                                             <customControls:YearMonthPicker Grid.Column="3" 
                                                                            Year="{Binding ToYear}" 
-                                                                           Month="{Binding ToMonth}" />
+                                                                           Month="{Binding ToMonth}"
+                                                                           HorizontalAlignment="Left" />
                                         </Grid>
                                     </Grid>
                                 </Border>
