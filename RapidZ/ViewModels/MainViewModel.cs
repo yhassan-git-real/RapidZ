@@ -20,6 +20,7 @@ public class MainViewModel : ViewModelBase
     private string _statusMessage = string.Empty;
     private IBrush _statusMessageColor = Brushes.White;
     private bool _isBusy;
+    private ConnectionInfo _connectionInfo = new();
     
     // Date properties
     private int _fromYear;
@@ -54,6 +55,31 @@ public class MainViewModel : ViewModelBase
         RunQueryCommand = ReactiveCommand.CreateFromTask(ExecuteRunQueryCommandAsync);
         ExportToExcelCommand = ReactiveCommand.CreateFromTask(ExecuteExportToExcelCommandAsync);
         ClearFiltersCommand = ReactiveCommand.Create(ExecuteClearFiltersCommand);
+        
+        // Initialize connection info
+        _connectionInfo = _databaseService.GetConnectionInfo();
+        
+        // Subscribe to database connection status changes
+        _databaseService.PropertyChanged += (s, e) => 
+        {
+            if (e.PropertyName == nameof(DatabaseService.IsConnected) || 
+                e.PropertyName == nameof(DatabaseService.ConnectionStatus))
+            {
+                UpdateConnectionInfo();
+            }
+        };
+        
+        // Initial connection check
+        Task.Run(async () => 
+        {
+            await _databaseService.CheckConnectionAsync();
+            UpdateConnectionInfo();
+        });
+    }
+    
+    private void UpdateConnectionInfo()
+    {
+        ConnectionInfo = _databaseService.GetConnectionInfo();
     }
 
     public ExportDataFilter ExportDataFilter { get; }
@@ -78,6 +104,12 @@ public class MainViewModel : ViewModelBase
     {
         get => _isBusy;
         set => this.RaiseAndSetIfChanged(ref _isBusy, value);
+    }
+    
+    public ConnectionInfo ConnectionInfo
+    {
+        get => _connectionInfo;
+        set => this.RaiseAndSetIfChanged(ref _connectionInfo, value);
     }
     
 

@@ -5,25 +5,108 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Timers;
 
 namespace RapidZ.Services;
 
 // Handles database operations for export data
-public class DatabaseService
+public class DatabaseService : INotifyPropertyChanged
 {
     private readonly ILogger<DatabaseService> _logger;
     private readonly ConfigurationService _configService;
+    private bool _isConnected;
+    private string _connectionStatus;
+    private readonly System.Timers.Timer _connectionCheckTimer;
+
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public DatabaseService(ILogger<DatabaseService> logger, ConfigurationService configService)
     {
         _logger = logger;
         _configService = configService;
+        _connectionStatus = "Checking connection...";
+        
+        // Initialize timer to check connection status every 30 seconds
+        _connectionCheckTimer = new System.Timers.Timer(30000);
+        _connectionCheckTimer.Elapsed += async (s, e) => await CheckConnectionAsync();
+        _connectionCheckTimer.AutoReset = true;
+        _connectionCheckTimer.Start();
+        
+        // Check connection initially
+        Task.Run(async () => await CheckConnectionAsync());
     }
     
     // Creates a new SQL connection
     private SqlConnection CreateConnection()
     {
         return new SqlConnection(_configService.AppSettings.Database.ConnectionString);
+    }
+    
+    // Gets database info from connection string
+    public ConnectionInfo GetConnectionInfo()
+    {
+        var connectionString = _configService.AppSettings.Database.ConnectionString;
+        var builder = new SqlConnectionStringBuilder(connectionString);
+        
+        return new ConnectionInfo
+        {
+            ServerName = builder.DataSource,
+            DatabaseName = builder.InitialCatalog,
+            UserName = builder.UserID,
+            IsConnected = IsConnected
+        };
+    }
+    
+    // Check database connection status
+    public async Task CheckConnectionAsync()
+    {
+        try
+        {
+            using var connection = CreateConnection();
+            await connection.OpenAsync();
+            IsConnected = true;
+            ConnectionStatus = "Connected";
+            _logger.LogInformation("Database connection successful");
+        }
+        catch (Exception ex)
+        {
+            IsConnected = false;
+            ConnectionStatus = "Disconnected";
+            _logger.LogError(ex, "Database connection failed");
+        }
+    }
+    
+    public bool IsConnected
+    {
+        get => _isConnected;
+        private set
+        {
+            if (_isConnected != value)
+            {
+                _isConnected = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+    
+    public string ConnectionStatus
+    {
+        get => _connectionStatus;
+        private set
+        {
+            if (_connectionStatus != value)
+            {
+                _connectionStatus = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+    
+    protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
     
     // Executes a query and returns export data based on filter criteria

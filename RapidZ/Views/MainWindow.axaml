@@ -61,9 +61,10 @@
                                DataContext="{Binding}" Margin="0,20,0,0" />
                                
         <!-- Footer -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
-            <TextBlock Text="© 2025 RapidZ" Foreground="White" FontSize="12" FontWeight="SemiBold"/>
-        </StackPanel>
+        <controls:FooterControl Grid.Row="2" 
+                              DataContext="{Binding}" 
+                              Margin="0,16,0,0" 
+                              HorizontalAlignment="Stretch" />
 
         <!-- Loading Overlay -->
         <controls:LoadingControl Grid.Row="0" Grid.RowSpan="3"
