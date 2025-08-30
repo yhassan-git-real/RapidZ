@@ -15,9 +15,9 @@ public class ConfigurationService
     // Public property for accessing all app settings
     public AppSettings AppSettings { get; private set; } = new();
 
-    public ConfigurationService(ILogger<ConfigurationService> logger)
+    public ConfigurationService(ILogger<ConfigurationService> logger = null)
     {
-        _logger = logger;
+        _logger = logger; // May be null, handle carefully in log calls
         
         // Build configuration from specific config files (like TradeDataHub approach)
         var builder = new ConfigurationBuilder()
@@ -55,11 +55,13 @@ public class ConfigurationService
         try
         {
             LoadSettings();
-            _logger.LogInformation("Configuration reloaded");
+            _logger?.LogInformation("Configuration reloaded");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Configuration reload failed");
+            _logger?.LogError(ex, "Configuration reload failed");
+            // Also log to debug output in case logger is null
+            System.Diagnostics.Debug.WriteLine($"Configuration reload failed: {ex.Message}");
             throw;
         }
     }
@@ -102,7 +104,8 @@ public class ConfigurationService
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Some configuration sections not found, using defaults");
+            _logger?.LogWarning(ex, "Some configuration sections not found, using defaults");
+            System.Diagnostics.Debug.WriteLine($"Some configuration sections not found, using defaults: {ex.Message}");
         }
         
         // Set default values if not configured (following TradeDataHub approach)
@@ -116,6 +119,7 @@ public class ConfigurationService
             AppSettings.Paths.LogFiles = Path.Combine(Directory.GetCurrentDirectory(), "Logs");
         }
         
-        _logger.LogInformation("Configuration loaded with defaults where needed");
+        _logger?.LogInformation("Configuration loaded with defaults where needed");
+        System.Diagnostics.Debug.WriteLine("Configuration loaded with defaults where needed");
     }
 }

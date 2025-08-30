@@ -1,0 +1,134 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:RapidZ.Views.ViewModels"
+             xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="50"
+             x:Class="RapidZ.Views.Controls.StatusPanelControl"
+             x:DataType="vm:MainViewModel">
+
+    <Border Background="#FAFCFF" 
+            BorderBrush="#D0D8E8" 
+            BorderThickness="1" 
+            CornerRadius="4" 
+            Padding="16,12" 
+            BoxShadow="0 2 6 0 #20000000">
+        <Grid RowDefinitions="Auto,Auto">
+            <!-- Status Panel Main Row -->
+            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+                <!-- Status Indicator -->
+                <Border Grid.Column="0" 
+                        Width="14" 
+                        Height="14" 
+                        CornerRadius="7" 
+                        Background="{Binding StatusIndicatorColor}"
+                        Margin="4,0,14,0"
+                        VerticalAlignment="Center">
+                    <Border.Transitions>
+                        <Transitions>
+                            <BrushTransition Property="Background" Duration="0:0:0.3" />
+                        </Transitions>
+                    </Border.Transitions>
+                </Border>
+                
+                <!-- Status Message -->
+                <TextBlock Grid.Column="1" 
+                           Text="{Binding SystemStatusMessage}" 
+                           VerticalAlignment="Center"
+                           FontSize="16"
+                           FontFamily="Segoe UI"
+                           FontWeight="SemiBold"
+                           Foreground="#000000">
+                    <TextBlock.Transitions>
+                        <Transitions>
+                            <ThicknessTransition Property="Margin" Duration="0:0:0.2" />
+                        </Transitions>
+                    </TextBlock.Transitions>
+                </TextBlock>
+                
+                <!-- Progress Info - Inline with status message -->
+                <Border Grid.Column="2" 
+                       Background="#F0F6FF"
+                       BorderBrush="#D8E0F0"
+                       BorderThickness="1"
+                       CornerRadius="3"
+                       Padding="10,5"
+                       IsVisible="{Binding IsProcessing}"
+                       VerticalAlignment="Center"
+                       Margin="0,0,0,0">
+                    <StackPanel Orientation="Horizontal" 
+                              Spacing="10">
+                        <ProgressBar Width="120" 
+                                   Height="6" 
+                                   Value="{Binding ProgressPercentage}"
+                                   Maximum="100" 
+                                   Foreground="#3A5BDC"
+                                   Background="#DDDDDD"
+                                   IsIndeterminate="{Binding IsIndeterminateProgress}"
+                                   VerticalAlignment="Center" 
+                                   CornerRadius="3" />
+                        <TextBlock Text="{Binding ProgressText}"
+                                 FontSize="14"
+                                 VerticalAlignment="Center"
+                                 FontWeight="Medium"
+                                 Foreground="#000000" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+            
+            <!-- Execution Summary Row -->
+            <Border Grid.Row="1" 
+                    Background="#F0F6FF" 
+                    BorderBrush="#D8E0F0"
+                    BorderThickness="0,1,0,0" 
+                    Padding="14,12" 
+                    Margin="0,10,0,0"
+                    CornerRadius="0,0,3,3"
+                    IsVisible="{Binding ShowExecutionSummary}">
+                <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*" RowDefinitions="Auto,Auto">
+                    <!-- Last Execution Details -->
+                    <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,24,0">
+                        <TextBlock Text="Status:" FontSize="14" Foreground="#000000" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        <Border Width="10" Height="10" CornerRadius="5" Background="{Binding ExecutionStatusColor}" VerticalAlignment="Center" Margin="0,0,4,0" />
+                        <TextBlock Text="{Binding LastExecution.Status}" FontSize="14" Foreground="#000000" VerticalAlignment="Center" />
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,24,0">
+                        <TextBlock Text="Time:" FontSize="14" Foreground="#000000" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding LastExecution.FormattedTime}" FontSize="14" Foreground="#000000" VerticalAlignment="Center" />
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="2" Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,24,0">
+                        <TextBlock Text="Duration:" FontSize="14" Foreground="#000000" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding LastExecution.Duration}" FontSize="14" Foreground="#000000" VerticalAlignment="Center" />
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="3" Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,24,0">
+                        <TextBlock Text="Rows:" FontSize="14" Foreground="#000000" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding LastExecution.RowCount}" FontSize="14" Foreground="#000000" VerticalAlignment="Center" />
+                    </StackPanel>
+                    
+                    <!-- Refresh Button has been removed due to thread-safety issues -->
+                    
+                    <!-- File name and result on second row -->
+                    <Grid Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="5" Margin="0,14,0,0">
+                        <Border BorderBrush="#D8E0F0" BorderThickness="0,1,0,0" Margin="0,0,0,10" />
+                        
+                        <StackPanel Orientation="Vertical" Spacing="8" Margin="0,10,0,0">
+                            <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding LastExecution.HasData}">
+                                <TextBlock Text="File:" FontSize="14" Foreground="#000000" FontWeight="SemiBold" VerticalAlignment="Center" Width="60" />
+                                <TextBlock Text="{Binding LastExecution.FileName}" FontSize="14" Foreground="#000000" VerticalAlignment="Center" />
+                            </StackPanel>
+                            
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="Result:" FontSize="14" Foreground="#000000" FontWeight="SemiBold" VerticalAlignment="Top" Width="60" />
+                                <TextBlock Text="{Binding LastExecution.Result}" FontSize="14" Foreground="#000000" VerticalAlignment="Center" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

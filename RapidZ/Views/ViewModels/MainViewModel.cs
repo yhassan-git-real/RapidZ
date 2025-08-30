@@ -7,6 +7,7 @@ using Avalonia.Threading;
 using ReactiveUI;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Disposables;
 using RapidZ.Views.Models;
 using RapidZ.Core.Models;
 using RapidZ.Core.Controllers;
@@ -21,13 +22,14 @@ using System.Linq;
 
 namespace RapidZ.Views.ViewModels;
 
-public class MainViewModel : ViewModelBase
+public class MainViewModel : ViewModelBase, IDisposable
 {
     private readonly ConfigurationService? _configService;
     private readonly ImportViewModel? _importViewModel;
     private readonly DatabaseService? _databaseService;
     private readonly ExportController? _exportController;
     private readonly ImportController? _importController;
+    private readonly LogParserService? _logParserService;
     
     private ServiceContainer? _services;
     
@@ -36,6 +38,13 @@ public class MainViewModel : ViewModelBase
     private bool _canCancel = false;
     private ConnectionInfo _connectionInfo = new();
     private string _currentMode = "Export"; // Default to Export mode
+    private SystemStatus _systemStatus = SystemStatus.Idle;
+    private bool _isIndeterminateProgress = true;
+    
+    // Execution summary properties
+    private ExecutionSummary _lastExecution = ExecutionSummary.Empty;
+    private bool _showExecutionSummary = false;
+    private IDisposable? _logCheckSubscription;
     
     // Date properties
     private int _fromYear;
@@ -58,6 +67,7 @@ public class MainViewModel : ViewModelBase
         InitializeDefaults();
         InitializeCommands();
         InitializeCollections();
+        // No log parser in the default constructor
     }
 
     public MainViewModel(
@@ -72,10 +82,17 @@ public class MainViewModel : ViewModelBase
         _databaseService = databaseService;
         _exportController = exportController;
         _importController = importController;
+        _logParserService = new LogParserService(AppDomain.CurrentDomain.BaseDirectory);
         
+        // Initialize defaults first
         InitializeDefaults();
+        // Initialize commands after defaults
         InitializeCommands();
+        // Initialize collections 
         InitializeCollections();
+        
+        // Ensure we have a valid execution summary to avoid null reference exceptions
+        _lastExecution = ExecutionSummary.Empty;
         
         // Initialize connection info
         _connectionInfo = _databaseService.GetConnectionInfo();
@@ -118,6 +135,7 @@ public class MainViewModel : ViewModelBase
     public ICommand ExportToExcelCommand { get; private set; } = null!;
     public ICommand ClearFiltersCommand { get; private set; } = null!;
     public ICommand CancelImportCommand { get; private set; } = null!;
+    public ICommand RefreshExecutionSummaryCommand { get; private set; } = null!;
     
    
     public bool IsBusy
@@ -127,17 +145,101 @@ public class MainViewModel : ViewModelBase
         { 
             this.RaiseAndSetIfChanged(ref _isBusy, value);
             
-            // Pause or resume connection checks based on busy state
-            if (value) 
+            // Update system status based on busy state
+            if (value)
             {
+                // When becoming busy, change status to processing
+                SystemStatus = SystemStatus.Processing;
+                
                 // Pause connection checks when application is busy with operations
                 DatabaseConnectionService.Instance.PauseConnectionChecks();
             }
             else 
             {
+                // When no longer busy, don't immediately change the status
+                // This will be set by the operation result (Completed or Failed)
+                
                 // Resume connection checks when operations are complete
                 DatabaseConnectionService.Instance.ResumeConnectionChecks();
             }
+        }
+    }
+    
+    public SystemStatus SystemStatus
+    {
+        get => _systemStatus;
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _systemStatus, value);
+            this.RaisePropertyChanged(nameof(SystemStatusMessage));
+            this.RaisePropertyChanged(nameof(StatusIndicatorColor));
+            this.RaisePropertyChanged(nameof(IsProcessing));
+            
+            // When status changes to Completed or Failed, update execution summary after a short delay
+            if (value == SystemStatus.Completed || value == SystemStatus.Failed)
+            {
+                // Schedule execution summary refresh after a short delay to allow log files to be written
+                _ = Task.Delay(1500).ContinueWith(async _ => 
+                {
+                    // Make sure we dispatch back to UI thread for UI updates
+                    await Dispatcher.UIThread.InvokeAsync(async () =>
+                    {
+                        await UpdateExecutionSummaryAsync();
+                    });
+                });
+            }
+        }
+    }
+    
+    public string SystemStatusMessage => _systemStatus.GetStatusMessage();
+    
+    public IBrush StatusIndicatorColor => _systemStatus.GetStatusColor();
+    
+    public bool IsProcessing => _systemStatus == SystemStatus.Processing;
+    
+    public bool IsIndeterminateProgress
+    {
+        get => _isIndeterminateProgress;
+        set => this.RaiseAndSetIfChanged(ref _isIndeterminateProgress, value);
+    }
+    
+    public string ProgressText => $"{(int)_progressPercentage}%";
+    
+    // Execution Summary Properties
+    public ExecutionSummary LastExecution 
+    {
+        get => _lastExecution ?? ExecutionSummary.Empty;
+        set
+        {
+            if (value == null)
+                return;
+                
+            this.RaiseAndSetIfChanged(ref _lastExecution, value);
+            this.RaisePropertyChanged(nameof(ExecutionStatusColor));
+        }
+    }
+    
+    public bool ShowExecutionSummary
+    {
+        get => _showExecutionSummary;
+        set => this.RaiseAndSetIfChanged(ref _showExecutionSummary, value);
+    }
+    
+    // Helper property to determine status color based on result
+    public IBrush ExecutionStatusColor
+    {
+        get 
+        {
+            // Null check to avoid NullReferenceException
+            if (_lastExecution == null) 
+                return new SolidColorBrush(Color.FromRgb(153, 153, 153)); // Grey
+                
+            return _lastExecution.Status switch
+            {
+                ExecutionStatus.Completed => new SolidColorBrush(Color.FromRgb(76, 175, 80)),   // Green
+                ExecutionStatus.Failed => new SolidColorBrush(Color.FromRgb(244, 67, 54)),      // Red
+                _ => new SolidColorBrush(Color.FromRgb(153, 153, 153))                          // Grey
+            };
         }
     }
     
@@ -292,6 +394,14 @@ public class MainViewModel : ViewModelBase
         {
             IsBusy = isBusy;
             CanCancel = isBusy;
+            
+            // If becoming idle (operation finished), set status to Idle
+            // Specific success/failure states are set elsewhere based on results
+            if (!isBusy)
+            {
+                // This will be overridden by success/failure handlers if needed
+                SystemStatus = SystemStatus.Idle;
+            }
         });
     }
     
@@ -300,6 +410,9 @@ public class MainViewModel : ViewModelBase
     {
         try
         {
+            // Set system status to Processing
+            SystemStatus = SystemStatus.Processing;
+            
             if (Services?.UIActionService != null)
             {
                 // Prepare filter data before calling service
@@ -308,12 +421,24 @@ public class MainViewModel : ViewModelBase
                 
                 // Call UIActionService
                 await Services.UIActionService.HandleGenerateAsync(CancellationToken.None);
+                
+                // If we get here, operation completed successfully
+                SystemStatus = SystemStatus.Completed;
+                
+                // Reset to Idle after 3 seconds
+                await Task.Delay(3000);
+                SystemStatus = SystemStatus.Idle;
             }
         }
         catch (Exception ex)
         {
-            
+            // Set status to Failed on error
+            SystemStatus = SystemStatus.Failed;
             Console.WriteLine($"Error in export operation: {ex.Message}");
+            
+            // Reset to Idle after 5 seconds on error (longer to allow reading)
+            await Task.Delay(5000);
+            SystemStatus = SystemStatus.Idle;
         }
     }
     
@@ -326,40 +451,76 @@ public class MainViewModel : ViewModelBase
     
     private async Task ExecuteClearFiltersCommandAsync()
     {
-        if (Services?.UIActionService != null)
+        try
         {
-            Services.UIActionService.HandleReset();
+            // Brief "processing" status when clearing filters
+            SystemStatus = SystemStatus.Processing;
+            
+            if (Services?.UIActionService != null)
+            {
+                Services.UIActionService.HandleReset();
+            }
+            
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                // Reset form fields
+                ExportDataFilter.HSCode = string.Empty;
+                ExportDataFilter.Product = string.Empty;
+                ExportDataFilter.Exporter = string.Empty;
+                ExportDataFilter.IEC = string.Empty;
+                ExportDataFilter.ForeignParty = string.Empty;
+                ExportDataFilter.ForeignCountry = string.Empty;
+                ExportDataFilter.Port = string.Empty;
+                
+                var currentDate = DateTime.Now;
+                FromYear = currentDate.Year;
+                FromMonth = currentDate.Month;
+                ToYear = currentDate.Year;
+                ToMonth = currentDate.Month;
+                
+                SelectedView = null;
+                SelectedStoredProcedure = null;
+            });
+            
+            // Set status to completed briefly
+            SystemStatus = SystemStatus.Completed;
+            await Task.Delay(1500);
+            SystemStatus = SystemStatus.Idle;
         }
-        
-        await Dispatcher.UIThread.InvokeAsync(() =>
+        catch (Exception ex)
         {
-            // Reset form fields
-            ExportDataFilter.HSCode = string.Empty;
-            ExportDataFilter.Product = string.Empty;
-            ExportDataFilter.Exporter = string.Empty;
-            ExportDataFilter.IEC = string.Empty;
-            ExportDataFilter.ForeignParty = string.Empty;
-            ExportDataFilter.ForeignCountry = string.Empty;
-            ExportDataFilter.Port = string.Empty;
+            SystemStatus = SystemStatus.Failed;
+            Console.WriteLine($"Error clearing filters: {ex.Message}");
             
-            var currentDate = DateTime.Now;
-            FromYear = currentDate.Year;
-            FromMonth = currentDate.Month;
-            ToYear = currentDate.Year;
-            ToMonth = currentDate.Month;
-            
-            SelectedView = null;
-            SelectedStoredProcedure = null;
-        });
+            await Task.Delay(3000);
+            SystemStatus = SystemStatus.Idle;
+        }
     }
     
-    private Task ExecuteCancelImportCommandAsync()
+    private async Task ExecuteCancelImportCommandAsync()
     {
-        if (Services?.UIActionService != null)
+        try
         {
-            Services.UIActionService.HandleCancel();
+            SystemStatus = SystemStatus.Processing;
+            
+            if (Services?.UIActionService != null)
+            {
+                Services.UIActionService.HandleCancel();
+            }
+            
+            // After cancellation, show brief "completed" status
+            SystemStatus = SystemStatus.Completed;
+            await Task.Delay(1500);
+            SystemStatus = SystemStatus.Idle;
         }
-        return Task.CompletedTask;
+        catch (Exception ex)
+        {
+            SystemStatus = SystemStatus.Failed;
+            Console.WriteLine($"Error cancelling operation: {ex.Message}");
+            
+            await Task.Delay(3000);
+            SystemStatus = SystemStatus.Idle;
+        }
     }
     
     // Helper methods
@@ -441,6 +602,87 @@ public class MainViewModel : ViewModelBase
         
         // Initialize database selections based on current mode when the view is loaded
         Dispatcher.UIThread.Post(() => UpdateDatabaseSelectionsForMode(), DispatcherPriority.Background);
+        
+        // Start the periodic log checking if log parser is available
+        StartLogMonitoring();
+    }
+    
+    /// <summary>
+    /// Starts periodic checking of log files for execution summary updates
+    /// </summary>
+    private void StartLogMonitoring()
+    {
+        if (_logParserService == null)
+            return;
+            
+        // Clean up any existing subscription
+        _logCheckSubscription?.Dispose();
+        
+        // Set up periodic log checking
+        _logCheckSubscription = Observable
+            .Interval(TimeSpan.FromSeconds(5))
+            // Make sure we observe on the main thread scheduler
+            .ObserveOn(RxApp.MainThreadScheduler)
+            // Use UI thread to handle the update
+            .Subscribe(_ => 
+            {
+                Dispatcher.UIThread.Post(async () => 
+                {
+                    await UpdateExecutionSummaryAsync();
+                });
+            });
+    }
+    
+    /// <summary>
+    /// Updates the execution summary by checking the latest log files
+    /// </summary>
+    private async Task UpdateExecutionSummaryAsync()
+    {
+        if (_logParserService == null)
+            return;
+            
+        try
+        {
+            // Get the latest execution summary from logs based on current mode
+            var summary = await _logParserService.GetLatestExecutionSummaryAsync(_currentMode);
+            
+            // Ensure UI updates happen on the UI thread
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                if (summary.HasData)
+                {
+                    LastExecution = summary;
+                    ShowExecutionSummary = true;
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            // Log the error but don't disturb the UI
+            System.Diagnostics.Debug.WriteLine($"Error updating execution summary: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// Forces an immediate update of the execution summary from logs
+    /// </summary>
+    public async Task RefreshExecutionSummaryAsync()
+    {
+        try
+        {
+            await UpdateExecutionSummaryAsync();
+        }
+        catch (Exception ex)
+        {
+            // Log the error but don't crash the app
+            System.Diagnostics.Debug.WriteLine($"Error refreshing execution summary: {ex.Message}");
+            // Safe access to UI thread
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                // Ensure we still have a valid execution summary
+                _lastExecution = ExecutionSummary.Empty;
+            });
+        }
     }
     
     /// <summary>
@@ -473,6 +715,19 @@ public class MainViewModel : ViewModelBase
         CancelImportCommand = ReactiveCommand.CreateFromTask(
             ExecuteCancelImportCommandAsync, 
             canExecuteCancel, 
+            RxApp.MainThreadScheduler);
+            
+        // Command to refresh execution summary data from logs
+        RefreshExecutionSummaryCommand = ReactiveCommand.CreateFromTask(
+            async () => 
+            {
+                // Use UI thread to safely update UI
+                await Dispatcher.UIThread.InvokeAsync(async () => 
+                {
+                    await RefreshExecutionSummaryAsync();
+                });
+            },
+            Observable.Return(true),
             RxApp.MainThreadScheduler);
     }
     
@@ -617,5 +872,13 @@ public class MainViewModel : ViewModelBase
             
             Console.WriteLine($"Failed to update database selections: {ex.Message}");
         }
+    }
+    
+    /// <summary>
+    /// Implements IDisposable to clean up resources
+    /// </summary>
+    public void Dispose()
+    {
+        _logCheckSubscription?.Dispose();
     }
 }

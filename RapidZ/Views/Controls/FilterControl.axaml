@@ -19,15 +19,9 @@
             CornerRadius="16"
             Padding="0">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <Grid Margin="8">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" /> <!-- Content -->
-                    <RowDefinition Height="*" />    <!-- Spacer -->
-                    <RowDefinition Height="Auto" /> <!-- Status -->
-                </Grid.RowDefinitions>
-                
+            <StackPanel Margin="8" Spacing="0">
                 <!-- Content -->
-                <Grid Grid.Row="0">
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="6*" />
                         <ColumnDefinition Width="5*" />
@@ -233,8 +227,11 @@
                     </Border>
                 </Grid>
                 
-
-            </Grid>
+                <!-- Status Panel - Directly below main cards, with full width -->
+                <Grid Margin="0,16,0,0">
+                    <controls:StatusPanelControl HorizontalAlignment="Stretch" />
+                </Grid>
+            </StackPanel>
         </ScrollViewer>
     </Border>
 </UserControl>
