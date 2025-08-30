@@ -1,6 +1,6 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:customControls="using:RapidZ.Controls">
+        xmlns:customControls="using:RapidZ.Views.Controls">
     <!-- Card Style -->
     <Style Selector="Border.Card">
         <Setter Property="Background" Value="#E5FFFFFF"/>

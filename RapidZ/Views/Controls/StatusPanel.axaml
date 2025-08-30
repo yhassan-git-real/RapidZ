@@ -1,0 +1,43 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="80"
+             x:Class="RapidZ.Views.Controls.StatusPanel">
+    
+    <Border Background="#D8FFFFFF" CornerRadius="8" Padding="12,8">
+        <Grid ColumnDefinitions="Auto,*,Auto">
+            <!-- Status Icon -->
+            <materialIcons:MaterialIcon Grid.Column="0" 
+                                    Kind="{Binding StatusIcon}" 
+                                    Width="24" Height="24"
+                                    Foreground="{Binding StatusColor}"
+                                    Margin="0,0,12,0"/>
+            
+            <!-- Status Information -->
+            <Grid Grid.Column="1" RowDefinitions="Auto,Auto">
+                <TextBlock Grid.Row="0" 
+                          Text="{Binding StatusTitle}" 
+                          Foreground="{Binding StatusColor}"
+                          FontSize="13" 
+                          FontWeight="Medium"/>
+                
+                <TextBlock Grid.Row="1" 
+                          Text="{Binding Message}" 
+                          Foreground="#666666"
+                          FontSize="11" 
+                          Opacity="0.9"/>
+            </Grid>
+            
+            <!-- Action Button (if any) -->
+            <Button Grid.Column="2" 
+                   Content="{Binding ActionText}" 
+                   Command="{Binding StatusActionCommand}"
+                   IsVisible="{Binding StatusHasAction}"
+                   Padding="8,4"
+                   FontSize="11"
+                   Margin="8,0,0,0"/>
+        </Grid>
+    </Border>
+</UserControl>

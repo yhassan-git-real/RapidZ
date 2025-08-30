@@ -3,8 +3,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="using:RapidZ.Views.Controls"
-             xmlns:customControls="using:RapidZ.Controls"
-             xmlns:vm="using:RapidZ.ViewModels"
+             xmlns:customControls="using:RapidZ.Views.Controls"
+             xmlns:vm="using:RapidZ.Views.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="200"
              x:Class="RapidZ.Views.Controls.DateFieldsControl"
              x:DataType="vm:MainViewModel">
@@ -26,11 +26,11 @@
         
         <!-- Buttons -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,15,0,5" Spacing="10">
-            <Button Content="Run Query" Command="{Binding RunQueryCommand}" 
+            <Button Content="Run Query" Click="RunQuery_Click" Name="RunQueryButton"
                     Background="#007ACC" Foreground="White" Padding="15,5" />
-            <Button Content="Export To Excel" Command="{Binding ExportToExcelCommand}" 
+            <Button Content="Export To Excel" Click="ExportToExcel_Click" Name="ExportToExcelButton"
                     Background="#28A745" Foreground="White" Padding="15,5" />
-            <Button Content="Clear" Command="{Binding ClearFiltersCommand}"
+            <Button Content="Clear" Click="Clear_Click" Name="ClearButton"
                     Background="#6C757D" Foreground="White" Padding="15,5" />
         </StackPanel>
     </Grid>

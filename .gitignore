@@ -64,3 +64,5 @@ appsettings.local.json
 
 # Log files
 *.log
+EXPORT_EXCEL
+IMPORT_EXCEL

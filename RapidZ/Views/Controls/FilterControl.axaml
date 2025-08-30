@@ -2,10 +2,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="using:RapidZ.ViewModels"
+             xmlns:vm="using:RapidZ.Views.ViewModels"
              xmlns:controls="using:RapidZ.Views.Controls"
-             xmlns:customControls="using:RapidZ.Controls"
-             xmlns:converters="using:RapidZ.Converters"
+             xmlns:customControls="using:RapidZ.Views.Controls"
+             xmlns:converters="using:RapidZ.Views.Converters"
              xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
              x:Class="RapidZ.Views.Controls.FilterControl"
@@ -140,23 +140,91 @@
                                                   FontSize="13" Margin="0,0,12,0" VerticalAlignment="Center" />
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="20" VerticalAlignment="Center">
                                             <RadioButton Content="Export" Classes="FormRadio"
-                                                        IsChecked="{Binding ExportDataFilter.Mode, Converter={StaticResource StringEquals}, ConverterParameter=Export}" 
+                                                        IsChecked="{Binding CurrentMode, Converter={StaticResource StringEquals}, ConverterParameter=Export}" 
                                                         GroupName="Mode" />
                                             <RadioButton Content="Import" Classes="FormRadio"
-                                                        IsChecked="{Binding ExportDataFilter.Mode, Converter={StaticResource StringEquals}, ConverterParameter=Import}" 
+                                                        IsChecked="{Binding CurrentMode, Converter={StaticResource StringEquals}, ConverterParameter=Import}" 
                                                         GroupName="Mode" />
                                         </StackPanel>
                                     </Grid>
                                 </Border>
                                 
+                                <!-- Database Objects Selection Section -->
+                                <Border Classes="FilterSection">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="85" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <!-- Section Header -->
+                                        <TextBlock Grid.Row="0" Grid.ColumnSpan="2" 
+                                                  Text="Database Selection" 
+                                                  Classes="SectionHeader"
+                                                  Margin="0,0,0,12" />
+                                        
+                                        <!-- View Selection -->
+                                        <TextBlock Grid.Row="1" Grid.Column="0" 
+                                                  Text="View:" 
+                                                  VerticalAlignment="Center" 
+                                                  FontWeight="SemiBold" 
+                                                  FontSize="13" 
+                                                  Margin="0,0,12,0" />
+                                        <ComboBox Grid.Row="1" Grid.Column="1" 
+                                                 ItemsSource="{Binding AvailableViews}"
+                                                 SelectedItem="{Binding SelectedView}"
+                                                 PlaceholderText="Select a view..."
+                                                 HorizontalAlignment="Stretch"
+                                                 Margin="0,0,0,8"
+                                                 Height="32">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding DisplayName}" />
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
+                                        
+                                        <!-- Stored Procedure Selection -->
+                                        <TextBlock Grid.Row="2" Grid.Column="0" 
+                                                  Text="Stored Proc:" 
+                                                  VerticalAlignment="Center" 
+                                                  FontWeight="SemiBold" 
+                                                  FontSize="13" 
+                                                  Margin="0,0,12,0" />
+                                        <ComboBox Grid.Row="2" Grid.Column="1" 
+                                                 ItemsSource="{Binding AvailableStoredProcedures}"
+                                                 SelectedItem="{Binding SelectedStoredProcedure}"
+                                                 PlaceholderText="Select a stored procedure..."
+                                                 HorizontalAlignment="Stretch"
+                                                 Height="32">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding DisplayName}" />
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
+                                    </Grid>
+                                </Border>
+                                
                                 <!-- Action Buttons Section -->
                                 <Border Classes="FilterSection">
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
                                         <Button Content="Generate Report" Classes="PrimaryButton"
-                                                Command="{Binding ExportToExcelCommand}" 
+                                                Click="OnGenerateReportClick" Name="GenerateReportButton"
+                                                IsEnabled="{Binding !IsBusy}"
                                                 Width="140" />
+                                        <Button Content="Cancel" Classes="SecondaryButton"
+                                                Click="OnCancelClick" Name="CancelButton"
+                                                IsEnabled="{Binding IsBusy}"
+                                                Width="80" />
                                         <Button Content="Reset" Classes="SecondaryButton"
-                                                Command="{Binding ClearFiltersCommand}"
+                                                Click="OnResetClick" Name="ResetButton"
+                                                IsEnabled="{Binding !IsBusy}"
                                                 Width="80" />
                                     </StackPanel>
                                 </Border>
@@ -165,15 +233,17 @@
                     </Border>
                 </Grid>
                 
-                <!-- Status Bar -->
+                <!-- Status Panel -->
                 <Grid Grid.Row="2" Margin="0,16,0,0" VerticalAlignment="Bottom">
-                    <Border Background="#D8FFFFFF" CornerRadius="8" Padding="12,8">
-                        <TextBlock Text="{Binding StatusMessage}" 
-                                   Foreground="{Binding StatusMessageColor}"
-                                   FontSize="12" 
-                                   FontWeight="Medium"
-                                   HorizontalAlignment="Center" />
-                    </Border>
+                    <controls:StatusPanel 
+                        IsVisible="True"
+                        StatusType="{Binding StatusType}"
+                        StatusTitle="{Binding StatusTitle, FallbackValue=Ready}"
+                        Message="{Binding StatusMessage, FallbackValue=System is ready for processing}"
+                        Details="{Binding StatusDetails}"
+                        StatusHasAction="{Binding StatusHasAction}"
+                        ActionText="{Binding StatusActionText}"
+                        StatusActionCommand="{Binding StatusActionCommand}" />
                 </Grid>
             </Grid>
         </ScrollViewer>

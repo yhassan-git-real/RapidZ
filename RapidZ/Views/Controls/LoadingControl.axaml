@@ -2,7 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="using:RapidZ.ViewModels"
+             xmlns:vm="using:RapidZ.Views.ViewModels"
+             xmlns:converters="using:RapidZ.Views.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
              x:Class="RapidZ.Views.Controls.LoadingControl"
              x:DataType="vm:MainViewModel">
@@ -21,22 +22,44 @@
                             VerticalAlignment="Center"
                             Spacing="14">
                     <Grid>
-                        <ProgressBar IsIndeterminate="True"
+                        <ProgressBar IsIndeterminate="{Binding ProgressPercentage, Converter={x:Static converters:ProgressToIndeterminateConverter.Instance}}"
+                                     Value="{Binding ProgressPercentage}"
                                      Width="200"
                                      Height="5"
                                      Foreground="#3A5BDC"
                                      Background="#E0E0E0"
                                      CornerRadius="3" />
                     </Grid>
-                    <StackPanel Orientation="Horizontal" Spacing="6">
-                        <Canvas Width="18" Height="18">
-                            <Path Fill="#3A5BDC" Data="M13,3H11V13H13V3M13,17H11V21H13V17Z" />
-                        </Canvas>
-                        <TextBlock Text="Processing... Please wait."
-                                   Foreground="#333333"
-                                   FontSize="13"
-                                   FontWeight="Medium"
-                                   VerticalAlignment="Center" />
+                    <StackPanel Spacing="8">
+                        <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                            <Canvas Width="18" Height="18">
+                                <Path Fill="#3A5BDC" Data="M13,3H11V13H13V3M13,17H11V21H13V17Z" />
+                            </Canvas>
+                            <TextBlock Text="Processing... Please wait."
+                                       Foreground="#333333"
+                                       FontSize="13"
+                                       FontWeight="Medium"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                        
+                        <!-- Progress percentage display -->
+                        <TextBlock Text="{Binding ProgressPercentage, StringFormat='{}{0:F1}%'}"
+                                   Foreground="#666666"
+                                   FontSize="11"
+                                   HorizontalAlignment="Center"
+                                   IsVisible="{Binding ProgressPercentage, Converter={x:Static converters:ProgressToIndeterminateConverter.Instance}, ConverterParameter=invert}" />
+                        
+                        <!-- Cancel button -->
+                        <Button Content="Cancel"
+                                Click="Cancel_Click" Name="CancelButton"
+                                IsVisible="{Binding CanCancel}"
+                                Width="80"
+                                Height="28"
+                                FontSize="11"
+                                HorizontalAlignment="Center"
+                                Background="#FF6B6B"
+                                Foreground="White"
+                                CornerRadius="4" />
                     </StackPanel>
                 </StackPanel>
             </Grid>

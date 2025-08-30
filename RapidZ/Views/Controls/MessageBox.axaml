@@ -1,0 +1,97 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="250"
+        x:Class="RapidZ.Views.Controls.MessageBox"
+        Width="400" 
+        MinWidth="400"
+        SizeToContent="Height"
+        MinHeight="200"
+        MaxHeight="600"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Title="RapidZ">
+
+    <Window.Styles>
+        <Style Selector="Button.dialog">
+            <Setter Property="Background" Value="#5062E3" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Padding" Value="14,8" />
+            <Setter Property="MinWidth" Value="90" />
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        
+        <Style Selector="Button.dialog:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#3A5BDC" />
+        </Style>
+        
+        <Style Selector="Button.dialog:pressed /template/ ContentPresenter">
+            <Setter Property="Background" Value="#2848BC" />
+        </Style>
+    </Window.Styles>
+
+    <Border Background="#F5F5F5" Padding="16">
+        <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="Auto,*">
+            <!-- Icon -->
+            <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" 
+                    Width="54" Height="54" 
+                    Background="{Binding IconBackground}" 
+                    CornerRadius="27" 
+                    Margin="0,0,16,0">
+                
+                <materialIcons:MaterialIcon Kind="{Binding IconKind}" 
+                                            Width="32" Height="32"
+                                            Foreground="White" />
+            </Border>
+            
+            <!-- Title -->
+            <TextBlock Grid.Row="0" Grid.Column="1"
+                       Text="{Binding Title}"
+                       FontSize="16"
+                       FontWeight="SemiBold"
+                       TextWrapping="Wrap"
+                       Margin="0,0,0,8" />
+            
+            <!-- Content -->
+            <Grid Grid.Row="1" Grid.Column="1" RowDefinitions="Auto,Auto">
+                <!-- Message -->
+                <TextBlock Grid.Row="0"
+                           Text="{Binding Message}"
+                           TextWrapping="Wrap"
+                           Margin="0,0,0,8" />
+                
+                <!-- Details (Optional) -->
+                <Border Grid.Row="1"
+                        IsVisible="{Binding HasDetails}"
+                        Background="#E0E0E0"
+                        BorderThickness="1"
+                        BorderBrush="#D0D0D0"
+                        CornerRadius="4"
+                        Padding="8"
+                        MaxHeight="200">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <TextBlock Text="{Binding Details}"
+                                   TextWrapping="Wrap"
+                                   FontFamily="Consolas, Menlo, monospace"
+                                   FontSize="12" />
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+            
+            <!-- Buttons -->
+            <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                    HorizontalAlignment="Right"
+                    Margin="0,16,0,0">
+                <Button Content="OK" 
+                        Classes="dialog"
+                        Click="OkButton_Click" />
+            </Border>
+        </Grid>
+    </Border>
+</Window>
