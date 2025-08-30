@@ -57,6 +57,12 @@ public class MainViewModel : ViewModelBase, IDisposable
     private DbObjectOption? _selectedStoredProcedure;
     private ObservableCollection<DbObjectOption>? _availableViews;
     private ObservableCollection<DbObjectOption>? _availableStoredProcedures;
+    
+    // Database object validation properties
+    private bool _isViewValid = true;
+    private bool _isStoredProcedureValid = true;
+    private string _viewValidationMessage = string.Empty;
+    private string _storedProcedureValidationMessage = string.Empty;
 
     // Export data filter for binding
     public ExportDataFilter ExportDataFilter { get; set; } = new();
@@ -344,13 +350,48 @@ public class MainViewModel : ViewModelBase, IDisposable
     public DbObjectOption? SelectedView
     {
         get => _selectedView;
-        set => this.RaiseAndSetIfChanged(ref _selectedView, value);
+        set 
+        {
+            this.RaiseAndSetIfChanged(ref _selectedView, value);
+            // Validate the database object immediately after selection
+            ValidateSelectedDatabaseObjects();
+        }
     }
     
     public DbObjectOption? SelectedStoredProcedure
     {
         get => _selectedStoredProcedure;
-        set => this.RaiseAndSetIfChanged(ref _selectedStoredProcedure, value);
+        set 
+        {
+            this.RaiseAndSetIfChanged(ref _selectedStoredProcedure, value);
+            // Validate the database object immediately after selection
+            ValidateSelectedDatabaseObjects();
+        }
+    }
+    
+    // Database object validation properties
+    public bool IsViewValid
+    {
+        get => _isViewValid;
+        private set => this.RaiseAndSetIfChanged(ref _isViewValid, value);
+    }
+    
+    public bool IsStoredProcedureValid
+    {
+        get => _isStoredProcedureValid;
+        private set => this.RaiseAndSetIfChanged(ref _isStoredProcedureValid, value);
+    }
+    
+    public string ViewValidationMessage
+    {
+        get => _viewValidationMessage;
+        private set => this.RaiseAndSetIfChanged(ref _viewValidationMessage, value);
+    }
+    
+    public string StoredProcedureValidationMessage
+    {
+        get => _storedProcedureValidationMessage;
+        private set => this.RaiseAndSetIfChanged(ref _storedProcedureValidationMessage, value);
     }
     
     public ObservableCollection<DbObjectOption>? AvailableViews
@@ -740,6 +781,11 @@ public class MainViewModel : ViewModelBase, IDisposable
     /// </summary>
     private void LoadDataDirectlyFromConfiguration()
     {
+        // Reset validation states
+        IsViewValid = true;
+        IsStoredProcedureValid = true;
+        ViewValidationMessage = string.Empty;
+        StoredProcedureValidationMessage = string.Empty;
         if (Services == null)
             return;
 
@@ -826,6 +872,8 @@ public class MainViewModel : ViewModelBase, IDisposable
                     SelectedStoredProcedure = AvailableStoredProcedures.FirstOrDefault(p => p.Name == defaultProc);
                     
                     // Export mode: Database objects loaded successfully
+                    // Validate selected database objects
+                    ValidateSelectedDatabaseObjects();
                 }
                 else
                 {
@@ -851,6 +899,8 @@ public class MainViewModel : ViewModelBase, IDisposable
                     SelectedStoredProcedure = AvailableStoredProcedures.FirstOrDefault(p => p.Name == defaultProc);
                     
                     // Import mode: Database objects loaded successfully
+                    // Validate selected database objects
+                    ValidateSelectedDatabaseObjects();
                 }
                 else
                 {
@@ -869,6 +919,31 @@ public class MainViewModel : ViewModelBase, IDisposable
         }
     }
     
+    /// <summary>
+    /// Validates the selected view and stored procedure against the database
+    /// </summary>
+    private void ValidateSelectedDatabaseObjects()
+    {
+        // If services or DatabaseObjectValidator are not available, can't validate
+        if (Services?.DatabaseObjectValidator == null || SelectedView == null || SelectedStoredProcedure == null)
+        {
+            return;
+        }
+
+        string viewName = SelectedView.Name;
+        string procName = SelectedStoredProcedure.Name;
+
+        // Validate the view
+        IsViewValid = Services.DatabaseObjectValidator.ViewExists(viewName);
+        ViewValidationMessage = IsViewValid ? string.Empty : 
+            "Object does not exist in database";
+
+        // Validate the stored procedure
+        IsStoredProcedureValid = Services.DatabaseObjectValidator.StoredProcedureExists(procName);
+        StoredProcedureValidationMessage = IsStoredProcedureValid ? string.Empty : 
+            "Object does not exist in database";
+    }
+
     /// <summary>
     /// Implements IDisposable to clean up resources
     /// </summary>

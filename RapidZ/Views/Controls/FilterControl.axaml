@@ -13,6 +13,7 @@
 
     <UserControl.Resources>
         <converters:StringEqualsConverter x:Key="StringEquals"/>
+        <converters:BoolToValidationBrushConverter x:Key="BoolToValidationBrushConverter"/>
     </UserControl.Resources>
 
     <Border Background="#A8FFFFFF"
@@ -169,19 +170,40 @@
                                                   FontWeight="SemiBold" 
                                                   FontSize="13" 
                                                   Margin="0,0,12,0" />
-                                        <ComboBox Grid.Row="1" Grid.Column="1" 
-                                                 ItemsSource="{Binding AvailableViews}"
-                                                 SelectedItem="{Binding SelectedView}"
-                                                 PlaceholderText="Select a view..."
-                                                 HorizontalAlignment="Stretch"
-                                                 Margin="0,0,0,8"
-                                                 Height="32">
-                                            <ComboBox.ItemTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock Text="{Binding DisplayName}" />
-                                                </DataTemplate>
-                                            </ComboBox.ItemTemplate>
-                                        </ComboBox>
+                                        <Grid Grid.Row="1" Grid.Column="1">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            
+                                            <!-- ComboBox with validation border -->
+                                            <Border BorderBrush="{Binding IsViewValid, Converter={StaticResource BoolToValidationBrushConverter}}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="4">
+                                                <ComboBox ItemsSource="{Binding AvailableViews}"
+                                                         SelectedItem="{Binding SelectedView}"
+                                                         PlaceholderText="Select a view..."
+                                                         HorizontalAlignment="Stretch"
+                                                         Margin="0"
+                                                         Height="32"
+                                                         BorderThickness="0">
+                                                    <ComboBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding DisplayName}" />
+                                                        </DataTemplate>
+                                                    </ComboBox.ItemTemplate>
+                                                </ComboBox>
+                                            </Border>
+                                            
+                                            <!-- Validation error message -->
+                                            <TextBlock Grid.Row="1"
+                                                      Text="{Binding ViewValidationMessage}"
+                                                      Foreground="#E53935"
+                                                      FontSize="11"
+                                                      FontWeight="SemiBold"
+                                                      Margin="4,2,0,0"
+                                                      IsVisible="{Binding !IsViewValid}" />
+                                        </Grid>
                                         
                                         <!-- Stored Procedure Selection -->
                                         <TextBlock Grid.Row="2" Grid.Column="0" 
@@ -190,18 +212,40 @@
                                                   FontWeight="SemiBold" 
                                                   FontSize="13" 
                                                   Margin="0,0,12,0" />
-                                        <ComboBox Grid.Row="2" Grid.Column="1" 
-                                                 ItemsSource="{Binding AvailableStoredProcedures}"
-                                                 SelectedItem="{Binding SelectedStoredProcedure}"
-                                                 PlaceholderText="Select a stored procedure..."
-                                                 HorizontalAlignment="Stretch"
-                                                 Height="32">
-                                            <ComboBox.ItemTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock Text="{Binding DisplayName}" />
-                                                </DataTemplate>
-                                            </ComboBox.ItemTemplate>
-                                        </ComboBox>
+                                        <Grid Grid.Row="2" Grid.Column="1">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            
+                                            <!-- ComboBox with validation border -->
+                                            <Border BorderBrush="{Binding IsStoredProcedureValid, Converter={StaticResource BoolToValidationBrushConverter}}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="4">
+                                                <ComboBox ItemsSource="{Binding AvailableStoredProcedures}"
+                                                         SelectedItem="{Binding SelectedStoredProcedure}"
+                                                         PlaceholderText="Select a stored procedure..."
+                                                         HorizontalAlignment="Stretch"
+                                                         Height="32"
+                                                         Margin="0"
+                                                         BorderThickness="0">
+                                                    <ComboBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding DisplayName}" />
+                                                        </DataTemplate>
+                                                    </ComboBox.ItemTemplate>
+                                                </ComboBox>
+                                            </Border>
+                                            
+                                            <!-- Validation error message -->
+                                            <TextBlock Grid.Row="1"
+                                                      Text="{Binding StoredProcedureValidationMessage}"
+                                                      Foreground="#E53935"
+                                                      FontSize="11"
+                                                      FontWeight="SemiBold"
+                                                      Margin="4,2,0,0"
+                                                      IsVisible="{Binding !IsStoredProcedureValid}" />
+                                        </Grid>
                                     </Grid>
                                 </Border>
                                 
@@ -210,8 +254,17 @@
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
                                         <Button Content="Generate Report" Classes="PrimaryButton"
                                                 Click="OnGenerateReportClick" Name="GenerateReportButton"
-                                                IsEnabled="{Binding !IsBusy}"
-                                                Width="140" />
+                                                IsEnabled="{Binding !IsBusy, Mode=OneWay}"
+                                                Width="140">
+                                            <!-- Prevent execution if validation fails -->
+                                            <Button.IsEnabled>
+                                                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                                    <Binding Path="!IsBusy" />
+                                                    <Binding Path="IsViewValid" />
+                                                    <Binding Path="IsStoredProcedureValid" />
+                                                </MultiBinding>
+                                            </Button.IsEnabled>
+                                        </Button>
                                         <Button Content="Cancel" Classes="SecondaryButton"
                                                 Click="OnCancelClick" Name="CancelButton"
                                                 IsEnabled="{Binding IsBusy}"
