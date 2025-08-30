@@ -233,18 +233,7 @@
                     </Border>
                 </Grid>
                 
-                <!-- Status Panel -->
-                <Grid Grid.Row="2" Margin="0,16,0,0" VerticalAlignment="Bottom">
-                    <controls:StatusPanel 
-                        IsVisible="True"
-                        StatusType="{Binding StatusType}"
-                        StatusTitle="{Binding StatusTitle, FallbackValue=Ready}"
-                        Message="{Binding StatusMessage, FallbackValue=System is ready for processing}"
-                        Details="{Binding StatusDetails}"
-                        StatusHasAction="{Binding StatusHasAction}"
-                        ActionText="{Binding StatusActionText}"
-                        StatusActionCommand="{Binding StatusActionCommand}" />
-                </Grid>
+
             </Grid>
         </ScrollViewer>
     </Border>

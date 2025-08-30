@@ -30,15 +30,7 @@ public class MainViewModel : ViewModelBase
     private readonly ImportController? _importController;
     
     private ServiceContainer? _services;
-    // Status panel properties
-    private string _statusMessage = string.Empty;
-    private IBrush _statusMessageColor = Brushes.White;
-    private string _statusTitle = string.Empty;
-    private string _statusDetails = string.Empty;
-    private StatusType _statusType = StatusType.None;
-    private bool _statusHasAction = false;
-    private string _statusActionText = string.Empty;
-    private ICommand? _statusActionCommand = null;
+    
     private bool _isBusy;
     private double _progressPercentage = 0;
     private bool _canCancel = false;
@@ -105,55 +97,7 @@ public class MainViewModel : ViewModelBase
     public ICommand ClearFiltersCommand { get; private set; } = null!;
     public ICommand CancelImportCommand { get; private set; } = null!;
     
-    // Status Panel Properties
-    public string StatusMessage
-    {
-        get => _statusMessage;
-        set => this.RaiseAndSetIfChanged(ref _statusMessage, value);
-    }
-    
-    public IBrush StatusMessageColor
-    {
-        get => _statusMessageColor;
-        set => this.RaiseAndSetIfChanged(ref _statusMessageColor, value);
-    }
-    
-    public string StatusTitle
-    {
-        get => _statusTitle;
-        set => this.RaiseAndSetIfChanged(ref _statusTitle, value);
-    }
-    
-    public string StatusDetails
-    {
-        get => _statusDetails;
-        set => this.RaiseAndSetIfChanged(ref _statusDetails, value);
-    }
-    
-    public StatusType StatusType
-    {
-        get => _statusType;
-        set => this.RaiseAndSetIfChanged(ref _statusType, value);
-    }
-    
-    public bool StatusHasAction
-    {
-        get => _statusHasAction;
-        set => this.RaiseAndSetIfChanged(ref _statusHasAction, value);
-    }
-    
-    public string StatusActionText
-    {
-        get => _statusActionText;
-        set => this.RaiseAndSetIfChanged(ref _statusActionText, value);
-    }
-    
-    public ICommand? StatusActionCommand
-    {
-        get => _statusActionCommand;
-        set => this.RaiseAndSetIfChanged(ref _statusActionCommand, value);
-    }
-    
+   
     public bool IsBusy
     {
         get => _isBusy;
@@ -285,48 +229,15 @@ public class MainViewModel : ViewModelBase
             {
                 LoadDataDirectlyFromConfiguration();
                 
-                // Subscribe to UIActionService events for proper status updates
+                
                 if (_services.UIActionService != null)
                 {
-                    _services.UIActionService.StatusUpdated += OnStatusUpdated;
-                    _services.UIActionService.EnhancedStatusUpdated += OnEnhancedStatusUpdated;
                     _services.UIActionService.BusyStateChanged += OnBusyStateChanged;
                 }
             }
         }
     }
     
-    // Event handlers for UIActionService events
-    private void OnEnhancedStatusUpdated(StatusType statusType, string title, string message, string details, bool hasAction, string actionText, ICommand? actionCommand)
-    {
-        StatusType = statusType;
-        StatusTitle = title;
-        StatusMessage = message;
-        StatusDetails = details;
-        StatusHasAction = hasAction;
-        StatusActionText = actionText;
-        StatusActionCommand = actionCommand;
-        
-        // Set color for backward compatibility
-        StatusMessageColor = statusType switch
-        {
-            StatusType.Success => Brushes.LightGreen,
-            StatusType.Error => Brushes.OrangeRed,
-            StatusType.Warning => Brushes.Orange,
-            StatusType.Information => Brushes.White,
-            StatusType.Processing => Brushes.LightBlue,
-            _ => Brushes.White
-        };
-    }
-    
-    private void OnStatusUpdated(string message, IBrush color)
-    {
-        Dispatcher.UIThread.InvokeAsync(() =>
-        {
-            StatusMessage = message;
-            StatusMessageColor = color;
-        });
-    }
     
     private void OnBusyStateChanged(bool isBusy)
     {
@@ -337,7 +248,7 @@ public class MainViewModel : ViewModelBase
         });
     }
     
-    // Command implementations - using UIActionService pattern like TradeDataHub
+    
     private async Task ExecuteExportToExcelCommandAsync()
     {
         try
@@ -348,35 +259,22 @@ public class MainViewModel : ViewModelBase
                 PrepareFilterWithDefaults();
                 SetCurrentFilterInService();
                 
-                // Call UIActionService like TradeDataHub does
+                // Call UIActionService
                 await Services.UIActionService.HandleGenerateAsync(CancellationToken.None);
-            }
-            else
-            {
-                await Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    StatusMessage = "Service not initialized. Please restart the application.";
-                    StatusMessageColor = Brushes.OrangeRed;
-                });
             }
         }
         catch (Exception ex)
         {
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                StatusMessage = $"Error: {ex.Message}";
-                StatusMessageColor = Brushes.OrangeRed;
-            });
+            
+            Console.WriteLine($"Error in export operation: {ex.Message}");
         }
     }
     
-    private async Task ExecuteRunQueryCommandAsync()
+    private Task ExecuteRunQueryCommandAsync()
     {
-        await Dispatcher.UIThread.InvokeAsync(() =>
-        {
-            StatusMessage = "Query functionality not implemented yet";
-            StatusMessageColor = Brushes.Orange;
-        });
+        // Query functionality not implemented 
+        Console.WriteLine("Query functionality not implemented yet");
+        return Task.CompletedTask;
     }
     
     private async Task ExecuteClearFiltersCommandAsync()
@@ -408,20 +306,13 @@ public class MainViewModel : ViewModelBase
         });
     }
     
-    private async Task ExecuteCancelImportCommandAsync()
+    private Task ExecuteCancelImportCommandAsync()
     {
         if (Services?.UIActionService != null)
         {
             Services.UIActionService.HandleCancel();
         }
-        else
-        {
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                StatusMessage = "Cancel operation not available";
-                StatusMessageColor = Brushes.Orange;
-            });
-        }
+        return Task.CompletedTask;
     }
     
     // Helper methods
@@ -499,8 +390,7 @@ public class MainViewModel : ViewModelBase
         // Set initial current mode
         _currentMode = "Export";
         
-        StatusMessage = "Ready";
-        StatusMessageColor = Brushes.White;
+        
         
         // Initialize database selections based on current mode when the view is loaded
         Dispatcher.UIThread.Post(() => UpdateDatabaseSelectionsForMode(), DispatcherPriority.Background);
@@ -595,8 +485,8 @@ public class MainViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Failed to load database objects: {ex.Message}";
-            StatusMessageColor = Brushes.OrangeRed;
+            
+            Console.WriteLine($"Failed to load database objects: {ex.Message}");
         }
     }
     
@@ -607,8 +497,8 @@ public class MainViewModel : ViewModelBase
     {
         if (Services == null)
         {
-            StatusMessage = "Services not initialized";
-            StatusMessageColor = Brushes.OrangeRed;
+            
+            Console.WriteLine("Services not initialized");
             return;
         }
 
@@ -638,13 +528,12 @@ public class MainViewModel : ViewModelBase
                     SelectedView = AvailableViews.FirstOrDefault(v => v.Name == defaultView);
                     SelectedStoredProcedure = AvailableStoredProcedures.FirstOrDefault(p => p.Name == defaultProc);
                     
-                    StatusMessage = "Export mode: Database objects loaded";
-                    StatusMessageColor = Brushes.White;
+                    // Export mode: Database objects loaded successfully
                 }
                 else
                 {
-                    StatusMessage = "Export validation service not available";
-                    StatusMessageColor = Brushes.OrangeRed;
+                    // Export validation service not available
+                    Console.WriteLine("Export validation service not available");
                 }
             }
             else if (mode == "Import")
@@ -664,13 +553,12 @@ public class MainViewModel : ViewModelBase
                     SelectedView = AvailableViews.FirstOrDefault(v => v.Name == defaultView);
                     SelectedStoredProcedure = AvailableStoredProcedures.FirstOrDefault(p => p.Name == defaultProc);
                     
-                    StatusMessage = "Import mode: Database objects loaded";
-                    StatusMessageColor = Brushes.White;
+                    // Import mode: Database objects loaded successfully
                 }
                 else
                 {
-                    StatusMessage = "Import validation service not available";
-                    StatusMessageColor = Brushes.OrangeRed;
+                    // Import validation service not available
+                    Console.WriteLine("Import validation service not available");
                 }
             }
             
@@ -679,8 +567,8 @@ public class MainViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Failed to update database selections: {ex.Message}";
-            StatusMessageColor = Brushes.OrangeRed;
+            
+            Console.WriteLine($"Failed to update database selections: {ex.Message}");
         }
     }
 }
