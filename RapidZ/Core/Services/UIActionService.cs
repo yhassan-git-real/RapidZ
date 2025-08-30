@@ -157,9 +157,10 @@ namespace RapidZ.Core.Services
 
         public void HandleReset()
         {
-            // Reset filter data
+            // Reset only input parameter fields while preserving date fields, database objects, and mode selection
             if (_currentExportFilter != null)
             {
+                // Clear only the input parameter fields
                 _currentExportFilter.HSCode = string.Empty;
                 _currentExportFilter.Product = string.Empty;
                 _currentExportFilter.Exporter = string.Empty;
@@ -168,15 +169,13 @@ namespace RapidZ.Core.Services
                 _currentExportFilter.ForeignCountry = string.Empty;
                 _currentExportFilter.Port = string.Empty;
                 
-                var currentDate = DateTime.Now;
-                _currentExportFilter.FromMonth = $"{currentDate.Year}{currentDate.Month:D2}";
-                _currentExportFilter.ToMonth = $"{currentDate.Year}{currentDate.Month:D2}";
+                // Preserve date fields, database selections, and mode
+                // Note: Not resetting FromMonth, ToMonth, or Mode
             }
             
             Dispatcher.UIThread.InvokeAsync(() =>
             {
-                
-                Console.WriteLine("Reset Complete: Form reset completed. All form fields have been reset to their default values.");
+                Console.WriteLine("Reset Complete: Input parameter fields have been cleared while preserving date fields, database selections, and mode.");
             });
         }
 

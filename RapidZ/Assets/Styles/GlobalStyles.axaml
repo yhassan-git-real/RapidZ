@@ -77,9 +77,9 @@
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
     
-    <!-- Primary Button Style -->
+    <!-- Primary Button Style (Generate Report - Green) -->
     <Style Selector="Button.PrimaryButton">
-        <Setter Property="Background" Value="#3A5BDC"/>
+        <Setter Property="Background" Value="#4CAF50"/>
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="Padding" Value="14,8"/>
         <Setter Property="CornerRadius" Value="6"/>
@@ -97,14 +97,19 @@
     </Style>
     
     <Style Selector="Button.PrimaryButton:pointerover">
-        <Setter Property="Background" Value="#4A6BEC"/>
+        <Setter Property="Background" Value="#45A049"/>
         <Setter Property="RenderTransform" Value="scale(1.03)"/>
         <Setter Property="Effect" Value="drop-shadow(0 2 5 #30000000)"/>
     </Style>
     
-    <!-- Secondary Button Style -->
+    <Style Selector="Button.PrimaryButton:disabled">
+        <Setter Property="Background" Value="#A5D6A7"/>
+        <Setter Property="Opacity" Value="0.7"/>
+    </Style>
+    
+    <!-- Secondary Button Style (Cancel - Red) -->
     <Style Selector="Button.SecondaryButton">
-        <Setter Property="Background" Value="#6C757D"/>
+        <Setter Property="Background" Value="#F44336"/>
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="Padding" Value="14,8"/>
         <Setter Property="CornerRadius" Value="6"/>
@@ -121,9 +126,43 @@
     </Style>
     
     <Style Selector="Button.SecondaryButton:pointerover">
-        <Setter Property="Background" Value="#7C858D"/>
+        <Setter Property="Background" Value="#E53935"/>
         <Setter Property="RenderTransform" Value="scale(1.03)"/>
         <Setter Property="Effect" Value="drop-shadow(0 2 5 #30000000)"/>
+    </Style>
+    
+    <Style Selector="Button.SecondaryButton:disabled">
+        <Setter Property="Background" Value="#FFCDD2"/>
+        <Setter Property="Opacity" Value="0.7"/>
+    </Style>
+    
+    <!-- Reset Button Style (Blue) -->
+    <Style Selector="Button.ResetButton">
+        <Setter Property="Background" Value="#2196F3"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Padding" Value="14,8"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Transitions">
+            <Setter.Value>
+                <Transitions>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+                </Transitions>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <Style Selector="Button.ResetButton:pointerover">
+        <Setter Property="Background" Value="#1E88E5"/>
+        <Setter Property="RenderTransform" Value="scale(1.03)"/>
+        <Setter Property="Effect" Value="drop-shadow(0 2 5 #30000000)"/>
+    </Style>
+    
+    <Style Selector="Button.ResetButton:disabled">
+        <Setter Property="Background" Value="#BBDEFB"/>
+        <Setter Property="Opacity" Value="0.7"/>
     </Style>
     
     <!-- Filter Section Style -->

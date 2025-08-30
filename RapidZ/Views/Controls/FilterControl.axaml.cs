@@ -74,7 +74,30 @@ public partial class FilterControl : UserControl
         {
             System.Diagnostics.Debug.WriteLine("OnResetClick called!");
             var mainWindow = this.FindAncestorOfType<MainWindow>();
-            mainWindow?.Services?.UIActionService?.HandleReset();
+            
+            // Then directly update the ViewModel to reflect changes in the UI
+            if (DataContext is MainViewModel viewModel)
+            {
+                // Clear all input parameter fields
+                viewModel.ExportDataFilter.HSCode = string.Empty;
+                viewModel.ExportDataFilter.Product = string.Empty;
+                viewModel.ExportDataFilter.Exporter = string.Empty;
+                viewModel.ExportDataFilter.IEC = string.Empty;
+                viewModel.ExportDataFilter.ForeignParty = string.Empty;
+                viewModel.ExportDataFilter.ForeignCountry = string.Empty;
+                viewModel.ExportDataFilter.Port = string.Empty;
+                
+                // Also call the service's HandleReset method for consistency
+                mainWindow?.Services?.UIActionService?.HandleReset();
+                
+                System.Diagnostics.Debug.WriteLine("Reset completed: Input fields cleared");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("MainViewModel not found in DataContext");
+                // Try to reset through service only if ViewModel not found
+                mainWindow?.Services?.UIActionService?.HandleReset();
+            }
         }
         catch (Exception ex)
         {

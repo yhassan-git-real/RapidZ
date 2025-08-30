@@ -463,7 +463,7 @@ public class MainViewModel : ViewModelBase, IDisposable
             
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                // Reset form fields
+                // Reset only input parameter fields
                 ExportDataFilter.HSCode = string.Empty;
                 ExportDataFilter.Product = string.Empty;
                 ExportDataFilter.Exporter = string.Empty;
@@ -472,14 +472,9 @@ public class MainViewModel : ViewModelBase, IDisposable
                 ExportDataFilter.ForeignCountry = string.Empty;
                 ExportDataFilter.Port = string.Empty;
                 
-                var currentDate = DateTime.Now;
-                FromYear = currentDate.Year;
-                FromMonth = currentDate.Month;
-                ToYear = currentDate.Year;
-                ToMonth = currentDate.Month;
-                
-                SelectedView = null;
-                SelectedStoredProcedure = null;
+                // Preserve date fields, database selections, and mode
+                // Do not reset FromYear, FromMonth, ToYear, ToMonth
+                // Do not reset SelectedView or SelectedStoredProcedure
             });
             
             // Set status to completed briefly

@@ -216,7 +216,7 @@
                                                 Click="OnCancelClick" Name="CancelButton"
                                                 IsEnabled="{Binding IsBusy}"
                                                 Width="80" />
-                                        <Button Content="Reset" Classes="SecondaryButton"
+                                        <Button Content="Reset" Classes="ResetButton"
                                                 Click="OnResetClick" Name="ResetButton"
                                                 IsEnabled="{Binding !IsBusy}"
                                                 Width="80" />
