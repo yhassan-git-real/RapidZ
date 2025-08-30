@@ -119,12 +119,12 @@ namespace RapidZ.Core.Services
             }
             else if (counters.CombinationsSkipped == 0)
             {
-                summaryMessage += $"Operation completed successfully! All {counters.CombinationsProcessed:N0} combinations generated files.";
+                summaryMessage += $"Operation completed successfully! {counters.FilesGenerated:N0} file{(counters.FilesGenerated != 1 ? "s" : "")} generated.";
             }
             else
             {
                 var successRate = (double)counters.FilesGenerated / counters.CombinationsProcessed * 100;
-                summaryMessage += $"Operation completed with {successRate:F1}% success rate.";
+                summaryMessage += $"Operation completed with {counters.FilesGenerated:N0} file{(counters.FilesGenerated != 1 ? "s" : "")} generated ({successRate:F1}% success rate).";
             }
             
             return summaryMessage;
@@ -158,6 +158,24 @@ namespace RapidZ.Core.Services
         public void LogProcessingSummary(ProcessingCounters counters)
         {
             SkippedDatasetLogger.LogProcessingSummary(counters.CombinationsProcessed, counters.FilesGenerated, counters.CombinationsSkipped);
+        }
+        
+        public void ShowProcessingCompleteDialog(
+            ProcessingCounters counters, 
+            string operationType, 
+            TimeSpan processingTime, 
+            System.Collections.Generic.List<string> fileNames = null)
+        {
+            _dispatcher.Invoke(async () => 
+            {
+                await DialogService.ShowProcessingCompleteAsync(
+                    operationType,
+                    counters.FilesGenerated,
+                    counters.CombinationsProcessed,
+                    counters.FilesGenerated, // Use the actual file count here instead of combinationsProcessed
+                    fileNames,
+                    processingTime);
+            });
         }
     }
 }

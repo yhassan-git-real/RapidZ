@@ -31,9 +31,20 @@ namespace RapidZ.Features.Import
         private readonly ModuleLogger _logger;
         private readonly ImportSettings _settings;
         private readonly ImportExcelFormatSettings _formatSettings;
+        private List<string> _generatedFileNames = new List<string>();
+        private Dictionary<string, List<string>> _parameterToFileMap = new Dictionary<string, List<string>>();
         
         // Public property to access import settings
         public ImportSettings ImportSettings => _settings;
+        
+        // Get a list of files generated for the current input parameters
+        public List<string> GetGeneratedFileNames() => _generatedFileNames;
+        
+        // Clear the generated files list for the new operation
+        public void ClearGeneratedFiles()
+        {
+            _generatedFileNames = new List<string>();
+        }
 
         public ImportExcelService()
         {
@@ -190,6 +201,9 @@ namespace RapidZ.Features.Import
                     result.Success = true;
                     result.FileName = fileName;
                     result.RowCount = recordCount;
+                    
+                    // Add to the list of generated files
+                    _generatedFileNames.Add(fileName);
                     
                     // Log overall completion
                     _logger.LogProcessComplete(_settings.Logging.OperationLabel, 

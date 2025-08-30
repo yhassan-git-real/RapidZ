@@ -128,5 +128,43 @@ namespace RapidZ.Core.Services
                 }
             });
         }
+        
+        /// <summary>
+        /// Shows a processing complete dialog with detailed information
+        /// </summary>
+        /// <param name="operationType">Type of operation (Import/Export)</param>
+        /// <param name="fileCount">Number of files generated</param>
+        /// <param name="parameterCount">Number of parameter combinations checked</param>
+        /// <param name="combinationCount">Total combination count</param>
+        /// <param name="fileNames">List of generated file names (optional)</param>
+        /// <param name="processingTime">Total processing time (optional)</param>
+        public static async Task ShowProcessingCompleteAsync(
+            string operationType, 
+            int fileCount, 
+            int parameterCount, 
+            int combinationCount,
+            List<string> fileNames = null,
+            TimeSpan? processingTime = null)
+        {
+            await Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                if (_parentWindow != null)
+                {
+                    await ProcessingCompleteDialog.Show(
+                        _parentWindow,
+                        operationType,
+                        fileCount,
+                        parameterCount,
+                        combinationCount,
+                        fileNames,
+                        processingTime);
+                }
+                else
+                {
+                    Console.WriteLine($"[PROCESSING COMPLETE] {operationType}: {fileCount} files, {parameterCount} parameters");
+                    System.Diagnostics.Debug.WriteLine($"[PROCESSING COMPLETE] {operationType}: {fileCount} files, {parameterCount} parameters");
+                }
+            });
+        }
     }
 }

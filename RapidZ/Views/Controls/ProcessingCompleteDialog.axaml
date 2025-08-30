@@ -1,0 +1,169 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="280"
+        x:Class="RapidZ.Views.Controls.ProcessingCompleteDialog"
+        Width="380" 
+        MinWidth="380"
+        SizeToContent="Height"
+        MinHeight="200"
+        MaxHeight="400"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Title="Processing Complete"
+        FontFamily="Segoe UI, Arial, sans-serif">
+
+    <Window.Styles>
+        <Style Selector="Button.dialog">
+            <Setter Property="Background" Value="#4361EE" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Padding" Value="14,7" />
+            <Setter Property="MinWidth" Value="70" />
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        
+        <Style Selector="Button.dialog:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#3A56E0" />
+        </Style>
+        
+        <Style Selector="Button.dialog:pressed /template/ ContentPresenter">
+            <Setter Property="Background" Value="#2848BC" />
+        </Style>
+        
+        <Style Selector="TextBlock.section-header">
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Margin" Value="0,8,0,3" />
+            <Setter Property="Foreground" Value="#202020" />
+            <Setter Property="LetterSpacing" Value="0.2" />
+        </Style>
+        
+        <Style Selector="Border.section">
+            <Setter Property="Background" Value="#F5F7FB" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="10,8" />
+            <Setter Property="Margin" Value="0,2,0,6" />
+            <Setter Property="BoxShadow" Value="0 1 2 0 #10000000" />
+        </Style>
+        
+        <Style Selector="TextBlock.detail-text">
+            <Setter Property="FontSize" Value="12.5" />
+            <Setter Property="LineHeight" Value="17" />
+            <Setter Property="Margin" Value="0,0,0,3" />
+            <Setter Property="Foreground" Value="#333333" />
+        </Style>
+        
+        <Style Selector="TextBlock.highlight-text">
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#1E3A8A" />
+        </Style>
+    </Window.Styles>
+
+    <Border Background="#F8FAFD" Padding="14" CornerRadius="0">
+        <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="Auto,*">
+            <!-- Icon with improved shadow -->
+            <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="1" 
+                    Width="46" Height="46" 
+                    Background="{Binding IconBackground}" 
+                    CornerRadius="23" 
+                    BoxShadow="0 2 5 1 #20000000"
+                    Margin="0,0,12,12">
+                
+                <materialIcons:MaterialIcon Kind="{Binding IconKind}" 
+                                           Width="28" Height="28"
+                                           Foreground="White" />
+            </Border>
+            
+            <!-- Title with improved typography -->
+            <TextBlock Grid.Row="0" Grid.Column="1"
+                       Text="{Binding Title}"
+                       FontSize="16"
+                       FontWeight="SemiBold"
+                       TextWrapping="Wrap"
+                       VerticalAlignment="Center"
+                       LetterSpacing="0.3"
+                       Foreground="#16213E"
+                       Margin="0,2,0,10" />
+            
+            <!-- Content with improved spacing -->
+            <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,6">
+                <!-- Summary Section with enhanced formatting -->
+                <TextBlock Classes="section-header" Text="Summary"/>
+                <Border Classes="section">
+                    <StackPanel Spacing="3">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Grid.Column="0" Classes="detail-text highlight-text" Text="Files Generated: " VerticalAlignment="Top" />
+                            <TextBlock Grid.Column="1" Classes="detail-text" Text="{Binding FilesGeneratedTextValue}" TextWrapping="Wrap" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Grid.Column="0" Classes="detail-text highlight-text" Text="Total Processed: " VerticalAlignment="Top" />
+                            <TextBlock Grid.Column="1" Classes="detail-text" Text="{Binding TotalProcessedTextValue}" TextWrapping="Wrap" />
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Grid.Column="0" Classes="detail-text highlight-text" Text="Status: " VerticalAlignment="Top" />
+                            <TextBlock Grid.Column="1" Classes="detail-text" Text="{Binding StatusTextValue}" TextWrapping="Wrap" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+                
+                <!-- File Details Section with enhanced styling -->
+                <TextBlock Classes="section-header" Text="File Details" 
+                           IsVisible="{Binding HasFileDetails}"/>
+                <Border Classes="section" IsVisible="{Binding HasFileDetails}">
+                    <ScrollViewer MaxHeight="100" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding FileNames}" Background="Transparent" BorderThickness="0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,1" ColumnDefinitions="Auto,*">
+                                        <materialIcons:MaterialIcon Grid.Column="0" Kind="FileOutline" 
+                                                                  Width="14" Height="14" 
+                                                                  Foreground="#4361EE"
+                                                                  Margin="0,0,5,0"
+                                                                  VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Classes="detail-text" Text="{Binding}" 
+                                                 FontFamily="Consolas, Menlo, Monaco, monospace"
+                                                 FontSize="12"
+                                                 TextWrapping="NoWrap"
+                                                 VerticalAlignment="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Border>
+                
+                <!-- Performance Section with enhanced styling -->
+                <TextBlock Classes="section-header" Text="Performance Metrics" 
+                           IsVisible="{Binding HasPerformanceData}"/>
+                <Border Classes="section" IsVisible="{Binding HasPerformanceData}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <materialIcons:MaterialIcon Kind="TimerOutline" 
+                                                 Width="14" Height="14" 
+                                                 Foreground="#4361EE"
+                                                 VerticalAlignment="Center" />
+                        <TextBlock Classes="detail-text" Text="{Binding ProcessingTimeTextValue}" 
+                                FontWeight="Medium"
+                                TextWrapping="Wrap"
+                                VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+            
+            <!-- Buttons with improved appearance -->
+            <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                    HorizontalAlignment="Right"
+                    Margin="0,4,0,0">
+                <Button Content="OK" 
+                        Classes="dialog"
+                        Click="OkButton_Click" />
+            </Border>
+        </Grid>
+    </Border>
+</Window>

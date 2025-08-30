@@ -55,6 +55,15 @@ namespace RapidZ.Core.Services
         /// Log processing summary
         /// </summary>
         void LogProcessingSummary(ProcessingCounters counters);
+        
+        /// <summary>
+        /// Shows a processing complete dialog with detailed information
+        /// </summary>
+        void ShowProcessingCompleteDialog(
+            ProcessingCounters counters, 
+            string operationType, 
+            TimeSpan processingTime, 
+            System.Collections.Generic.List<string> fileNames = null);
     }
 
     /// <summary>

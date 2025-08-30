@@ -41,12 +41,14 @@ public class ExcelResult
 
 public class ExportExcelService
 {
-	private readonly ModuleLogger _logger;
+    private readonly ModuleLogger _logger;
 	private readonly ExportObjectValidationService _validationService;
 	private readonly ExportDataAccess _dataAccess;
 	private readonly ExportExcelFormatSettings _formatSettings;
 	private readonly ExportSettings _exportSettings;
 	private readonly SharedDatabaseSettings _dbSettings;
+	private List<string> _generatedFileNames = new List<string>();
+	private Dictionary<string, List<string>> _parameterToFileMap = new Dictionary<string, List<string>>();
 
 	public ExportExcelService(ExportObjectValidationService validationService, ExportDataAccess dataAccess)
 	{
@@ -62,8 +64,15 @@ public class ExportExcelService
 	
 	// Public property to access export settings
 	public ExportSettings ExportSettings => _exportSettings;
-
-	public ExcelResult CreateReport(int combinationNumber, string fromMonth, string toMonth, string hsCode, string product, string iec, string exporter, string country, string name, string port, CancellationToken cancellationToken = default, string? viewName = null, string? storedProcedureName = null)
+	
+	// Get a list of files generated for the current input parameters
+	public List<string> GetGeneratedFileNames() => _generatedFileNames;
+    
+    // Clear the generated files list for the new operation
+    public void ClearGeneratedFiles()
+    {
+        _generatedFileNames = new List<string>();
+    }	public ExcelResult CreateReport(int combinationNumber, string fromMonth, string toMonth, string hsCode, string product, string iec, string exporter, string country, string name, string port, CancellationToken cancellationToken = default, string? viewName = null, string? storedProcedureName = null)
 	{
 		var processId = _logger.GenerateProcessId();
 
@@ -167,6 +176,9 @@ public class ExportExcelService
 				_logger.LogExcelResult(fileName, excelTimer.Elapsed, recordCount, processId);
 				excelTimer.Stop();
 				_logger.LogProcessComplete("Excel Export Generation", reportTimer.Elapsed, $"Success - {fileName}", processId);
+				// Add to the list of generated files
+				_generatedFileNames.Add(fileName);
+				
 				return new ExcelResult { Success = true, SkipReason = SkipReason.None, FileName = fileName, RowCount = (int)recordCount };
 			}
 			finally

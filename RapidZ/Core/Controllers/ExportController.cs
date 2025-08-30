@@ -39,6 +39,12 @@ namespace RapidZ.Core.Controllers
 
         public async Task RunAsync(ExportInputs exportInputs, CancellationToken cancellationToken, string selectedView, string selectedStoredProcedure)
         {
+            // Track start time for performance metrics
+            var startTime = DateTime.Now;
+            
+            // Clear any previously tracked files
+            _excelService.ClearGeneratedFiles();
+            
             // Validate using ValidationService
             var validationResult = _validationService.ValidateExportOperation(exportInputs, selectedView, selectedStoredProcedure);
             if (!validationResult.IsValid)
@@ -148,6 +154,10 @@ namespace RapidZ.Core.Controllers
 
             // Update final status
             _dispatcher.Invoke(() => _monitoringService.UpdateStatus(StatusType.Completed, GetStatusSummary(counters.FilesGenerated, counters.SkippedNoData, counters.SkippedRowLimit)));
+            
+            // Show processing complete dialog with additional information
+            var processingTime = DateTime.Now - startTime;
+            _resultProcessorService.ShowProcessingCompleteDialog(counters, "Export", processingTime, _excelService.GetGeneratedFileNames());
         }
 
         private string GetStatusSummary(int filesGenerated, int skippedNoData, int skippedRowLimit)
