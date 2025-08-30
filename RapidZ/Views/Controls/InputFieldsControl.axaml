@@ -7,68 +7,82 @@
              x:Class="RapidZ.Views.Controls.InputFieldsControl"
              x:DataType="vm:MainViewModel">
 
-    <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="120,*" Margin="0,2,0,0">
         <!-- HS CODE -->
         <TextBlock Grid.Row="0" Grid.Column="0"
                    Text="HS CODE"
-                   Classes="FieldLabel" />
+                   Classes="FieldLabel"
+                   HorizontalAlignment="Left" />
         <TextBox Grid.Row="0" Grid.Column="1"
                  Text="{Binding ExportDataFilter.HSCode}"
                  Classes="FormInput"
+                 Margin="0,0,0,4"
                  Watermark="Enter HS code" />
 
         <!-- Product -->
         <TextBlock Grid.Row="1" Grid.Column="0"
                    Text="Product"
-                   Classes="FieldLabel" />
+                   Classes="FieldLabel"
+                   HorizontalAlignment="Left" />
         <TextBox Grid.Row="1" Grid.Column="1"
                  Text="{Binding ExportDataFilter.Product}"
                  Classes="FormInput"
+                 Margin="0,0,0,4"
                  Watermark="Enter product name" />
 
         <!-- Exporter/Importer (dynamic based on mode) -->
         <TextBlock Grid.Row="2" Grid.Column="0"
                    Text="{Binding ExporterLabelText}"
-                   Classes="FieldLabel" />
+                   Classes="FieldLabel"
+                   HorizontalAlignment="Left" />
         <TextBox Grid.Row="2" Grid.Column="1"
                  Text="{Binding ExportDataFilter.Exporter}"
                  Classes="FormInput"
+                 Margin="0,0,0,4"
                  Watermark="Enter name" />
 
         <!-- IEC -->
         <TextBlock Grid.Row="3" Grid.Column="0"
                    Text="IEC"
-                   Classes="FieldLabel" />
+                   Classes="FieldLabel"
+                   HorizontalAlignment="Left" />
         <TextBox Grid.Row="3" Grid.Column="1"
                  Text="{Binding ExportDataFilter.IEC}"
                  Classes="FormInput"
+                 Margin="0,0,0,4"
                  Watermark="Enter IEC number" />
 
         <!-- Foreign Party -->
         <TextBlock Grid.Row="4" Grid.Column="0"
                    Text="Foreign Party"
-                   Classes="FieldLabel" />
+                   Classes="FieldLabel"
+                   HorizontalAlignment="Left" />
         <TextBox Grid.Row="4" Grid.Column="1"
                  Text="{Binding ExportDataFilter.ForeignParty}"
                  Classes="FormInput"
+                 Margin="0,0,0,4"
                  Watermark="Enter foreign party name" />
 
         <!-- Foreign Country -->
         <TextBlock Grid.Row="5" Grid.Column="0"
                    Text="Foreign Country"
-                   Classes="FieldLabel" />
+                   Classes="FieldLabel"
+                   HorizontalAlignment="Left" />
         <TextBox Grid.Row="5" Grid.Column="1"
                  Text="{Binding ExportDataFilter.ForeignCountry}"
                  Classes="FormInput"
+                 Margin="0,0,0,4"
                  Watermark="Enter country name" />
                  
         <!-- PORT -->
         <TextBlock Grid.Row="6" Grid.Column="0"
                    Text="PORT"
-                   Classes="FieldLabel" />
+                   Classes="FieldLabel"
+                   HorizontalAlignment="Left" />
         <TextBox Grid.Row="6" Grid.Column="1"
                  Text="{Binding ExportDataFilter.Port}"
                  Classes="FormInput"
+                 Margin="0,0,0,0"
                  Watermark="Enter port name" />
     </Grid>
     
