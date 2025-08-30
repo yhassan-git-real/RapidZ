@@ -20,22 +20,6 @@ namespace RapidZ.Views.Controls
             AvaloniaXamlLoader.Load(this);
         }
 
-        private async void RunQuery_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                var mainWindow = this.FindAncestorOfType<MainWindow>();
-                if (mainWindow?.Services?.UIActionService != null)
-                {
-                    await mainWindow.Services.UIActionService.HandleGenerateAsync(CancellationToken.None);
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error in RunQuery_Click: {ex.Message}");
-            }
-        }
-
         private async void ExportToExcel_Click(object sender, RoutedEventArgs e)
         {
             try

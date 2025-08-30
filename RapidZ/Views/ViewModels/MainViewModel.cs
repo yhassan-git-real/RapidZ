@@ -137,7 +137,6 @@ public class MainViewModel : ViewModelBase, IDisposable
     }
     
     // Commands - using simple command pattern to avoid ReactiveCommand threading issues
-    public ICommand RunQueryCommand { get; private set; } = null!;
     public ICommand ExportToExcelCommand { get; private set; } = null!;
     public ICommand ClearFiltersCommand { get; private set; } = null!;
     public ICommand CancelImportCommand { get; private set; } = null!;
@@ -483,13 +482,6 @@ public class MainViewModel : ViewModelBase, IDisposable
         }
     }
     
-    private Task ExecuteRunQueryCommandAsync()
-    {
-        // Query functionality not implemented 
-        Console.WriteLine("Query functionality not implemented yet");
-        return Task.CompletedTask;
-    }
-    
     private async Task ExecuteClearFiltersCommandAsync()
     {
         try
@@ -732,12 +724,7 @@ public class MainViewModel : ViewModelBase, IDisposable
         var canExecuteClear = Observable.Return(true);
         var canExecuteCancel = this.WhenAnyValue(x => x.IsBusy);
 
-        // Initialize ReactiveCommands with MainThreadScheduler to prevent threading issues
-        RunQueryCommand = ReactiveCommand.CreateFromTask(
-            ExecuteRunQueryCommandAsync, 
-            canExecuteGenerate, 
-            RxApp.MainThreadScheduler);
-            
+        // Initialize ReactiveCommands with MainThreadScheduler to prevent threading issues            
         ExportToExcelCommand = ReactiveCommand.CreateFromTask(
             ExecuteExportToExcelCommandAsync, 
             canExecuteExport, 

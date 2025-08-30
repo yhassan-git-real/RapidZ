@@ -26,8 +26,6 @@
         
         <!-- Buttons -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,15,0,5" Spacing="10">
-            <Button Content="Run Query" Click="RunQuery_Click" Name="RunQueryButton"
-                    Background="#007ACC" Foreground="White" Padding="15,5" />
             <Button Content="Export To Excel" Click="ExportToExcel_Click" Name="ExportToExcelButton"
                     Background="#28A745" Foreground="White" Padding="15,5" />
             <Button Content="Clear" Click="Clear_Click" Name="ClearButton"
