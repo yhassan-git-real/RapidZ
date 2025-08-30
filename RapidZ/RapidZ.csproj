@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>Assets\Images\favicon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

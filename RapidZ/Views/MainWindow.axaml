@@ -10,7 +10,8 @@
         x:DataType="vm:MainViewModel"
         Title="RapidZ - TradeData Manager"
         MinWidth="960" MinHeight="580"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Icon="/Assets/Images/favicon.ico">
 
     <Design.DataContext>
         <vm:MainViewModel />
