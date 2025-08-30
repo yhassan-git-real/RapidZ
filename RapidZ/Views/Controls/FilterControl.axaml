@@ -18,9 +18,10 @@
 
     <Border Background="#A8FFFFFF"
             CornerRadius="16"
-            Padding="0">
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel Margin="8" Spacing="0">
+            Padding="0"
+            ClipToBounds="True">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" ClipToBounds="True">
+            <StackPanel Margin="8" Spacing="0" ClipToBounds="True">
                 <!-- Content -->
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -281,7 +282,7 @@
                 </Grid>
                 
                 <!-- Status Panel - Directly below main cards, with full width -->
-                <Grid Margin="0,16,0,0">
+                <Grid Margin="0,16,0,8" ClipToBounds="True">
                     <controls:StatusPanelControl HorizontalAlignment="Stretch" />
                 </Grid>
             </StackPanel>
