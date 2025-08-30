@@ -19,6 +19,7 @@ namespace RapidZ.Core.Services
         public string ConnectionStatus { get; set; } = "Disconnected";
         public string StatusColor { get; set; } = "#dc3545"; // Red by default
         public DateTime LastChecked { get; set; } = DateTime.Now;
+        public int ResponseTime { get; set; } = 0; // Response time in milliseconds
     }
 
     public class DatabaseConnectionService : INotifyPropertyChanged
@@ -27,6 +28,8 @@ namespace RapidZ.Core.Services
         private readonly Timer _connectionCheckTimer;
         private DatabaseConnectionInfo _connectionInfo;
         private readonly SharedDatabaseSettings _dbSettings;
+        private bool _isPaused = false; // Flag to pause connection checks
+        private int _lastResponseTime = 0;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -55,8 +58,8 @@ namespace RapidZ.Core.Services
             // Parse connection string initially
             ParseConnectionString();
             
-            // Start timer to check connection every 30 seconds
-            _connectionCheckTimer = new Timer(CheckConnectionStatus, null, TimeSpan.Zero, TimeSpan.FromSeconds(30));
+            // Start timer to check connection every 5 minutes (reduced frequency for better performance)
+            _connectionCheckTimer = new Timer(CheckConnectionStatus, null, TimeSpan.Zero, TimeSpan.FromMinutes(5));
         }
 
         public DatabaseConnectionInfo ConnectionInfo
@@ -129,15 +132,36 @@ namespace RapidZ.Core.Services
 
         private async void CheckConnectionStatus(object? state)
         {
-            await CheckConnectionStatusAsync();
+            // Skip connection check if paused (during operations)
+            if (!_isPaused)
+            {
+                await CheckConnectionStatusAsync();
+            }
         }
 
         public async Task CheckConnectionStatusAsync()
         {
             try
             {
+                // Set status to checking initially to ensure proper UI update
+                var checkingInfo = new DatabaseConnectionInfo
+                {
+                    ServerName = ConnectionInfo.ServerName,
+                    DatabaseName = ConnectionInfo.DatabaseName,
+                    UserAccount = ConnectionInfo.UserAccount,
+                    ConnectionStatus = "Checking...",
+                    StatusColor = "#ffc107", // Yellow for checking
+                    LastChecked = DateTime.Now,
+                    ResponseTime = _lastResponseTime
+                };
+                
+                ConnectionInfo = checkingInfo;
+                
+                // Actually check the connection
+                var startTime = DateTime.Now;
                 using var connection = new SqlConnection(_dbSettings.ConnectionString);
                 await connection.OpenAsync();
+                _lastResponseTime = (int)(DateTime.Now - startTime).TotalMilliseconds;
                 
                 // Update status to connected
                 var updatedInfo = new DatabaseConnectionInfo
@@ -147,10 +171,14 @@ namespace RapidZ.Core.Services
                     UserAccount = ConnectionInfo.UserAccount,
                     ConnectionStatus = "Connected",
                     StatusColor = "#28a745", // Green for connected
-                    LastChecked = DateTime.Now
+                    LastChecked = DateTime.Now,
+                    ResponseTime = _lastResponseTime
                 };
 
                 ConnectionInfo = updatedInfo;
+                
+                // Explicitly trigger property changed
+                OnPropertyChanged(nameof(ConnectionInfo));
             }
             catch (Exception)
             {
@@ -166,11 +194,30 @@ namespace RapidZ.Core.Services
                 };
 
                 ConnectionInfo = updatedInfo;
+                
+                // Explicitly trigger property changed
+                OnPropertyChanged(nameof(ConnectionInfo));
             }
         }
 
 
 
+        // Methods to pause and resume connection checks during operations
+        public void PauseConnectionChecks()
+        {
+            _isPaused = true;
+        }
+        
+        public void ResumeConnectionChecks()
+        {
+            _isPaused = false;
+            
+            // Immediately check connection state when resuming
+            Task.Run(async () => await CheckConnectionStatusAsync());
+        }
+        
+        public int LastResponseTime => _lastResponseTime;
+        
         public void Dispose()
         {
             _connectionCheckTimer?.Dispose();

@@ -86,9 +86,31 @@ public class MainViewModel : ViewModelBase
             if (e.PropertyName == nameof(DatabaseService.IsConnected) || 
                 e.PropertyName == nameof(DatabaseService.ConnectionStatus))
             {
-                this.RaisePropertyChanged(nameof(ConnectionInfo));
+                // Update the connection info when these properties change
+                ConnectionInfo = _databaseService.GetConnectionInfo();
+                
+                // Also raise property changed for status message
+                this.RaisePropertyChanged(nameof(StatusMessage));
             }
         };
+        
+        // Set up timer to refresh connection info every minute when not busy
+        // (Less frequent than DB checks, but still responsive enough for the UI)
+        var timer = new System.Timers.Timer(60000); // 1 minute
+        timer.Elapsed += (s, e) => 
+        {
+            Dispatcher.UIThread.InvokeAsync(() => 
+            {
+                if (_databaseService != null && !IsBusy)
+                {
+                    // Update connection info and ensure status message is refreshed too
+                    ConnectionInfo = _databaseService.GetConnectionInfo();
+                    this.RaisePropertyChanged(nameof(StatusMessage));
+                }
+            });
+        };
+        timer.AutoReset = true;
+        timer.Start();
     }
     
     // Commands - using simple command pattern to avoid ReactiveCommand threading issues
@@ -101,7 +123,22 @@ public class MainViewModel : ViewModelBase
     public bool IsBusy
     {
         get => _isBusy;
-        set => this.RaiseAndSetIfChanged(ref _isBusy, value);
+        set 
+        { 
+            this.RaiseAndSetIfChanged(ref _isBusy, value);
+            
+            // Pause or resume connection checks based on busy state
+            if (value) 
+            {
+                // Pause connection checks when application is busy with operations
+                DatabaseConnectionService.Instance.PauseConnectionChecks();
+            }
+            else 
+            {
+                // Resume connection checks when operations are complete
+                DatabaseConnectionService.Instance.ResumeConnectionChecks();
+            }
+        }
     }
     
     public double ProgressPercentage
@@ -120,6 +157,16 @@ public class MainViewModel : ViewModelBase
     {
         get => _connectionInfo;
         set => this.RaiseAndSetIfChanged(ref _connectionInfo, value);
+    }
+    
+    public string StatusMessage 
+    {
+        get => _connectionInfo.StatusMessage;
+        set 
+        {
+            _connectionInfo.StatusMessage = value;
+            this.RaisePropertyChanged(nameof(StatusMessage));
+        }
     }
     
     // Current mode (Export or Import) property

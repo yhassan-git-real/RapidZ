@@ -97,12 +97,33 @@ public class DatabaseService : INotifyPropertyChanged, IDisposable
     {
         var connInfo = _connectionService.ConnectionInfo;
         
+        // Get the real response time from the connection service
+        string responseTime = connInfo.ResponseTime.ToString();
+        
+        // Create appropriate status message based on connection status
+        string statusMessage;
+        if (connInfo.ConnectionStatus == "Connected")
+        {
+            statusMessage = $"Connected to {connInfo.DatabaseName}";
+        }
+        else if (connInfo.ConnectionStatus == "Checking...")
+        {
+            statusMessage = "Checking connection...";
+        }
+        else
+        {
+            statusMessage = $"Status: {connInfo.ConnectionStatus}";
+        }
+        
         return new ConnectionInfo
         {
             ServerName = connInfo.ServerName,
             DatabaseName = connInfo.DatabaseName,
             UserName = connInfo.UserAccount,
-            IsConnected = IsConnected
+            IsConnected = connInfo.ConnectionStatus == "Connected",
+            ResponseTime = responseTime,
+            LastConnectionTime = connInfo.LastChecked,
+            StatusMessage = statusMessage
         };
     }
     
@@ -125,12 +146,21 @@ public class DatabaseService : INotifyPropertyChanged, IDisposable
             IsConnected = connInfo.ConnectionStatus == "Connected";
             ConnectionStatus = connInfo.ConnectionStatus;
             
+            // Raise property changed to refresh the UI with the latest connection info
+            OnPropertyChanged(nameof(IsConnected));
+            OnPropertyChanged(nameof(ConnectionStatus));
+            
             _logger.LogInformation("Database connection check completed");
         }
         catch (Exception ex)
         {
             IsConnected = false;
             ConnectionStatus = "Connection failed";
+            
+            // Raise property changed for the failure case too
+            OnPropertyChanged(nameof(IsConnected));
+            OnPropertyChanged(nameof(ConnectionStatus));
+            
             _logger.LogError(ex, "Database connection check failed");
         }
     }

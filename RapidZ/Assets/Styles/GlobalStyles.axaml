@@ -4,10 +4,10 @@
     <!-- Card Style -->
     <Style Selector="Border.Card">
         <Setter Property="Background" Value="#E5FFFFFF"/>
-        <Setter Property="CornerRadius" Value="16"/>
-        <Setter Property="Padding" Value="12"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Padding" Value="8"/>
         <Setter Property="BoxShadow" Value="0 2 8 0 #25000000"/>
-        <Setter Property="Margin" Value="6"/>
+        <Setter Property="Margin" Value="4"/>
     </Style>
 
     <Style Selector="Border.Card:pointerover">
@@ -35,9 +35,9 @@
         <Setter Property="Background" Value="#E8EFFF"/>
         <Setter Property="BorderBrush" Value="#C8D4FF"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
-        <Setter Property="Padding" Value="12,10,12,10"/>
-        <Setter Property="Margin" Value="-12,-12,-12,12"/>
-        <Setter Property="CornerRadius" Value="16,16,0,0"/>
+        <Setter Property="Padding" Value="10,8,10,8"/>
+        <Setter Property="Margin" Value="-8,-8,-8,8"/>
+        <Setter Property="CornerRadius" Value="12,12,0,0"/>
         <Setter Property="BoxShadow" Value="0 1 3 0 #20000000"/>
     </Style>
     
@@ -56,17 +56,17 @@
         <Setter Property="FontWeight" Value="Medium"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Foreground" Value="#444444"/>
-        <Setter Property="Margin" Value="0,0,8,0"/>
-        <Setter Property="Width" Value="110"/>
+        <Setter Property="Margin" Value="0,0,6,0"/>
+        <Setter Property="Width" Value="90"/>
     </Style>
     
     <!-- TextBox Style -->
     <Style Selector="TextBox.FormInput">
-        <Setter Property="Height" Value="32"/>
+        <Setter Property="Height" Value="30"/>
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="CornerRadius" Value="4"/>
         <Setter Property="Padding" Value="8,4"/>
-        <Setter Property="Margin" Value="0,0,0,8"/>
+        <Setter Property="Margin" Value="0,0,0,6"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
     
@@ -129,9 +129,9 @@
     <!-- Filter Section Style -->
     <Style Selector="Border.FilterSection">
         <Setter Property="Background" Value="#F5F7FA"/>
-        <Setter Property="CornerRadius" Value="8"/>
-        <Setter Property="Padding" Value="10"/>
-        <Setter Property="Margin" Value="0,0,0,8"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Padding" Value="8"/>
+        <Setter Property="Margin" Value="0,0,0,6"/>
     </Style>
     
     <!-- YearMonthPicker Style -->

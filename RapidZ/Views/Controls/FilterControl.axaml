@@ -19,7 +19,7 @@
             CornerRadius="16"
             Padding="0">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <Grid Margin="10">
+            <Grid Margin="8">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" /> <!-- Content -->
                     <RowDefinition Height="*" />    <!-- Spacer -->
@@ -89,7 +89,7 @@
                             </Border>
                             
                             <!-- Filter Controls -->
-                            <StackPanel Grid.Row="1" Spacing="10" Margin="0,5,0,0">
+                            <StackPanel Grid.Row="1" Spacing="8" Margin="0,4,0,0">
                                 <!-- Date Range Section -->
                                 <Border Classes="FilterSection" Padding="2,4">
                                     <Grid>
