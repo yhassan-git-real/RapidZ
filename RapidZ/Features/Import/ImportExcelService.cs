@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using Microsoft.Data.SqlClient;
@@ -61,7 +62,6 @@ namespace RapidZ.Features.Import
             CancellationToken cancellationToken = default, string? viewName = null, 
             string? storedProcedureName = null)
         {
-            var startTime = DateTime.Now;
             var result = new ImportExcelResult();
             string processId = _logger.GenerateProcessId();
             
@@ -71,6 +71,8 @@ namespace RapidZ.Features.Import
             
             // Log process start with rich formatting
             _logger.LogProcessStart(_settings.Logging.OperationLabel, paramSummary, processId);
+
+            var reportTimer = Stopwatch.StartNew();
 
             try
             {
@@ -84,23 +86,17 @@ namespace RapidZ.Features.Import
                     result.SkipReason = "Configuration";
                     
                     _logger.LogProcessComplete(_settings.Logging.OperationLabel, 
-                        DateTime.Now - startTime, "Failed - Missing configuration", processId);
+                        reportTimer.Elapsed, "Failed - Missing configuration", processId);
                     return result;
                 }
 
-                // Log step for database operation
                 _logger.LogStep("Database", "Executing stored procedure", processId);
                 
                 // Get data using ImportDataAccess
                 var dataAccess = new ImportDataAccess(_settings);
-                // Get database data using a timer
-                Tuple<SqlConnection, SqlDataReader, long> spData;
-                using (var spTimer = _logger.StartTimer("Database", processId))
-                {
-                    spData = dataAccess.GetDataReader(
-                        fromMonth, toMonth, hsCode, product, iec, importer, country, name, port, 
-                        cancellationToken, viewName, storedProcedureName);
-                }
+                var spData = dataAccess.GetDataReader(
+                    fromMonth, toMonth, hsCode, product, iec, importer, country, name, port, 
+                    cancellationToken, viewName, storedProcedureName);
                 
                 var connection = spData.Item1;
                 var reader = spData.Item2;
@@ -123,7 +119,7 @@ namespace RapidZ.Features.Import
                         _logger.LogSkipped($"{hsCode}_{fromMonth}-{toMonth}", recordCount, "Row limit exceeded", processId);
                         
                         _logger.LogProcessComplete(_settings.Logging.OperationLabel, 
-                            DateTime.Now - startTime, "Skipped - Row limit exceeded", processId);
+                            reportTimer.Elapsed, "Skipped - Row limit exceeded", processId);
                         return result;
                     }
 
@@ -136,7 +132,7 @@ namespace RapidZ.Features.Import
                         _logger.LogSkipped($"{hsCode}_{fromMonth}-{toMonth}", 0, "No data", processId);
                         
                         _logger.LogProcessComplete(_settings.Logging.OperationLabel, 
-                            DateTime.Now - startTime, "Skipped - No data", processId);
+                            reportTimer.Elapsed, "Skipped - No data", processId);
                         return result;
                     }
 
@@ -145,57 +141,44 @@ namespace RapidZ.Features.Import
                         fromMonth, toMonth, hsCode, product, iec, importer, country, name, port, 
                         _settings.Files.FileSuffix);
                         
-                    // Ensure output directory exists
-                    if (!Directory.Exists(_settings.Files.OutputDirectory))
-                    {
-                        Directory.CreateDirectory(_settings.Files.OutputDirectory);
-                        _logger.LogInfo($"Created output directory: {_settings.Files.OutputDirectory}", processId);
-                    }
-                    
+                    // Ensure output directory exists (no logging)
+                    Directory.CreateDirectory(_settings.Files.OutputDirectory);
                     var filePath = Path.Combine(_settings.Files.OutputDirectory, fileName);
                     
-                    // Log Excel file creation start
                     _logger.LogExcelFileCreationStart(fileName, processId);
-                    
-                    cancellationToken.ThrowIfCancellationRequested();
+                    var excelTimer = Stopwatch.StartNew();
 
-                    // Use Using statement for the timer to properly dispose and log
-                    using (var excelTimer = _logger.StartTimer("Excel creation", processId))
+                    // Create Excel package
+                    using (var package = new ExcelPackage())
                     {
-                        // Create Excel package
-                        using (var package = new ExcelPackage())
+                        var worksheet = package.Workbook.Worksheets.Add(_settings.Database.WorksheetName);
+
+                        // Load data from reader
+                        worksheet.Cells["A1"].LoadFromDataReader(reader, true);
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        // Apply formatting
+                        ApplyOptimizedFormatting(worksheet, (int)recordCount + 1, reader.FieldCount, cancellationToken);
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        // Save file
+                        var saveTimer = Stopwatch.StartNew();
+                        // For smaller files, use memory stream for better performance
+                        if (recordCount < 10000)
                         {
-                            var worksheet = package.Workbook.Worksheets.Add(_settings.Database.WorksheetName);
-
-                            // Load data from reader
-                            worksheet.Cells["A1"].LoadFromDataReader(reader, true);
-                            cancellationToken.ThrowIfCancellationRequested();
-
-                            // Apply formatting
-                            ApplyOptimizedFormatting(worksheet, (int)recordCount + 1, reader.FieldCount, cancellationToken);
-                            cancellationToken.ThrowIfCancellationRequested();
-
-                            // Save file
-                            using (var saveTimer = _logger.StartTimer("File save", processId))
-                            {
-                                // For smaller files, use memory stream for better performance
-                                if (recordCount < 10000)
-                                {
-                                    var fileBytes = package.GetAsByteArray();
-                                    File.WriteAllBytes(filePath, fileBytes);
-                                }
-                                else
-                                {
-                                    // For larger files, save directly to avoid memory issues
-                                    package.SaveAs(new FileInfo(filePath));
-                                }
-                                
-                                // Timer will auto-stop on dispose
-                            }
-                            _logger.LogFileSave("Completed", excelTimer.Elapsed, processId);
+                            var fileBytes = package.GetAsByteArray();
+                            File.WriteAllBytes(filePath, fileBytes);
                         }
+                        else
+                        {
+                            // For larger files, save directly to avoid memory issues
+                            package.SaveAs(new FileInfo(filePath));
+                        }
+                        saveTimer.Stop();
                         
+                        _logger.LogFileSave("Completed", saveTimer.Elapsed, processId);
                         _logger.LogExcelResult(fileName, excelTimer.Elapsed, recordCount, processId);
+                        excelTimer.Stop();
                     }
 
                     result.Success = true;
@@ -207,7 +190,7 @@ namespace RapidZ.Features.Import
                     
                     // Log overall completion
                     _logger.LogProcessComplete(_settings.Logging.OperationLabel, 
-                        DateTime.Now - startTime, $"Success - {fileName}", processId);
+                        reportTimer.Elapsed, $"Success - {fileName}", processId);
                 }
             }
             catch (OperationCanceledException)
@@ -216,7 +199,7 @@ namespace RapidZ.Features.Import
                 result.SkipReason = "Cancelled";
                 _logger.LogWarning("Import operation was cancelled", processId);
                 _logger.LogProcessComplete(_settings.Logging.OperationLabel, 
-                    DateTime.Now - startTime, "Cancelled by user", processId);
+                    reportTimer.Elapsed, "Cancelled by user", processId);
             }
             catch (Exception ex)
             {
@@ -224,7 +207,7 @@ namespace RapidZ.Features.Import
                 result.SkipReason = "Error";
                 _logger.LogError($"Error in CreateReport: {ex.Message}", ex);
                 _logger.LogProcessComplete(_settings.Logging.OperationLabel, 
-                    DateTime.Now - startTime, $"Failed - {ex.Message}", processId);
+                    reportTimer.Elapsed, $"Failed - {ex.Message}", processId);
             }
 
             return result;
