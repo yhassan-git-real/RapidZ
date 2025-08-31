@@ -216,8 +216,6 @@ namespace RapidZ.Core.Services
             Task.Run(async () => await CheckConnectionStatusAsync());
         }
         
-        public int LastResponseTime => _lastResponseTime;
-        
         public void Dispose()
         {
             _connectionCheckTimer?.Dispose();

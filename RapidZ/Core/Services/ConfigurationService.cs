@@ -49,49 +49,6 @@ public class ConfigurationService
         LoadSettings();
     }
     
-    // Reload configuration from file
-    public void ReloadConfiguration()
-    {
-        try
-        {
-            LoadSettings();
-            _logger?.LogInformation("Configuration reloaded");
-        }
-        catch (Exception ex)
-        {
-            _logger?.LogError(ex, "Configuration reload failed");
-            // Also log to debug output in case logger is null
-            System.Diagnostics.Debug.WriteLine($"Configuration reload failed: {ex.Message}");
-            throw;
-        }
-    }
-    
-    // Get Excel output directory path, create if not exists
-    public string GetExcelOutputPath()
-    {
-        var path = AppSettings.Paths.ExcelOutput;
-        
-        if (!Directory.Exists(path))
-        {
-            Directory.CreateDirectory(path);
-        }
-        
-        return path;
-    }
-    
-    // Get log files directory path, create if not exists
-    public string GetLogFilesPath()
-    {
-        var path = AppSettings.Paths.LogFiles;
-        
-        if (!Directory.Exists(path))
-        {
-            Directory.CreateDirectory(path);
-        }
-        
-        return path;
-    }
-    
     // Load settings from configuration
     private void LoadSettings()
     {

@@ -46,7 +46,6 @@ public partial class App : Application
         // Register core services
         services.AddSingleton<ConfigurationService>();
         services.AddSingleton<DatabaseService>();
-        services.AddSingleton<ExcelService>();
         
         // Register configuration settings
         services.AddSingleton<ExportSettings>(provider => 

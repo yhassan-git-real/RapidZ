@@ -200,71 +200,7 @@ namespace RapidZ.Core.Services
             return (T)_cache.GetOrAdd(cacheKey, _ => LoadConfiguration<T>(configFilePath, sectionName));
         }
 
-        /// <summary>
-        /// Gets SharedDatabaseSettings from the cache or loads from file
-        /// </summary>
-        /// <param name="configFilePath">Path to the database configuration file</param>
-        /// <returns>SharedDatabaseSettings object</returns>
-        public SharedDatabaseSettings GetDatabaseSettings(string configFilePath)
-        {
-            var root = GetConfiguration<SharedDatabaseSettingsRoot>(configFilePath);
-            return root.DatabaseConfig;
-        }
 
-        /// <summary>
-        /// Clears a specific configuration from the cache
-        /// </summary>
-        /// <typeparam name="T">The type of configuration to clear</typeparam>
-        /// <param name="configFilePath">The path to the configuration file</param>
-        /// <param name="sectionName">The section name in the configuration file (optional)</param>
-        public void ClearConfiguration<T>(string configFilePath, string? sectionName = null)
-        {
-            string cacheKey = $"{typeof(T).Name}_{configFilePath}_{sectionName ?? "root"}";
-            _cache.TryRemove(cacheKey, out _);
-        }
-
-        /// <summary>
-        /// Clears all cached configurations
-        /// </summary>
-        public void ClearAllConfigurations()
-        {
-            _cache.Clear();
-        }
-
-        /// <summary>
-        /// Invalidates and reloads a specific configuration
-        /// </summary>
-        /// <typeparam name="T">The type of configuration to reload</typeparam>
-        /// <param name="configFilePath">The path to the configuration file</param>
-        /// <param name="sectionName">The section name in the configuration file (optional)</param>
-        /// <returns>The reloaded configuration object</returns>
-        public T InvalidateAndReload<T>(string configFilePath, string? sectionName = null) where T : class, new()
-        {
-            ClearConfiguration<T>(configFilePath, sectionName);
-            return GetConfiguration<T>(configFilePath, sectionName);
-        }
-
-        /// <summary>
-        /// Gets the current cache size
-        /// </summary>
-        /// <returns>Number of cached configuration objects</returns>
-        public int GetCacheSize()
-        {
-            return _cache.Count;
-        }
-
-        /// <summary>
-        /// Checks if a specific configuration is cached
-        /// </summary>
-        /// <typeparam name="T">The type of configuration to check</typeparam>
-        /// <param name="configFilePath">The path to the configuration file</param>
-        /// <param name="sectionName">The section name in the configuration file (optional)</param>
-        /// <returns>True if the configuration is cached, false otherwise</returns>
-        public bool IsConfigurationCached<T>(string configFilePath, string? sectionName = null)
-        {
-            string cacheKey = $"{typeof(T).Name}_{configFilePath}_{sectionName ?? "root"}";
-            return _cache.ContainsKey(cacheKey);
-        }
 
         private T LoadConfiguration<T>(string configFilePath, string? sectionName) where T : class, new()
         {

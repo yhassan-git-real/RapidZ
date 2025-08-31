@@ -84,14 +84,6 @@ public class DatabaseService : INotifyPropertyChanged, IDisposable
         Task.Run(async () => await CheckConnectionAsync());
     }
     
-    // Creates a new SQL connection
-    private SqlConnection CreateConnection()
-    {
-        return new SqlConnection(_configService.AppSettings.Database.ConnectionString);
-    }
-    
-
-    
     // Gets database info from connection string
     public ConnectionInfo GetConnectionInfo()
     {
