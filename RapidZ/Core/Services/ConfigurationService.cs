@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using RapidZ.Views.Models;
 using System;
 using System.IO;
 
@@ -12,8 +11,7 @@ public class ConfigurationService
     private readonly ILogger<ConfigurationService> _logger;
     private readonly IConfiguration _configuration;
 
-    // Public property for accessing all app settings
-    public AppSettings AppSettings { get; private set; } = new();
+
 
     public ConfigurationService(ILogger<ConfigurationService> logger = null)
     {
@@ -52,31 +50,9 @@ public class ConfigurationService
     // Load settings from configuration
     private void LoadSettings()
     {
-        AppSettings = new AppSettings();
-        
-        // Try to bind configuration, but use defaults if sections don't exist
-        try
-        {
-            _configuration.Bind(AppSettings);
-        }
-        catch (Exception ex)
-        {
-            _logger?.LogWarning(ex, "Some configuration sections not found, using defaults");
-            System.Diagnostics.Debug.WriteLine($"Some configuration sections not found, using defaults: {ex.Message}");
-        }
-        
-        // Set default values if not configured (following TradeDataHub approach)
-        if (string.IsNullOrEmpty(AppSettings.Paths.ExcelOutput))
-        {
-            AppSettings.Paths.ExcelOutput = Path.Combine(Directory.GetCurrentDirectory(), "EXPORT_Excel");
-        }
-        
-        if (string.IsNullOrEmpty(AppSettings.Paths.LogFiles))
-        {
-            AppSettings.Paths.LogFiles = Path.Combine(Directory.GetCurrentDirectory(), "Logs");
-        }
-        
-        _logger?.LogInformation("Configuration loaded with defaults where needed");
-        System.Diagnostics.Debug.WriteLine("Configuration loaded with defaults where needed");
+        // Configuration service now only manages the IConfiguration instance
+        // Individual services load their own settings as needed
+        _logger?.LogInformation("Configuration service initialized");
+        System.Diagnostics.Debug.WriteLine("Configuration service initialized");
     }
 }
