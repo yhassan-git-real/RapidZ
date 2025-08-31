@@ -1,16 +1,44 @@
+using System.Linq;
+
 namespace RapidZ.Config
 {
-    public class ImportExcelFormatSettings
+    /// <summary>
+    /// Excel formatting settings for Import operations
+    /// Inherits from base ExcelFormatSettings
+    /// </summary>
+    public class ImportExcelFormatSettings : ExcelFormatSettings
     {
-        public required string FontName { get; set; }
-        public required int FontSize { get; set; }
-        public required string HeaderBackgroundColor { get; set; }
-        public required string BorderStyle { get; set; }
-        public required string DateFormat { get; set; }
-        public required int[] DateColumns { get; set; }
-        public required int[] TextColumns { get; set; }
-        public required bool WrapText { get; set; }
-        public required bool AutoFitColumns { get; set; }
-        public required int AutoFitSampleRows { get; set; }
+        // Property for backward compatibility with JSON deserialization
+        public int[]? DateColumnsArray
+        {
+            get => DateColumns?.ToArray();
+            set
+            {
+                if (value != null)
+                {
+                    DateColumns = new System.Collections.Generic.List<int>(value);
+                }
+            }
+        }
+
+        // Property for backward compatibility with JSON deserialization
+        public int[]? TextColumnsArray
+        {
+            get => TextColumns?.ToArray();
+            set
+            {
+                if (value != null)
+                {
+                    TextColumns = new System.Collections.Generic.List<int>(value);
+                }
+            }
+        }
+        
+        public ImportExcelFormatSettings()
+        {
+            // Default settings specific to import
+            DateColumns = new System.Collections.Generic.List<int> { 2 };
+            TextColumns = new System.Collections.Generic.List<int> { 1, 3, 4 };
+        }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RapidZ.Core.Helpers;
 
 namespace RapidZ.Core.Parameters.Import
 {
@@ -9,10 +10,12 @@ namespace RapidZ.Core.Parameters.Import
     /// </summary>
     public static class ImportParameterHelper
     {
-        public const string WILDCARD = "%";
-        public const string DEFAULT_DATE_FORMAT = "yyyyMM";
-        public const int MIN_DATE_VALUE = 190001;
-        public const int MAX_DATE_VALUE = 299912;
+        // Use the constants from BaseParameterHelper
+        public const string WILDCARD = BaseParameterHelper.WILDCARD;
+        public const string DEFAULT_DATE_FORMAT = DateHelper.DEFAULT_DATE_FORMAT;
+        // Use DateHelper constants for date validation
+        public const int MIN_DATE_VALUE = DateHelper.MIN_DATE_VALUE;
+        public const int MAX_DATE_VALUE = DateHelper.MAX_DATE_VALUE;
         public const int MAX_EXCEL_ROWS = 1048575;
 
         public static class ImportParameters
@@ -42,34 +45,17 @@ namespace RapidZ.Core.Parameters.Import
         }
 
         public static bool IsValidDateFormat(string dateString) =>
-            dateString.Length == 6 && int.TryParse(dateString, out int date) && date >= MIN_DATE_VALUE && date <= MAX_DATE_VALUE;
+            RapidZ.Core.Helpers.DateHelper.IsValidDateFormat(dateString);
 
         public static bool IsValidDateRange(string fromMonth, string toMonth) =>
-            IsValidDateFormat(fromMonth) && IsValidDateFormat(toMonth) && int.Parse(fromMonth) <= int.Parse(toMonth);
+            RapidZ.Core.Helpers.DateHelper.IsValidDateRange(fromMonth, toMonth);
 
         public static string NormalizeParameter(string parameter) =>
-            string.IsNullOrWhiteSpace(parameter) ? WILDCARD : parameter.Trim();
+            BaseParameterHelper.NormalizeParameter(parameter);
 
         public static List<string> ParseFilterList(string rawText)
         {
-            if (string.IsNullOrWhiteSpace(rawText))
-                return new List<string> { WILDCARD };
-                
-            // If there are no commas, return as a single item list
-            if (!rawText.Contains(','))
-                return new List<string> { rawText.Trim() };
-                
-            // Split by comma, trim each value, and ensure no empty values
-            var result = rawText.Split(',')
-                .Select(s => s.Trim())
-                .Where(s => !string.IsNullOrEmpty(s))
-                .ToList();
-                
-            // If after processing we have no items, return a "%" wildcard
-            if (result.Count == 0)
-                result.Add(WILDCARD);
-                
-            return result;
+            return BaseParameterHelper.ParseFilterList(rawText);
         }
 
         public static Dictionary<string,string> CreateImportParameterSet(

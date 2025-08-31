@@ -27,7 +27,7 @@ namespace RapidZ.Core.Helpers
         /// <returns>Month abbreviation in MMMYY format</returns>
         public static string GetMonthAbbreviation(string yyyymm)
         {
-            return BaseFileNameHelper.ConvertToMonthAbbreviation(yyyymm, "MMM");
+            return DateHelper.ConvertToMonthAbbreviation(yyyymm, "MMM");
         }
 
         /// <summary>
@@ -56,8 +56,8 @@ namespace RapidZ.Core.Helpers
         /// <returns>Generated export file name</returns>
         public static string GenerateExportFileName(string fromMonth, string toMonth, string hsCode, string product, string iec, string exporter, string country, string name, string port)
         {
-            // Build month range segment using base helper with export-specific default
-            string monthRange = BaseFileNameHelper.BuildMonthRangeSegment(fromMonth, toMonth, "MMM");
+            // Build month range segment using DateHelper with export-specific default
+            string monthRange = DateHelper.BuildMonthRangeSegment(fromMonth, toMonth, "MMM");
 
             // Build core file name from parameters
             string[] parameters = { hsCode, product, iec, exporter, country, name, port };

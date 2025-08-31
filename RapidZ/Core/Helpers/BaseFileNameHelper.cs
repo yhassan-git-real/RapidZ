@@ -10,11 +10,6 @@ namespace RapidZ.Core.Helpers
     /// </summary>
     public static class BaseFileNameHelper
     {
-        private static readonly string[] MonthAbbreviations = 
-        {
-            "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
-            "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
-        };
 
         /// <summary>
         /// Sanitizes a file name by replacing invalid characters with underscores.
@@ -63,36 +58,19 @@ namespace RapidZ.Core.Helpers
 
         /// <summary>
         /// Converts YYYYMM format to MMMYY format (e.g., "202501" -> "JAN25").
+        /// This method now delegates to DateHelper for consistency.
         /// </summary>
         /// <param name="yyyymm">Date string in YYYYMM format</param>
         /// <param name="defaultValue">Default value to return for invalid input</param>
         /// <returns>Month abbreviation in MMMYY format</returns>
         public static string ConvertToMonthAbbreviation(string yyyymm, string defaultValue = "UNK00")
         {
-            if (string.IsNullOrWhiteSpace(yyyymm) || yyyymm.Length != 6 || !int.TryParse(yyyymm, out _))
-            {
-                return defaultValue;
-            }
-
-            if (!int.TryParse(yyyymm.Substring(0, 4), out int year) || 
-                !int.TryParse(yyyymm.Substring(4, 2), out int month))
-            {
-                return defaultValue;
-            }
-
-            if (month < 1 || month > 12)
-            {
-                return defaultValue == "UNK00" ? "UNK00" : "MMM";
-            }
-
-            string monthAbbr = MonthAbbreviations[month - 1];
-            string yearSuffix = (year % 100).ToString("D2");
-            
-            return $"{monthAbbr}{yearSuffix}";
+            return RapidZ.Core.Helpers.DateHelper.ConvertToMonthAbbreviation(yyyymm, defaultValue);
         }
 
         /// <summary>
         /// Builds a month range segment for file names (e.g., "JAN25" or "JAN25-MAR25").
+        /// This method now delegates to DateHelper for consistency.
         /// </summary>
         /// <param name="fromMonth">Start month in YYYYMM format</param>
         /// <param name="toMonth">End month in YYYYMM format</param>
@@ -100,10 +78,7 @@ namespace RapidZ.Core.Helpers
         /// <returns>Month range string</returns>
         public static string BuildMonthRangeSegment(string fromMonth, string toMonth, string defaultValue = "UNK00")
         {
-            string mon1 = ConvertToMonthAbbreviation(fromMonth, defaultValue);
-            string mon2 = ConvertToMonthAbbreviation(toMonth, defaultValue);
-            
-            return (mon1 == mon2) ? mon1 : $"{mon1}-{mon2}";
+            return RapidZ.Core.Helpers.DateHelper.BuildMonthRangeSegment(fromMonth, toMonth, defaultValue);
         }
 
         /// <summary>
