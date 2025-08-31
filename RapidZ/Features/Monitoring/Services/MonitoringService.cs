@@ -73,11 +73,6 @@ namespace RapidZ.Features.Monitoring.Services
             AddLog(LogLevel.Error, message, category);
         }
 
-        public void SetWarning(string message, string category = "")
-        {
-            AddLog(LogLevel.Warning, message, category);
-        }
-
         public void SetInfo(string message, string category = "")
         {
             AddLog(LogLevel.Info, message, category);
