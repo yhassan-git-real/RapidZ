@@ -7,7 +7,6 @@ using Avalonia.Threading;
 using ReactiveUI;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Reactive.Disposables;
 using RapidZ.Views.Models;
 using RapidZ.Core.Models;
 using RapidZ.Core.Controllers;
@@ -39,7 +38,6 @@ public class MainViewModel : ViewModelBase, IDisposable
     private ConnectionInfo _connectionInfo = new();
     private string _currentMode = "Export"; // Default to Export mode
     private SystemStatus _systemStatus = SystemStatus.Idle;
-    private bool _isIndeterminateProgress = true;
     
     // Execution summary properties
     private ExecutionSummary _lastExecution = ExecutionSummary.Empty;
@@ -179,6 +177,7 @@ public class MainViewModel : ViewModelBase, IDisposable
             this.RaisePropertyChanged(nameof(SystemStatusMessage));
             this.RaisePropertyChanged(nameof(StatusIndicatorColor));
             this.RaisePropertyChanged(nameof(IsProcessing));
+            this.RaisePropertyChanged(nameof(IsIndeterminateProgress));
             
             // When status changes to Completed or Failed, update execution summary after a short delay
             if (value == SystemStatus.Completed || value == SystemStatus.Failed)
@@ -202,11 +201,7 @@ public class MainViewModel : ViewModelBase, IDisposable
     
     public bool IsProcessing => _systemStatus == SystemStatus.Processing;
     
-    public bool IsIndeterminateProgress
-    {
-        get => _isIndeterminateProgress;
-        set => this.RaiseAndSetIfChanged(ref _isIndeterminateProgress, value);
-    }
+    public bool IsIndeterminateProgress => _systemStatus == SystemStatus.Processing && _progressPercentage == 0;
     
     public string ProgressText => $"{(int)_progressPercentage}%";
     
@@ -251,7 +246,11 @@ public class MainViewModel : ViewModelBase, IDisposable
     public double ProgressPercentage
     {
         get => _progressPercentage;
-        set => this.RaiseAndSetIfChanged(ref _progressPercentage, value);
+        set 
+        {
+            this.RaiseAndSetIfChanged(ref _progressPercentage, value);
+            this.RaisePropertyChanged(nameof(IsIndeterminateProgress));
+        }
     }
     
     public bool CanCancel
