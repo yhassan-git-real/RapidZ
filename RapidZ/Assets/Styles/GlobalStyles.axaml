@@ -234,11 +234,4 @@
         <Setter Property="Height" Value="36"/>
     </Style>
     
-    <!-- Status Panel Styles -->
-    <Style Selector="Border.StatusPanel">
-        <Setter Property="Background" Value="#F8F9FA"/>
-        <Setter Property="CornerRadius" Value="8"/>
-        <Setter Property="Padding" Value="12,8"/>
-        <Setter Property="BoxShadow" Value="0 1 4 0 #20000000"/>
-    </Style>
 </Styles>
