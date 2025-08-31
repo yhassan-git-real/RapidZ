@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
-using RapidZ.Core.Logging;
+using RapidZ.Core.Logging.Services;
 
 namespace RapidZ.Core.Cancellation
 {
@@ -13,7 +13,7 @@ namespace RapidZ.Core.Cancellation
     /// </summary>
     public static class CancellationCleanupHelper
     {
-        private static readonly LoggingHelper _logger = LoggingHelper.Instance;
+        private static readonly Lazy<RapidZ.Core.Logging.Abstractions.IModuleLogger> _logger = new Lazy<RapidZ.Core.Logging.Abstractions.IModuleLogger>(() => LoggerFactory.GetCancellationLogger());
 
         /// <summary>
         /// Safely disposes a SQL connection during cancellation
@@ -31,11 +31,11 @@ namespace RapidZ.Core.Cancellation
                     connection.Close();
                 }
                 connection.Dispose();
-                _logger.LogInfo($"Database connection disposed successfully", processId);
+                _logger.Value.LogInfo($"Database connection disposed successfully", processId);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error disposing database connection during cancellation: {ex.Message}", ex, processId);
+                _logger.Value.LogError($"Error disposing database connection during cancellation: {ex.Message}", ex, processId);
             }
         }
 
@@ -55,11 +55,11 @@ namespace RapidZ.Core.Cancellation
                     reader.Close();
                 }
                 reader.Dispose();
-                _logger.LogInfo($"Database reader disposed successfully", processId);
+                _logger.Value.LogInfo($"Database reader disposed successfully", processId);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error disposing database reader during cancellation: {ex.Message}", ex, processId);
+                _logger.Value.LogError($"Error disposing database reader during cancellation: {ex.Message}", ex, processId);
             }
         }
 
@@ -75,11 +75,11 @@ namespace RapidZ.Core.Cancellation
             try
             {
                 command.Cancel();
-                _logger.LogInfo($"Database command cancelled successfully", processId);
+                _logger.Value.LogInfo($"Database command cancelled successfully", processId);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error cancelling database command: {ex.Message}", ex, processId);
+                _logger.Value.LogError($"Error cancelling database command: {ex.Message}", ex, processId);
             }
         }
 
@@ -98,14 +98,14 @@ namespace RapidZ.Core.Cancellation
                 if (File.Exists(filePath))
                 {
                     File.Delete(filePath);
-                    _logger.LogInfo($"Partially created file deleted during cancellation: {Path.GetFileName(filePath)}", processId);
+                    _logger.Value.LogInfo($"Partially created file deleted during cancellation: {Path.GetFileName(filePath)}", processId);
                     return true;
                 }
                 return false;
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error deleting partial file during cancellation ({Path.GetFileName(filePath)}): {ex.Message}", ex, processId);
+                _logger.Value.LogError($"Error deleting partial file during cancellation ({Path.GetFileName(filePath)}): {ex.Message}", ex, processId);
                 return false;
             }
         }
@@ -133,12 +133,12 @@ namespace RapidZ.Core.Cancellation
                 var tempFilePath = Path.Combine(tempDir, tempFileName);
                 File.Move(filePath, tempFilePath);
                 
-                _logger.LogInfo($"Partial file moved to temp location during cancellation: {tempFileName}", processId);
+                _logger.Value.LogInfo($"Partial file moved to temp location during cancellation: {tempFileName}", processId);
                 return tempFilePath;
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error moving partial file to temp during cancellation ({Path.GetFileName(filePath)}): {ex.Message}", ex, processId);
+                _logger.Value.LogError($"Error moving partial file to temp during cancellation ({Path.GetFileName(filePath)}): {ex.Message}", ex, processId);
                 return null;
             }
         }
@@ -149,8 +149,8 @@ namespace RapidZ.Core.Cancellation
         /// <param name="cleanup">Cleanup configuration</param>
         public static async Task SafeCleanupResources(CancellationCleanupConfig cleanup)
         {
-            var processId = cleanup.ProcessId ?? _logger.GenerateProcessId();
-            _logger.LogProcessStart("Cancellation Cleanup", "Cleaning up resources after operation cancellation", processId);
+            var processId = cleanup.ProcessId ?? _logger.Value.GenerateProcessId();
+            _logger.Value.LogProcessStart("Cancellation Cleanup", "Cleaning up resources after operation cancellation", processId);
 
             var tasks = new List<Task>();
 
@@ -197,7 +197,7 @@ namespace RapidZ.Core.Cancellation
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogError($"Error in custom cleanup action: {ex.Message}", ex, processId);
+                            _logger.Value.LogError($"Error in custom cleanup action: {ex.Message}", ex, processId);
                         }
                     }));
                 }
@@ -206,7 +206,7 @@ namespace RapidZ.Core.Cancellation
             // Wait for all cleanup tasks to complete
             await Task.WhenAll(tasks);
 
-            _logger.LogProcessComplete("Cancellation Cleanup", TimeSpan.Zero, "All resources cleaned up", processId);
+            _logger.Value.LogProcessComplete("Cancellation Cleanup", TimeSpan.Zero, "All resources cleaned up", processId);
         }
     }
 

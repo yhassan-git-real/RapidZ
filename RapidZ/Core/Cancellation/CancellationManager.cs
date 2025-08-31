@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using RapidZ.Core.Logging;
+using RapidZ.Core.Logging.Services;
 
 namespace RapidZ.Core.Cancellation
 {
@@ -68,7 +68,8 @@ namespace RapidZ.Core.Cancellation
                 _cancellationTokenSource = new CancellationTokenSource();
                 _currentOperationName = operationName;
 
-                LoggingHelper.Instance.LogInfo($"Operation started: {operationName}", processId);
+                var logger = LoggerFactory.GetCancellationLogger();
+                logger.LogInfo($"Operation started: {operationName}", processId);
             }
         }
 
@@ -90,7 +91,8 @@ namespace RapidZ.Core.Cancellation
                         ? $"Cancellation requested for operation: {_currentOperationName ?? "Unknown"}"
                         : $"Cancellation requested for operation: {_currentOperationName ?? "Unknown"} - Reason: {reason}";
 
-                    LoggingHelper.Instance.LogWarning(logMessage, processId);
+                    var logger = LoggerFactory.GetCancellationLogger();
+                    logger.LogWarning(logMessage, processId);
 
                     _cancellationTokenSource.Cancel();
 
@@ -112,7 +114,8 @@ namespace RapidZ.Core.Cancellation
                 if (_disposed)
                     return;
 
-                LoggingHelper.Instance.LogInfo($"Operation completed: {operationName}", processId);
+                var logger = LoggerFactory.GetCancellationLogger();
+                logger.LogInfo($"Operation completed: {operationName}", processId);
                 _currentOperationName = null;
             }
         }

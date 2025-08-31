@@ -7,7 +7,7 @@ using Microsoft.Data.SqlClient;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using Microsoft.Extensions.Configuration;
-using RapidZ.Core.Logging;
+using RapidZ.Core.Logging.Services;
 using RapidZ.Core.Helpers;
 using RapidZ.Core.Database;
 using RapidZ.Core.Services;
@@ -29,7 +29,7 @@ namespace RapidZ.Features.Import
 
     public class ImportExcelService
     {
-        private readonly ModuleLogger _logger;
+        private readonly RapidZ.Core.Logging.Abstractions.IModuleLogger _logger;
         private readonly ImportSettings _settings;
         private readonly ImportExcelFormatSettings _formatSettings;
         private List<string> _generatedFileNames = new List<string>();
@@ -49,7 +49,7 @@ namespace RapidZ.Features.Import
 
         public ImportExcelService()
         {
-            _logger = ModuleLoggerFactory.GetImportLogger();
+            _logger = LoggerFactory.GetImportLogger();
             
             // Use static configuration cache methods like TradeDataHub
             _settings = ConfigurationCacheService.GetImportSettings();
@@ -112,7 +112,26 @@ namespace RapidZ.Features.Import
                     // Check for data limit
                     if (recordCount > RapidZ.Core.Parameters.Import.ImportParameterHelper.MAX_EXCEL_ROWS)
                     {
-                        ModuleSkippedDatasetLogger.LogImportSkippedDataset(0, recordCount, fromMonth, toMonth, hsCode, product, iec, importer, country, name, port, "ExcelRowLimit");
+                        var datasetLogger = LoggerFactory.GetDatasetLogger();
+                datasetLogger.LogSkippedDataset(new RapidZ.Core.Logging.Models.SkippedDatasetInfo
+                {
+                    ModuleType = "Import",
+                    CombinationNumber = 0,
+                    RowCount = recordCount,
+                    Reason = "RowLimit",
+                    Parameters = new RapidZ.Core.Logging.Models.ProcessParameters
+                    {
+                        FromMonth = fromMonth,
+                        ToMonth = toMonth,
+                        HsCode = hsCode,
+                        Product = product,
+                        Iec = iec,
+                        ExporterOrImporter = importer,
+                         Country = country,
+                         Name = name,
+                        Port = port
+                    }
+                });
                         result.Success = false;
                         result.RowCount = recordCount;
                         result.SkipReason = "ExcelRowLimit";
@@ -126,7 +145,26 @@ namespace RapidZ.Features.Import
                     // Check for no data
                     if (recordCount == 0)
                     {
-                        ModuleSkippedDatasetLogger.LogImportSkippedDataset(0, 0, fromMonth, toMonth, hsCode, product, iec, importer, country, name, port, "NoData");
+                        var datasetLogger = LoggerFactory.GetDatasetLogger();
+                datasetLogger.LogSkippedDataset(new RapidZ.Core.Logging.Models.SkippedDatasetInfo
+                {
+                    ModuleType = "Import",
+                    CombinationNumber = 0,
+                    RowCount = 0,
+                    Reason = "NoData",
+                    Parameters = new RapidZ.Core.Logging.Models.ProcessParameters
+                    {
+                        FromMonth = fromMonth,
+                        ToMonth = toMonth,
+                        HsCode = hsCode,
+                        Product = product,
+                        Iec = iec,
+                        ExporterOrImporter = importer,
+                         Country = country,
+                         Name = name,
+                        Port = port
+                    }
+                });
                         result.Success = false;
                         result.SkipReason = "NoData";
                         _logger.LogSkipped($"{hsCode}_{fromMonth}-{toMonth}", 0, "No data", processId);

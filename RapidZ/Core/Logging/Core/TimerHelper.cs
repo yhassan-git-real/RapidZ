@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using RapidZ.Core.Logging.Abstractions;
 
 namespace RapidZ.Core.Logging
 {
@@ -9,12 +10,12 @@ namespace RapidZ.Core.Logging
     public class TimerHelper : IDisposable
     {
         private readonly string _operationName;
-        private readonly ModuleLogger _logger;
+        private readonly IModuleLogger _logger;
         private readonly Stopwatch _stopwatch;
         private readonly string _processId;
         private bool _disposed = false;
 
-        internal TimerHelper(string operationName, string processId, ModuleLogger logger)
+        internal TimerHelper(string operationName, string processId, IModuleLogger logger)
         {
             _operationName = operationName;
             _logger = logger;

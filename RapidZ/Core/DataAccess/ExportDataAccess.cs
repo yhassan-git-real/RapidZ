@@ -2,7 +2,7 @@ using System;
 using System.Data;
 using System.Linq;
 using Microsoft.Data.SqlClient;
-using RapidZ.Core.Logging;
+using RapidZ.Core.Logging.Services;
 
 using RapidZ.Core.Models;
 using Microsoft.Extensions.Configuration;
@@ -16,13 +16,13 @@ namespace RapidZ.Core.DataAccess
 {
     public class ExportDataAccess
     {
-        private readonly LoggingHelper _logger;
+        private readonly RapidZ.Core.Logging.Abstractions.IModuleLogger _logger;
         private readonly RapidZ.Features.Export.ExportSettings _exportSettings;
         private readonly SharedDatabaseSettings _dbSettings;
 
         public ExportDataAccess()
         {
-            _logger = LoggingHelper.Instance;
+            _logger = LoggerFactory.GetExportLogger();
             // Use static configuration cache methods like TradeDataHub
             _exportSettings = ConfigurationCacheService.GetExportSettings();
             _dbSettings = ConfigurationCacheService.GetSharedDatabaseSettings();

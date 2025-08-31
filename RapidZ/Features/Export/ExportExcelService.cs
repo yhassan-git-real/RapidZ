@@ -11,7 +11,7 @@ using RapidZ.Config;
 using RapidZ.Core.DataAccess;
 using RapidZ.Core.Database;
 using RapidZ.Core.Parameters.Export;
-using RapidZ.Core.Logging;
+using RapidZ.Core.Logging.Services;
 using RapidZ.Core.Services;
 using RapidZ.Core.Helpers;
 using System.Threading;
@@ -41,7 +41,7 @@ public class ExcelResult
 
 public class ExportExcelService
 {
-    private readonly ModuleLogger _logger;
+    private readonly RapidZ.Core.Logging.Abstractions.IModuleLogger _logger;
 	private readonly ExportObjectValidationService _validationService;
 	private readonly ExportDataAccess _dataAccess;
 	private readonly ExportExcelFormatSettings _formatSettings;
@@ -52,7 +52,7 @@ public class ExportExcelService
 
 	public ExportExcelService(ExportObjectValidationService validationService, ExportDataAccess dataAccess)
 	{
-		_logger = ModuleLoggerFactory.GetExportLogger();
+		_logger = LoggerFactory.GetExportLogger();
 		_validationService = validationService;
 		_dataAccess = dataAccess;
 		
@@ -104,14 +104,52 @@ public class ExportExcelService
 				_logger.LogStep("Validation", $"Row count: {recordCount:N0}", processId);
 				if (recordCount == 0)
 				{
-					ModuleSkippedDatasetLogger.LogExportSkippedDataset(combinationNumber, 0, fromMonth, toMonth, hsCode, product, iec, exporter, country, name, port, "NoData");
+					var datasetLogger = LoggerFactory.GetDatasetLogger();
+			datasetLogger.LogSkippedDataset(new RapidZ.Core.Logging.Models.SkippedDatasetInfo
+			{
+				ModuleType = "Export",
+				CombinationNumber = combinationNumber,
+				RowCount = 0,
+				Reason = "NoData",
+				Parameters = new RapidZ.Core.Logging.Models.ProcessParameters
+				{
+					FromMonth = fromMonth,
+					ToMonth = toMonth,
+					HsCode = hsCode,
+					Product = product,
+					Iec = iec,
+					ExporterOrImporter = exporter,
+				Country = country,
+				Name = name,
+					Port = port
+				}
+			});
 					_logger.LogProcessComplete("Excel Export Generation", reportTimer.Elapsed, "No data - skipped", processId);
 					return new ExcelResult { Success = false, SkipReason = SkipReason.NoData, RowCount = 0 };
 				}
 				if (recordCount > ExportParameterHelper.MAX_EXCEL_ROWS)
 				{
 					string skippedFileName = Export_FileNameHelper.GenerateExportFileName(fromMonth, toMonth, hsCode, product, iec, exporter, country, name, port);
-					ModuleSkippedDatasetLogger.LogExportSkippedDataset(combinationNumber, recordCount, fromMonth, toMonth, hsCode, product, iec, exporter, country, name, port, "RowLimit");
+					var datasetLogger = LoggerFactory.GetDatasetLogger();
+			datasetLogger.LogSkippedDataset(new RapidZ.Core.Logging.Models.SkippedDatasetInfo
+			{
+				ModuleType = "Export",
+				CombinationNumber = combinationNumber,
+				RowCount = recordCount,
+				Reason = "RowLimit",
+				Parameters = new RapidZ.Core.Logging.Models.ProcessParameters
+				{
+					FromMonth = fromMonth,
+					ToMonth = toMonth,
+					HsCode = hsCode,
+					Product = product,
+					Iec = iec,
+					ExporterOrImporter = exporter,
+				Country = country,
+				Name = name,
+					Port = port
+				}
+			});
 					_logger.LogSkipped(skippedFileName, recordCount, "Excel row limit exceeded", processId);
 					_logger.LogProcessComplete("Excel Export Generation", reportTimer.Elapsed, "Skipped - too many rows", processId);
 					return new ExcelResult { Success = false, SkipReason = SkipReason.ExcelRowLimit, FileName = skippedFileName, RowCount = (int)recordCount };

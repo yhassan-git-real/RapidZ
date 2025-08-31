@@ -9,7 +9,7 @@ using ReactiveUI;
 using RapidZ.Core.Models;
 using RapidZ.Core.Controllers;
 using RapidZ.Features.Import;
-using RapidZ.Core.Logging;
+using RapidZ.Core.Logging.Services;
 
 namespace RapidZ.Views.ViewModels;
 
@@ -17,7 +17,7 @@ public class ImportViewModel : ViewModelBase
 {
     private readonly ImportController _importController;
     private readonly ImportExcelService _importExcelService;
-    private readonly ModuleLogger _logger;
+    private readonly RapidZ.Core.Logging.Abstractions.IModuleLogger _logger;
     private CancellationTokenSource? _cancellationTokenSource;
     
     // Progress and status properties
@@ -54,7 +54,7 @@ public class ImportViewModel : ViewModelBase
     {
         _importController = importController ?? throw new ArgumentNullException(nameof(importController));
         _importExcelService = importExcelService ?? throw new ArgumentNullException(nameof(importExcelService));
-        _logger = ModuleLoggerFactory.GetLogger("ImportViewModel");
+        _logger = LoggerFactory.GetImportLogger();
     }
     
     /// <summary>

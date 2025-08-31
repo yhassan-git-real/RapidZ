@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
-using RapidZ.Core.Logging;
+using RapidZ.Core.Logging.Services;
 
 namespace RapidZ.Core.Database
 {
@@ -11,12 +14,12 @@ namespace RapidZ.Core.Database
     public class DatabaseObjectValidator
     {
         private readonly string _connectionString;
-        private readonly LoggingHelper _logger;
+        private readonly RapidZ.Core.Logging.Abstractions.ILogger _logger;
 
         public DatabaseObjectValidator(string connectionString)
         {
             _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
-            _logger = LoggingHelper.Instance;
+            _logger = LoggerFactory.CreateLogger("DatabaseValidator");
         }
 
         /// <summary>

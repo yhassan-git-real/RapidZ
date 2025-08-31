@@ -3,7 +3,7 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using Microsoft.Data.SqlClient;
-using RapidZ.Core.Logging;
+using RapidZ.Core.Logging.Services;
 using RapidZ.Core.Helpers;
 using RapidZ.Core.Database;
 using RapidZ.Core.Services;
@@ -14,13 +14,13 @@ namespace RapidZ.Core.DataAccess
 {
     public class ImportDataAccess
     {
-        private readonly ModuleLogger _logger;
+        private readonly RapidZ.Core.Logging.Abstractions.IModuleLogger _logger;
         private readonly ImportSettings _settings;
         private readonly SharedDatabaseSettings _dbSettings;
 
         public ImportDataAccess(ImportSettings settings)
         {
-            _logger = ModuleLoggerFactory.GetImportLogger();
+            _logger = LoggerFactory.GetImportLogger();
             _settings = settings;
             // Use static configuration cache methods like TradeDataHub
             _dbSettings = ConfigurationCacheService.GetSharedDatabaseSettings();
