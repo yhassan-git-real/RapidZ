@@ -303,16 +303,4 @@ public class ExportExcelService
 			throw; // Re-throw the exception since we no longer have fallback formatting
 		}
 	}
-
-	private string GetColumnLetter(int columnNumber)
-	{
-		string columnName = string.Empty;
-		while (columnNumber > 0)
-		{
-			int modulo = (columnNumber - 1) % 26;
-			columnName = Convert.ToChar('A' + modulo) + columnName;
-			columnNumber = (columnNumber - modulo) / 26;
-		}
-		return columnName;
-	}
 }

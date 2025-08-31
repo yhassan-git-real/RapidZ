@@ -41,10 +41,10 @@ namespace RapidZ.Features.Import.Services
             }
 
             // Check if the view exists in the configuration
-            bool viewExists = _importSettings.ImportObjects.Views!.Any(v => v.Name == viewName);
+            bool viewExists = _importSettings.ImportObjects.Views?.Any(v => v.Name == viewName) ?? false;
 
             // Check if the stored procedure exists in the configuration
-            bool spExists = _importSettings.ImportObjects.StoredProcedures!.Any(sp => sp.Name == storedProcedureName);
+            bool spExists = _importSettings.ImportObjects.StoredProcedures?.Any(sp => sp.Name == storedProcedureName) ?? false;
 
             return viewExists && spExists;
         }
@@ -57,13 +57,13 @@ namespace RapidZ.Features.Import.Services
         public string GetOrderByColumn(string? viewName)
         {
             // If ImportObjects is not configured, use the default Database settings
-            if (_importSettings.ImportObjects == null || !_importSettings.ImportObjects.Views!.Any())
+            if (_importSettings.ImportObjects == null || _importSettings.ImportObjects.Views?.Any() != true)
             {
                 return _importSettings.Database.OrderByColumn;
             }
 
             // Find the view in the configuration
-            var view = _importSettings.ImportObjects.Views!.FirstOrDefault(v => v.Name == viewName);
+            var view = _importSettings.ImportObjects.Views?.FirstOrDefault(v => v.Name == viewName);
 
             // Return the order by column or the default if not found
             return view?.OrderByColumn ?? _importSettings.Database.OrderByColumn;
@@ -76,7 +76,7 @@ namespace RapidZ.Features.Import.Services
         public List<DbObjectOption> GetAvailableViews()
         {
             // If ImportObjects is not configured, return a list with the default view
-            if (_importSettings.ImportObjects == null || !_importSettings.ImportObjects.Views!.Any())
+            if (_importSettings.ImportObjects == null || _importSettings.ImportObjects.Views?.Any() != true)
             {
                 return new List<DbObjectOption>
                 {
@@ -87,10 +87,10 @@ namespace RapidZ.Features.Import.Services
                 };
             }
 
-            return _importSettings.ImportObjects.Views!.Select(v => new DbObjectOption(
+            return _importSettings.ImportObjects.Views?.Select(v => new DbObjectOption(
                 v.Name,
                 v.DisplayName,
-                v.OrderByColumn)).ToList();
+                v.OrderByColumn)).ToList() ?? new List<DbObjectOption>();
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace RapidZ.Features.Import.Services
         public List<DbObjectOption> GetAvailableStoredProcedures()
         {
             // If ImportObjects is not configured, return a list with the default stored procedure
-            if (_importSettings.ImportObjects == null || !_importSettings.ImportObjects.StoredProcedures!.Any())
+            if (_importSettings.ImportObjects == null || _importSettings.ImportObjects.StoredProcedures?.Any() != true)
             {
                 return new List<DbObjectOption>
                 {
@@ -110,9 +110,9 @@ namespace RapidZ.Features.Import.Services
                 };
             }
 
-            return _importSettings.ImportObjects.StoredProcedures!.Select(sp => new DbObjectOption(
+            return _importSettings.ImportObjects.StoredProcedures?.Select(sp => new DbObjectOption(
                 sp.Name,
-                sp.DisplayName)).ToList();
+                sp.DisplayName)).ToList() ?? new List<DbObjectOption>();
         }
 
         /// <summary>
