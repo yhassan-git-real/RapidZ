@@ -199,7 +199,9 @@ public class ExportExcelService
 				// Use memory stream for better performance with smaller files
 				if (recordCount < 50000) // Use memory stream for smaller datasets
 				{
-					int estimatedSize = Math.Max(1024 * 1024, (int)recordCount * 100); // Estimate ~100 bytes per record minimum
+					// More accurate estimation based on field count and data types
+					int estimatedSize = Math.Min(50 * 1024 * 1024, // Cap at 50MB
+						Math.Max(1024 * 1024, (int)recordCount * fieldCount * 50)); // More realistic per-cell estimate
 					using var memoryStream = new MemoryStream(estimatedSize);
 					package.SaveAs(memoryStream);
 					File.WriteAllBytes(outputPath, memoryStream.ToArray());

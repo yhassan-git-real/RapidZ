@@ -14,35 +14,17 @@ namespace RapidZ.Core.Cancellation
         private readonly object _lock = new object();
         private CancellationTokenSource? _cancellationTokenSource;
         private string? _currentOperationName;
-        private bool _disposed = false;
+        private volatile bool _disposed = false;
 
         /// <summary>
         /// Gets the current cancellation token
         /// </summary>
-        public CancellationToken Token
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    return _cancellationTokenSource?.Token ?? CancellationToken.None;
-                }
-            }
-        }
+        public CancellationToken Token => _cancellationTokenSource?.Token ?? CancellationToken.None;
 
         /// <summary>
         /// Gets whether cancellation has been requested
         /// </summary>
-        public bool IsCancellationRequested
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    return _cancellationTokenSource?.IsCancellationRequested ?? false;
-                }
-            }
-        }
+        public bool IsCancellationRequested => _cancellationTokenSource?.IsCancellationRequested ?? false;
 
         /// <summary>
         /// Event raised when cancellation is requested

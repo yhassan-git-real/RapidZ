@@ -16,7 +16,7 @@ namespace RapidZ.Core.Logging.Core
     /// <summary>
     /// Base implementation of logging functionality with optimized performance and async flushing
     /// </summary>
-    public abstract class BaseLogger : ILogger
+    public abstract class BaseLogger : ILogger, IAsyncDisposable
     {
         private readonly ConcurrentQueue<LogEntry> _logQueue = new();
         private readonly Timer _flushTimer;
@@ -138,7 +138,7 @@ namespace RapidZ.Core.Logging.Core
 
         private async Task FlushLogsAsync()
         {
-            if (_disposed || !_flushSemaphore.Wait(0)) return;
+            if (_disposed || !await _flushSemaphore.WaitAsync(0)) return;
 
             try
             {
@@ -152,11 +152,18 @@ namespace RapidZ.Core.Logging.Core
 
                 if (logEntries.Count == 0) return;
 
-                var logContent = new StringBuilder();
+                var logContent = new StringBuilder(logEntries.Count * 100); // Pre-allocate based on entry count
                 foreach (var entry in logEntries)
                 {
-                    var processIdPart = string.IsNullOrEmpty(entry.ProcessId) ? "" : $" [{entry.ProcessId}]";
-                    logContent.AppendLine($"[{entry.Timestamp:yyyy-MM-dd HH:mm:ss.fff}] {entry.Level.ToString().ToUpper()}{processIdPart} {entry.Message}");
+                    logContent.Append('[').Append(entry.Timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff")).Append("] ")
+                             .Append(entry.Level.ToString().ToUpper());
+                    
+                    if (!string.IsNullOrEmpty(entry.ProcessId))
+                    {
+                        logContent.Append(" [").Append(entry.ProcessId).Append(']');
+                    }
+                    
+                    logContent.Append(' ').AppendLine(entry.Message);
                     
                     if (!string.IsNullOrEmpty(entry.StackTrace))
                     {
@@ -178,13 +185,25 @@ namespace RapidZ.Core.Logging.Core
 
         public void Dispose()
         {
+            DisposeAsync().AsTask().Wait(TimeSpan.FromSeconds(5));
+        }
+
+        public async ValueTask DisposeAsync()
+        {
             if (_disposed) return;
             
             _disposed = true;
             _flushTimer?.Dispose();
             
             // Final flush
-            FlushLogsAsync().Wait(TimeSpan.FromSeconds(5));
+            try
+            {
+                await FlushLogsAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Final flush failed: {ex.Message}");
+            }
             
             _flushSemaphore?.Dispose();
         }

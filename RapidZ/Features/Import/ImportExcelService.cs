@@ -206,7 +206,9 @@ namespace RapidZ.Features.Import
                         // For smaller files, use memory stream with pre-allocation for better performance
                         if (recordCount < 50000)
                         {
-                            int estimatedSize = Math.Max(1024 * 1024, (int)recordCount * 100); // Estimate ~100 bytes per record minimum
+                            // More accurate estimation based on field count and data types
+                            int estimatedSize = Math.Min(50 * 1024 * 1024, // Cap at 50MB
+                                Math.Max(1024 * 1024, (int)recordCount * reader.FieldCount * 50)); // More realistic per-cell estimate
                             using (var memoryStream = new MemoryStream(estimatedSize))
                             {
                                 package.SaveAs(memoryStream);

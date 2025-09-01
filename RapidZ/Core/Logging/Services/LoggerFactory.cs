@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Threading;
 using RapidZ.Core.Logging.Abstractions;
 using RapidZ.Core.Logging.Core;
 
@@ -10,9 +11,8 @@ namespace RapidZ.Core.Logging.Services
     /// </summary>
     public static class LoggerFactory
     {
-        private static readonly ConcurrentDictionary<string, IModuleLogger> _moduleLoggers = new();
+        private static readonly ConcurrentDictionary<string, Lazy<IModuleLogger>> _moduleLoggers = new();
         private static readonly Lazy<IDatasetLogger> _datasetLogger = new(() => new DatasetLoggerImpl());
-        private static readonly object _lock = new();
 
         /// <summary>
         /// Gets or creates a module logger for the specified module type
@@ -28,12 +28,8 @@ namespace RapidZ.Core.Logging.Services
             var key = $"{moduleType}_{logFileExtension ?? ".txt"}";
             
             return _moduleLoggers.GetOrAdd(key, _ => 
-            {
-                lock (_lock)
-                {
-                    return new ModuleLoggerImpl(moduleType, logFileExtension);
-                }
-            });
+                new Lazy<IModuleLogger>(() => new ModuleLoggerImpl(moduleType, logFileExtension), 
+                    LazyThreadSafetyMode.ExecutionAndPublication)).Value;
         }
 
         /// <summary>
@@ -91,16 +87,16 @@ namespace RapidZ.Core.Logging.Services
         /// </summary>
         public static void DisposeAll()
         {
-            lock (_lock)
+            foreach (var lazyLogger in _moduleLoggers.Values)
             {
-                foreach (var logger in _moduleLoggers.Values)
+                if (lazyLogger.IsValueCreated)
                 {
-                    logger?.Dispose();
+                    lazyLogger.Value?.Dispose();
                 }
-                _moduleLoggers.Clear();
-
-                // DatasetLogger doesn't require disposal
             }
+            _moduleLoggers.Clear();
+
+            // DatasetLogger doesn't require disposal
         }
     }
 
