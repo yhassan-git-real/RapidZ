@@ -25,12 +25,12 @@
                 <!-- Content -->
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="6*" />
-                        <ColumnDefinition Width="5*" />
+                        <ColumnDefinition Width="4.5*" />
+                        <ColumnDefinition Width="5.5*" />
                     </Grid.ColumnDefinitions>
                     
                     <!-- Left Card: Input Parameters -->
-                    <Border Grid.Column="0" Classes="Card">
+                    <Border Grid.Column="0" Classes="Card" Margin="0,0,8,0">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -51,11 +51,6 @@
                                             Margin="2,0,8,0"
                                             Foreground="#3A5BDC"/>
                                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                                        <materialIcons:MaterialIcon Kind="Settings" 
-                                                             Foreground="#3A5BDC" 
-                                                             Width="20" 
-                                                             Height="20" 
-                                                             VerticalAlignment="Center" />
                                         <TextBlock Text="Input Parameters" 
                                                    Classes="SectionTitle" 
                                                    VerticalAlignment="Center" />
@@ -69,7 +64,7 @@
                     </Border>
                     
                     <!-- Right Card: Filters & Actions -->
-                    <Border Grid.Column="1" Classes="Card">
+                    <Border Grid.Column="1" Classes="Card" Margin="8,0,0,0">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -90,11 +85,6 @@
                                             Margin="2,0,8,0"
                                             Foreground="#3A5BDC"/>
                                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                                        <materialIcons:MaterialIcon Kind="FilterVariant" 
-                                                             Foreground="#3A5BDC" 
-                                                             Width="20" 
-                                                             Height="20" 
-                                                             VerticalAlignment="Center" />
                                         <TextBlock Text="Filters &amp; Actions" 
                                                    Classes="SectionTitle" 
                                                    VerticalAlignment="Center" />
@@ -127,24 +117,25 @@
                                         <Grid Grid.Row="1" Margin="0,0,0,0">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="Auto" MinWidth="160" />
+                                                <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="Auto" MinWidth="160" />
+                                                <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
                                             
                                             <TextBlock Grid.Column="0" Text="From:" VerticalAlignment="Center" 
-                                                      Margin="0,0,8,0" FontSize="14" FontWeight="SemiBold"
-                                                      FontFamily="Segoe UI" Foreground="#333333" />
-                                            <customControls:YearMonthPicker Grid.Column="1" 
-                                                                           Year="{Binding FromYear}" 
+                                                      FontSize="14" FontWeight="SemiBold"
+                                                      FontFamily="Segoe UI" Foreground="#333333" 
+                                                      Margin="0,0,8,0" />
+                                            <customControls:YearMonthPicker Grid.Column="1" Year="{Binding FromYear}" 
                                                                            Month="{Binding FromMonth}"
-                                                                           HorizontalAlignment="Left" />
+                                                                           HorizontalAlignment="Left" 
+                                                                           Margin="0,0,16,0" />
                                             
                                             <TextBlock Grid.Column="2" Text="To:" VerticalAlignment="Center" 
-                                                      Margin="16,0,8,0" FontSize="14" FontWeight="SemiBold"
-                                                      FontFamily="Segoe UI" Foreground="#333333" />
-                                            <customControls:YearMonthPicker Grid.Column="3" 
-                                                                           Year="{Binding ToYear}" 
+                                                      FontSize="14" FontWeight="SemiBold"
+                                                      FontFamily="Segoe UI" Foreground="#333333" 
+                                                      Margin="0,0,8,0" />
+                                            <customControls:YearMonthPicker Grid.Column="3" Year="{Binding ToYear}" 
                                                                            Month="{Binding ToMonth}"
                                                                            HorizontalAlignment="Left" />
                                         </Grid>

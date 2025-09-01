@@ -14,7 +14,7 @@
                    Orientation="Horizontal" 
                    Spacing="6" 
                    HorizontalAlignment="Left"
-                   Margin="0,0,12,0">
+                   Margin="0,0,8,0">
             <material:MaterialIcon Kind="Barcode" 
                                  Foreground="#666666" 
                                  Width="14" 
@@ -35,7 +35,7 @@
                    Orientation="Horizontal" 
                    Spacing="6" 
                    HorizontalAlignment="Left"
-                   Margin="0,0,12,0">
+                   Margin="0,0,8,0">
             <material:MaterialIcon Kind="Package" 
                                  Foreground="#666666" 
                                  Width="14" 
@@ -56,7 +56,7 @@
                    Orientation="Horizontal" 
                    Spacing="6" 
                    HorizontalAlignment="Left"
-                   Margin="0,0,12,0">
+                   Margin="0,0,8,0">
             <material:MaterialIcon Kind="AccountTie" 
                                  Foreground="#666666" 
                                  Width="14" 
@@ -77,7 +77,7 @@
                    Orientation="Horizontal" 
                    Spacing="6" 
                    HorizontalAlignment="Left"
-                   Margin="0,0,12,0">
+                   Margin="0,0,8,0">
             <material:MaterialIcon Kind="Certificate" 
                                  Foreground="#666666" 
                                  Width="14" 
@@ -98,7 +98,7 @@
                    Orientation="Horizontal" 
                    Spacing="6" 
                    HorizontalAlignment="Left"
-                   Margin="0,0,12,0">
+                   Margin="0,0,8,0">
             <material:MaterialIcon Kind="AccountGroup" 
                                  Foreground="#666666" 
                                  Width="14" 
@@ -119,7 +119,7 @@
                    Orientation="Horizontal" 
                    Spacing="6" 
                    HorizontalAlignment="Left"
-                   Margin="0,0,12,0">
+                   Margin="0,0,8,0">
             <material:MaterialIcon Kind="Earth" 
                                  Foreground="#666666" 
                                  Width="14" 
@@ -140,13 +140,13 @@
                    Orientation="Horizontal" 
                    Spacing="6" 
                    HorizontalAlignment="Left"
-                   Margin="0,0,12,0">
+                   Margin="0,0,8,0">
             <material:MaterialIcon Kind="Ferry" 
                                  Foreground="#666666" 
                                  Width="14" 
                                  Height="14" 
                                  VerticalAlignment="Center" />
-            <TextBlock Text="PORT"
+            <TextBlock Text="Indian Port"
                        Classes="FieldLabel"
                        VerticalAlignment="Center" />
         </StackPanel>
@@ -161,7 +161,8 @@
                    Orientation="Horizontal" 
                    Spacing="6" 
                    HorizontalAlignment="Left"
-                   Margin="0,0,12,0">
+                   VerticalAlignment="Top"
+                   Margin="0,2,8,0">
             <material:MaterialIcon Kind="FolderOpen" 
                                  Foreground="#666666" 
                                  Width="14" 
@@ -175,20 +176,17 @@
                     Orientation="Vertical" 
                     Spacing="4"
                     Margin="0,0,0,0">
-            <Grid Classes="FileLocationContainer" ColumnDefinitions="*,Auto">
-                <TextBox Grid.Column="0"
-                         Text="{Binding ExportDataFilter.CustomFilePath}"
-                         Classes="FormInput"
-                         Classes.Error="{Binding !IsCustomPathValid}"
-                         MinWidth="150"
-                         Margin="0,0,8,0"
-                         Watermark="Enter custom file path..." />
-                <CheckBox Grid.Column="1"
-                          IsChecked="{Binding ExportDataFilter.UseCustomPath}"
-                          Content="Use Custom Path"
-                          Classes="FormCheckBox"
-                          VerticalAlignment="Center" />
-            </Grid>
+            <TextBox Text="{Binding ExportDataFilter.CustomFilePath}"
+                     Classes="FormInput"
+                     Classes.Error="{Binding !IsCustomPathValid}"
+                     MinWidth="150"
+                     Margin="0,0,0,0"
+                     Watermark="Enter custom file path..." />
+            <CheckBox IsChecked="{Binding ExportDataFilter.UseCustomPath}"
+                      Content="Use Custom Path"
+                      Classes="FormCheckBox"
+                      HorizontalAlignment="Left"
+                      Margin="0,2,0,0" />
             <TextBlock Text="{Binding CustomPathValidationMessage}" 
                        Classes="ValidationMessage"
                        IsVisible="{Binding !IsCustomPathValid}"/>
