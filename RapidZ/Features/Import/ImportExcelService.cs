@@ -222,7 +222,7 @@ namespace RapidZ.Features.Import
                         saveTimer.Stop();
                         
                         _logger.LogFileSave("Completed", saveTimer.Elapsed, processId);
-                        _logger.LogExcelResult(fileName, excelTimer.Elapsed, recordCount, processId);
+						_logger.LogExcelResult(fileName, excelTimer.Elapsed, recordCount, processId);
                         excelTimer.Stop();
                     }
 
@@ -235,7 +235,7 @@ namespace RapidZ.Features.Import
                     
                     // Log overall completion
                     _logger.LogProcessComplete(_settings.Logging.OperationLabel, 
-                        reportTimer.Elapsed, $"Success - {fileName}", processId);
+                        reportTimer.Elapsed, $"Success - {filePath}", processId);
                 }
             }
             catch (OperationCanceledException)

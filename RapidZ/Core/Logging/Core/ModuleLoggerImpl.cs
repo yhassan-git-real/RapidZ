@@ -128,12 +128,23 @@ namespace RapidZ.Core.Logging.Core
             LogInfo($"  📋 Creating Excel file: {fileName}", processId);
         }
 
+        public void LogExcelFileCreationStart(string fileName, string filePath, string processId)
+        {
+            // Display only filename for performance optimization during file creation
+            LogInfo($"  📋 Creating Excel file: {fileName}", processId);
+        }
+
         public void LogExcelFileCreationComplete(string fileName, TimeSpan elapsed, string processId)
         {
             LogInfo($"  💾 File Save Completed | ⏱️ {elapsed:mm\\:ss\\.fff}", processId);
         }
 
         public void LogExcelResult(string fileName, TimeSpan elapsed, long rowCount, string processId)
+        {
+            LogInfo($"  ✅ Excel Complete: {fileName} | ⏱️ {elapsed:mm\\:ss\\.fff} | 📊 {rowCount:N0} records", processId);
+        }
+
+        public void LogExcelResult(string fileName, string filePath, TimeSpan elapsed, long rowCount, string processId)
         {
             LogInfo($"  ✅ Excel Complete: {fileName} | ⏱️ {elapsed:mm\\:ss\\.fff} | 📊 {rowCount:N0} records", processId);
         }
@@ -199,9 +210,21 @@ namespace RapidZ.Core.Logging.Core
             LogInfo($"  💾 File Save: {operation} | ⏱️ {elapsed:mm\\:ss\\.fff}", processId);
         }
 
+        public void LogFileSave(string operation, string filePath, TimeSpan elapsed, string processId)
+        {
+            var fileName = Path.GetFileName(filePath);
+            LogInfo($"  💾 File Save: {fileName} | ⏱️ {elapsed:mm\\:ss\\.fff}", processId);
+        }
+
         public void LogSkipped(string fileName, long rowCount, string reason, string processId)
         {
             LogWarning($"  ⚠️  Skipped: {fileName} | 📊 {rowCount:N0} records | Reason: {reason}", processId);
+        }
+
+        public void LogSkipped(string fileName, string filePath, long rowCount, string reason, string processId)
+        {
+            var relativePath = GetRelativePath(filePath);
+            LogWarning($"  ⚠️  Skipped: {fileName} | Path: {relativePath} | 📊 {rowCount:N0} records | Reason: {reason}", processId);
         }
 
         public void LogSummary(ProcessingSummary summary)
@@ -219,6 +242,54 @@ namespace RapidZ.Core.Logging.Core
         {
             LogProcessStart(operationName, string.Empty, processId);
             return new OperationTimer(this, operationName, processId);
+        }
+
+        /// <summary>
+        /// Converts an absolute file path to a relative path for logging
+        /// </summary>
+        /// <param name="absolutePath">The absolute file path</param>
+        /// <returns>A relative path suitable for logging</returns>
+        private string GetRelativePath(string absolutePath)
+        {
+            if (string.IsNullOrEmpty(absolutePath))
+                return string.Empty;
+
+            try
+            {
+                // Get the project root directory (F:\RapidZ)
+                var projectRoot = @"F:\RapidZ";
+                
+                // If the path starts with the project root, make it relative
+                if (absolutePath.StartsWith(projectRoot, StringComparison.OrdinalIgnoreCase))
+                {
+                    var relativePath = absolutePath.Substring(projectRoot.Length);
+                    // Remove leading directory separator if present
+                    if (relativePath.StartsWith(Path.DirectorySeparatorChar.ToString()) || 
+                        relativePath.StartsWith(Path.AltDirectorySeparatorChar.ToString()))
+                    {
+                        relativePath = relativePath.Substring(1);
+                    }
+                    return relativePath;
+                }
+                
+                // If not under project root, try to get just the filename and parent directory
+                var directory = Path.GetDirectoryName(absolutePath);
+                var fileName = Path.GetFileName(absolutePath);
+                
+                if (!string.IsNullOrEmpty(directory))
+                {
+                    var parentDir = Path.GetFileName(directory);
+                    return Path.Combine(parentDir, fileName);
+                }
+                
+                // Fallback to just the filename
+                return fileName ?? absolutePath;
+            }
+            catch
+            {
+                // If any error occurs, return just the filename
+                return Path.GetFileName(absolutePath) ?? absolutePath;
+            }
         }
     }
 }

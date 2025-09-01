@@ -150,7 +150,8 @@ public class ExportExcelService
 					Port = port
 				}
 			});
-					_logger.LogSkipped(skippedFileName, recordCount, "Excel row limit exceeded", processId);
+					// For skipped files, we don't have a full path yet, so use the original method
+				_logger.LogSkipped(skippedFileName, recordCount, "Excel row limit exceeded", processId);
 					_logger.LogProcessComplete(_exportSettings.Logging.OperationLabel, reportTimer.Elapsed, "Skipped - too many rows", processId);
 					return new ExcelResult { Success = false, SkipReason = SkipReason.ExcelRowLimit, FileName = skippedFileName, RowCount = (int)recordCount };
 				}
@@ -158,7 +159,7 @@ public class ExportExcelService
 				cancellationToken.ThrowIfCancellationRequested();
 
 					string fileName = Export_FileNameHelper.GenerateExportFileName(fromMonth, toMonth, hsCode, product, iec, exporter, country, name, port);
-				_logger.LogExcelFileCreationStart(fileName, processId);
+			_logger.LogExcelFileCreationStart(fileName, processId);
 				var excelTimer = Stopwatch.StartNew();
 				using var package = new ExcelPackage();
 				var worksheetName = exportSettings.Operation.WorksheetName;
@@ -189,9 +190,9 @@ public class ExportExcelService
 				cancellationToken.ThrowIfCancellationRequested();
 
 				// Use custom output path if provided, otherwise use default
-			string outputDir = customOutputPath ?? exportSettings.Files.OutputDirectory;
-			Directory.CreateDirectory(outputDir);
-			string outputPath = Path.Combine(outputDir, fileName);
+		string outputDir = customOutputPath ?? exportSettings.Files.OutputDirectory;
+		Directory.CreateDirectory(outputDir);
+		string outputPath = Path.Combine(outputDir, fileName);
 				partialFilePath = outputPath; // Track for cleanup if cancelled
 
 				var saveTimer = Stopwatch.StartNew();
@@ -215,7 +216,7 @@ public class ExportExcelService
 
 				_logger.LogExcelResult(fileName, excelTimer.Elapsed, recordCount, processId);
 				excelTimer.Stop();
-				_logger.LogProcessComplete(_exportSettings.Logging.OperationLabel, reportTimer.Elapsed, $"Success - {fileName}", processId);
+				_logger.LogProcessComplete(_exportSettings.Logging.OperationLabel, reportTimer.Elapsed, $"Success - {outputPath}", processId);
 				// Add to the list of generated files
 				_generatedFileNames.Add(fileName);
 				

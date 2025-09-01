@@ -71,6 +71,14 @@ namespace RapidZ.Core.Logging.Abstractions
         void LogExcelFileCreationStart(string fileName, string processId);
 
         /// <summary>
+        /// Logs Excel file creation start with full file path
+        /// </summary>
+        /// <param name="fileName">Name of the Excel file</param>
+        /// <param name="filePath">Full path to the Excel file</param>
+        /// <param name="processId">Process identifier</param>
+        void LogExcelFileCreationStart(string fileName, string filePath, string processId);
+
+        /// <summary>
         /// Logs Excel file creation completion
         /// </summary>
         /// <param name="fileName">Name of the Excel file</param>
@@ -78,6 +86,16 @@ namespace RapidZ.Core.Logging.Abstractions
         /// <param name="rowCount">Number of rows in the file</param>
         /// <param name="processId">Process identifier</param>
         void LogExcelResult(string fileName, TimeSpan elapsed, long rowCount, string processId);
+
+        /// <summary>
+        /// Logs Excel file creation completion with full file path
+        /// </summary>
+        /// <param name="fileName">Name of the Excel file</param>
+        /// <param name="filePath">Full path to the Excel file</param>
+        /// <param name="elapsed">Time taken to create the file</param>
+        /// <param name="rowCount">Number of rows in the file</param>
+        /// <param name="processId">Process identifier</param>
+        void LogExcelResult(string fileName, string filePath, TimeSpan elapsed, long rowCount, string processId);
 
         /// <summary>
         /// Logs file save operation
@@ -88,6 +106,15 @@ namespace RapidZ.Core.Logging.Abstractions
         void LogFileSave(string operation, TimeSpan elapsed, string processId);
 
         /// <summary>
+        /// Logs file save operation with full file path
+        /// </summary>
+        /// <param name="operation">Save operation description</param>
+        /// <param name="filePath">Full path to the saved file</param>
+        /// <param name="elapsed">Time taken for the operation</param>
+        /// <param name="processId">Process identifier</param>
+        void LogFileSave(string operation, string filePath, TimeSpan elapsed, string processId);
+
+        /// <summary>
         /// Logs skipped operations with reason
         /// </summary>
         /// <param name="fileName">Name of the skipped file</param>
@@ -95,6 +122,16 @@ namespace RapidZ.Core.Logging.Abstractions
         /// <param name="reason">Reason for skipping</param>
         /// <param name="processId">Process identifier</param>
         void LogSkipped(string fileName, long rowCount, string reason, string processId);
+
+        /// <summary>
+        /// Logs skipped operations with reason and full file path
+        /// </summary>
+        /// <param name="fileName">Name of the skipped file</param>
+        /// <param name="filePath">Full path to the skipped file</param>
+        /// <param name="rowCount">Number of rows that would have been processed</param>
+        /// <param name="reason">Reason for skipping</param>
+        /// <param name="processId">Process identifier</param>
+        void LogSkipped(string fileName, string filePath, long rowCount, string reason, string processId);
 
         /// <summary>
         /// Logs processing summary
