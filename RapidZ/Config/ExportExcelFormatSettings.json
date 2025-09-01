@@ -4,6 +4,8 @@
   "HeaderBackgroundColor": "#4F81BD",
   "BorderStyle": "Thin",
   "AutoFitSampleRows": 100,
+  "AutoFitSampleRowsLarge": 50,
+  "LargeDatasetThreshold": 100000,
   "DateFormat": "dd-mmm-yy",
   "DateColumns": [3],
   "TextColumns": [1, 2, 4],

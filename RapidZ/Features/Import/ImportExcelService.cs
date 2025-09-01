@@ -201,11 +201,16 @@ namespace RapidZ.Features.Import
 
                         // Save file
                         var saveTimer = Stopwatch.StartNew();
-                        // For smaller files, use memory stream for better performance
-                        if (recordCount < 10000)
+                        // For smaller files, use memory stream with pre-allocation for better performance
+                        if (recordCount < 50000)
                         {
-                            var fileBytes = package.GetAsByteArray();
-                            File.WriteAllBytes(filePath, fileBytes);
+                            int estimatedSize = Math.Max(1024 * 1024, (int)recordCount * 100); // Estimate ~100 bytes per record minimum
+                            using (var memoryStream = new MemoryStream(estimatedSize))
+                            {
+                                package.SaveAs(memoryStream);
+                                var fileBytes = memoryStream.ToArray();
+                                File.WriteAllBytes(filePath, fileBytes);
+                            }
                         }
                         else
                         {
@@ -261,26 +266,21 @@ namespace RapidZ.Features.Import
                 var dataRange = worksheet.Cells[1, 1, totalRows, totalColumns];
                 dataRange.Style.Font.Name = _formatSettings.FontName;
                 dataRange.Style.Font.Size = _formatSettings.FontSize;
+                dataRange.Style.WrapText = _formatSettings.WrapText;
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                // Apply column-specific formatting
-                foreach (var dateCol in _formatSettings.DateColumns)
+                // Apply column-specific formatting in bulk (optimized approach)
+                foreach (int dateCol in _formatSettings.DateColumns)
                 {
-                    if (dateCol <= totalColumns)
-                    {
-                        var dateRange = worksheet.Cells[2, dateCol, totalRows, dateCol];
-                        dateRange.Style.Numberformat.Format = _formatSettings.DateFormat;
-                    }
+                    if (dateCol > 0 && dateCol <= totalColumns)
+                        worksheet.Column(dateCol).Style.Numberformat.Format = _formatSettings.DateFormat;
                 }
 
-                foreach (var textCol in _formatSettings.TextColumns)
+                foreach (int textCol in _formatSettings.TextColumns)
                 {
-                    if (textCol <= totalColumns)
-                    {
-                        var textRange = worksheet.Cells[2, textCol, totalRows, textCol];
-                        textRange.Style.Numberformat.Format = "@"; // Text format
-                    }
+                    if (textCol > 0 && textCol <= totalColumns)
+                        worksheet.Column(textCol).Style.Numberformat.Format = "@"; // Text format
                 }
 
                 cancellationToken.ThrowIfCancellationRequested();
@@ -301,16 +301,15 @@ namespace RapidZ.Features.Import
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                // Auto-fit columns if enabled
+                // Auto-fit columns if enabled (optimized range-based approach with dynamic sample size)
                 if (_formatSettings.AutoFitColumns)
                 {
-                    // Sample-based auto-fit for better performance on large datasets
-                    int sampleRows = Math.Min(_formatSettings.AutoFitSampleRows, totalRows);
-                    for (int col = 1; col <= totalColumns; col++)
-                    {
-                        var sampleRange = worksheet.Cells[1, col, sampleRows, col];
-                        sampleRange.AutoFitColumns();
-                    }
+                    // Dynamic sample size based on dataset size for optimal performance
+                    int sampleRowsConfig = totalRows > _formatSettings.LargeDatasetThreshold 
+                        ? _formatSettings.AutoFitSampleRowsLarge 
+                        : _formatSettings.AutoFitSampleRows;
+                    int sampleRows = Math.Min(sampleRowsConfig, totalRows);
+                    worksheet.Cells[1, 1, sampleRows, totalColumns].AutoFitColumns();
                 }
             }
             catch (OperationCanceledException)

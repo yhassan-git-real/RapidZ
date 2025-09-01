@@ -197,7 +197,8 @@ public class ExportExcelService
 				// Use memory stream for better performance with smaller files
 				if (recordCount < 50000) // Use memory stream for smaller datasets
 				{
-					using var memoryStream = new MemoryStream();
+					int estimatedSize = Math.Max(1024 * 1024, (int)recordCount * 100); // Estimate ~100 bytes per record minimum
+					using var memoryStream = new MemoryStream(estimatedSize);
 					package.SaveAs(memoryStream);
 					File.WriteAllBytes(outputPath, memoryStream.ToArray());
 				}
@@ -290,10 +291,13 @@ public class ExportExcelService
 				dataRange.Style.Border.Bottom.Style = borderStyle;
 			}
 
-			// Auto-fit columns using sample data for performance
+			// Auto-fit columns using dynamic sample size based on dataset size
 			if (formatSettings.AutoFitColumns)
 			{
-				int sampleEndRow = Math.Min(lastRow, formatSettings.AutoFitSampleRows);
+				int sampleRows = lastRow > formatSettings.LargeDatasetThreshold 
+					? formatSettings.AutoFitSampleRowsLarge 
+					: formatSettings.AutoFitSampleRows;
+				int sampleEndRow = Math.Min(lastRow, sampleRows);
 				worksheet.Cells[1, 1, sampleEndRow, colCount].AutoFitColumns();
 			}
 		}

@@ -13,6 +13,8 @@ namespace RapidZ.Config
         public string BorderStyle { get; set; } = "Thin";
         public string DateFormat { get; set; } = "dd-mmm-yy";
         public int AutoFitSampleRows { get; set; } = 100;
+        public int AutoFitSampleRowsLarge { get; set; } = 50;
+        public int LargeDatasetThreshold { get; set; } = 100000;
         public bool WrapText { get; set; } = false;
         public bool AutoFitColumns { get; set; } = true;
         

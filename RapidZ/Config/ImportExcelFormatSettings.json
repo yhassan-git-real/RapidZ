@@ -3,10 +3,12 @@
   "FontSize": 10,
   "HeaderBackgroundColor": "#4F81BD",
   "BorderStyle": "thin",
-  "DateFormat": "dd-MMM-yy",
+  "AutoFitSampleRows": 100,
+  "AutoFitSampleRowsLarge": 50,
+  "LargeDatasetThreshold": 100000,
+  "DateFormat": "dd-mmm-yy",
   "DateColumns": [2],
   "TextColumns": [1, 3, 4],
   "WrapText": false,
-  "AutoFitColumns": true,
-  "AutoFitSampleRows": 100
+  "AutoFitColumns": true
 }
