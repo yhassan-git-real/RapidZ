@@ -1,0 +1,47 @@
+# RapidZ Source Code Configuration Guide
+
+This document provides configuration guidelines for the RapidZ source code version.
+
+## Overview
+
+RapidZ source code is the development version where you can modify code, rebuild, and test changes.
+
+## Configuration Files Location
+
+All configuration files are located in the **Config/** directory:
+
+| File | Purpose |
+|------|---------|
+| `database.appsettings.json` | Database connection settings |
+| `export.appsettings.json` | Export operation settings |
+| `ExportExcelFormatSettings.json` | Excel formatting for exports |
+| `import.appsettings.json` | Import operation settings |
+| `ImportExcelFormatSettings.json` | Excel formatting for imports |
+
+## How to Update Configuration
+
+1. Edit the JSON files directly in the source code project
+2. Rebuild the application using Visual Studio or command line: `dotnet build`
+3. Changes will take effect in the next run
+
+## Excel Format Configuration Reference
+
+| Setting | Export | Import |
+|---------|--------|--------|
+| Date Columns | Column 3 | Column 2 |
+| Text Columns | Columns 1, 2, 4 | Columns 1, 3, 4 |
+| Date Format | dd-mmm-yy | dd-mmm-yy |
+
+## Common Configuration Tasks
+
+### Changing Excel Format Settings
+1. Open `F:\RapidZ\RapidZ\Config\ExportExcelFormatSettings.json` or `ImportExcelFormatSettings.json`
+2. Update the column specifications as needed:
+   - `"DateColumns": [3]` - specifies which columns should be formatted as dates (column numbers start from 1)
+   - `"TextColumns": [1, 2, 4]` - specifies which columns should be formatted as text
+3. Save the file and rebuild the application
+
+### Database Configuration
+1. Open `F:\RapidZ\RapidZ\Config\database.appsettings.json`
+2. Update the connection string and other database settings
+3. Save the file and rebuild the application
