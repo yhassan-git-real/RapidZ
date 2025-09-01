@@ -751,13 +751,34 @@ public class MainViewModel : ViewModelBase, IDisposable
         {
             Mode = "Export", // Default mode is Export
             FromMonth = $"{_fromYear}{_fromMonth:D2}",
-            ToMonth = $"{_toYear}{_toMonth:D2}"
+            ToMonth = $"{_toYear}{_toMonth:D2}",
+            // Clear sample data while preserving placeholder functionality
+            HSCode = string.Empty,
+            Product = string.Empty,
+            Exporter = string.Empty,
+            IEC = string.Empty,
+            ForeignParty = string.Empty,
+            ForeignCountry = string.Empty,
+            Port = string.Empty,
+            CustomFilePath = string.Empty,
+            UseCustomPath = false
         };
         
         // Set initial current mode
         _currentMode = "Export";
         
-        
+        // Add sample execution summary for better visual demonstration
+        _lastExecution = new ExecutionSummary
+        {
+            Status = ExecutionStatus.Completed,
+            FileName = "10_JAN25-SEP25EXP.xlsx",
+            FilePath = "C:\\Export\\TradeData\\Reports\\10_JAN25-SEP25EXP.xlsx",
+            RowCount = "30,840",
+            TimeStamp = DateTime.Now.AddMinutes(-15),
+            Duration = "00:13:056",
+            Result = "Success - 10_JAN25-SEP25EXP.xlsx"
+        };
+        _showExecutionSummary = true;
         
         // Initialize database selections based on current mode when the view is loaded
         Dispatcher.UIThread.Post(() => UpdateDatabaseSelectionsForMode(), DispatcherPriority.Background);

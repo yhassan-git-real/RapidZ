@@ -50,7 +50,7 @@
             <Setter Property="CornerRadius" Value="6" />
             <Setter Property="Padding" Value="10,8" />
             <Setter Property="Margin" Value="0,2,0,6" />
-            <Setter Property="BoxShadow" Value="0 1 2 0 #10000000" />
+    
         </Style>
         
         <Style Selector="TextBlock.detail-text">
@@ -73,7 +73,7 @@
                     Width="46" Height="46" 
                     Background="{Binding IconBackground}" 
                     CornerRadius="23" 
-                    BoxShadow="0 2 5 1 #20000000"
+        
                     Margin="0,0,12,12">
                 
                 <materialIcons:MaterialIcon Kind="{Binding IconKind}" 

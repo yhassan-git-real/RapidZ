@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:RapidZ.Views.ViewModels"
              xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:converters="using:RapidZ.Views.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="50"
              x:Class="RapidZ.Views.Controls.StatusPanelControl"
              x:DataType="vm:MainViewModel">
@@ -13,24 +14,44 @@
             BorderThickness="1" 
             CornerRadius="4" 
             Padding="16,12" 
-            BoxShadow="0 2 6 0 #20000000"
+            
             ClipToBounds="True">
         <Grid RowDefinitions="Auto,Auto">
             <!-- Status Panel Main Row -->
             <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
-                <!-- Status Indicator -->
+                <!-- Enhanced Status Indicator with Icon -->
                 <Border Grid.Column="0" 
-                        Width="14" 
-                        Height="14" 
-                        CornerRadius="7" 
+                        Width="24" 
+                        Height="24" 
+                        CornerRadius="12" 
                         Background="{Binding StatusIndicatorColor}"
-                        Margin="4,0,14,0"
-                        VerticalAlignment="Center">
+                        Margin="0,0,12,0"
+                        VerticalAlignment="Center"
+        >
                     <Border.Transitions>
                         <Transitions>
                             <BrushTransition Property="Background" Duration="0:0:0.3" />
+        
                         </Transitions>
                     </Border.Transitions>
+                    
+                    <!-- Status Icon -->
+                    <material:MaterialIcon Width="14" Height="14"
+                                         Foreground="White"
+                                         HorizontalAlignment="Center"
+                                         VerticalAlignment="Center">
+                        <material:MaterialIcon.Kind>
+                            <MultiBinding Converter="{x:Static converters:StatusToIconConverter.Instance}">
+                                <Binding Path="SystemStatus" />
+                                <Binding Path="IsProcessing" />
+                            </MultiBinding>
+                        </material:MaterialIcon.Kind>
+                        <material:MaterialIcon.Transitions>
+                            <Transitions>
+                                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" />
+                            </Transitions>
+                        </material:MaterialIcon.Transitions>
+                    </material:MaterialIcon>
                 </Border>
                 
                 <!-- Status Message -->
@@ -48,67 +69,109 @@
                     </TextBlock.Transitions>
                 </TextBlock>
                 
-                <!-- Progress Info - Inline with status message -->
+                <!-- Enhanced Progress Info with Gradient Background -->
                 <Border Grid.Column="2" 
-                       Background="#F0F6FF"
-                       BorderBrush="#D8E0F0"
-                       BorderThickness="1"
-                       CornerRadius="3"
-                       Padding="10,5"
+                       CornerRadius="6"
+                       Padding="12,8"
                        IsVisible="{Binding IsProcessing}"
                        VerticalAlignment="Center"
-                       Margin="0,0,0,0">
+                       Margin="0,0,0,0"
+       >
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                            <GradientStop Color="#F0F6FF" Offset="0" />
+                            <GradientStop Color="#E8F2FF" Offset="1" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Border.Transitions>
+                        <Transitions>
+        
+                        </Transitions>
+                    </Border.Transitions>
+                    
                     <StackPanel Orientation="Horizontal" 
-                              Spacing="10">
-                        <ProgressBar Width="120" 
-                                   Height="6" 
-                                   Value="{Binding ProgressPercentage}"
-                                   Maximum="100" 
-                                   Foreground="#3A5BDC"
-                                   Background="#DDDDDD"
-                                   IsIndeterminate="{Binding IsIndeterminateProgress}"
-                                   VerticalAlignment="Center" 
-                                   CornerRadius="3" />
+                              Spacing="12">
+                        <!-- Enhanced Progress Bar with Gradient -->
+                        <Border Width="140" Height="8" 
+                               Background="#E0E7F0" 
+                               CornerRadius="4"
+                               VerticalAlignment="Center">
+                            <Border Width="{Binding ProgressPercentage, Converter={x:Static converters:PercentageToWidthConverter.Instance}, ConverterParameter=140}"
+                                   Height="8"
+                                   HorizontalAlignment="Left"
+                                   CornerRadius="4">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%">
+                                        <GradientStop Color="#4CAF50" Offset="0" />
+                                        <GradientStop Color="#2196F3" Offset="1" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Border.Transitions>
+                                    <Transitions>
+                                        <DoubleTransition Property="Width" Duration="0:0:0.3" />
+                                    </Transitions>
+                                </Border.Transitions>
+                            </Border>
+                        </Border>
+                        
                         <TextBlock Text="{Binding ProgressText}"
                                  FontSize="14"
                                  VerticalAlignment="Center"
-                                 FontWeight="Medium"
-                                 Foreground="#000000" />
+                                 FontWeight="SemiBold"
+                                 Foreground="#2C3E50" />
                     </StackPanel>
                 </Border>
             </Grid>
             
-            <!-- Execution Summary Row -->
+            <!-- Enhanced Execution Summary with Gradient Background -->
             <Border Grid.Row="1" 
-                    Background="#F0F6FF" 
-                    BorderBrush="#D8E0F0"
-                    BorderThickness="0,1,0,0" 
-                    Padding="14,12" 
-                    Margin="0,10,0,0"
-                    CornerRadius="0,0,3,3"
+                    Padding="16,14" 
+                    Margin="0,12,0,0"
+                    CornerRadius="8"
                     ClipToBounds="True"
-                    IsVisible="{Binding ShowExecutionSummary}">
+                    IsVisible="{Binding ShowExecutionSummary}"
+    >
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                        <GradientStop Color="#F8FBFF" Offset="0" />
+                        <GradientStop Color="#EDF4FF" Offset="1" />
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border.Transitions>
+                    <Transitions>
+    
+                    </Transitions>
+                </Border.Transitions>
+                
                 <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*" RowDefinitions="Auto,Auto">
-                    <!-- Last Execution Details -->
-                    <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,24,0">
-                        <TextBlock Text="Status:" FontSize="14" Foreground="#000000" FontWeight="SemiBold" VerticalAlignment="Center" />
-                        <Border Width="10" Height="10" CornerRadius="5" Background="{Binding ExecutionStatusColor}" VerticalAlignment="Center" Margin="0,0,4,0" />
-                        <TextBlock Text="{Binding LastExecution.Status}" FontSize="14" Foreground="#000000" VerticalAlignment="Center" />
+                    <!-- Enhanced Status with Icon and Color -->
+                    <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal" Spacing="10" Margin="0,0,28,0">
+                        <TextBlock Text="Status:" FontSize="14" Foreground="#34495E" FontWeight="Bold" VerticalAlignment="Center" />
+                        <Border Width="14" Height="14" CornerRadius="7" VerticalAlignment="Center" Margin="0,0,6,0"
+               >
+                            <Border.Background>
+                                <RadialGradientBrush>
+                                    <GradientStop Color="{Binding ExecutionStatusColor}" Offset="0" />
+                                    <GradientStop Color="{Binding ExecutionStatusColor, Converter={x:Static converters:ColorDarkenConverter.Instance}}" Offset="1" />
+                                </RadialGradientBrush>
+                            </Border.Background>
+                        </Border>
+                        <TextBlock Text="{Binding LastExecution.Status}" FontSize="14" Foreground="#2C3E50" FontWeight="SemiBold" VerticalAlignment="Center" />
                     </StackPanel>
                     
-                    <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,24,0">
-                        <TextBlock Text="Time:" FontSize="14" Foreground="#000000" FontWeight="SemiBold" VerticalAlignment="Center" />
-                        <TextBlock Text="{Binding LastExecution.FormattedTime}" FontSize="14" Foreground="#000000" VerticalAlignment="Center" />
+                    <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,28,0">
+                        <TextBlock Text="Time:" FontSize="14" Foreground="#34495E" FontWeight="Bold" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding LastExecution.FormattedTime}" FontSize="14" Foreground="#2C3E50" FontWeight="Medium" VerticalAlignment="Center" />
                     </StackPanel>
                     
-                    <StackPanel Grid.Column="2" Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,24,0">
-                        <TextBlock Text="Duration:" FontSize="14" Foreground="#000000" FontWeight="SemiBold" VerticalAlignment="Center" />
-                        <TextBlock Text="{Binding LastExecution.Duration}" FontSize="14" Foreground="#000000" VerticalAlignment="Center" />
+                    <StackPanel Grid.Column="2" Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,28,0">
+                        <TextBlock Text="Duration:" FontSize="14" Foreground="#34495E" FontWeight="Bold" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding LastExecution.Duration}" FontSize="14" Foreground="#2C3E50" FontWeight="Medium" VerticalAlignment="Center" />
                     </StackPanel>
                     
-                    <StackPanel Grid.Column="3" Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,24,0">
-                        <TextBlock Text="Rows:" FontSize="14" Foreground="#000000" FontWeight="SemiBold" VerticalAlignment="Center" />
-                        <TextBlock Text="{Binding LastExecution.RowCount}" FontSize="14" Foreground="#000000" VerticalAlignment="Center" />
+                    <StackPanel Grid.Column="3" Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,28,0">
+                        <TextBlock Text="Rows:" FontSize="14" Foreground="#34495E" FontWeight="Bold" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding LastExecution.RowCount}" FontSize="14" Foreground="#2C3E50" FontWeight="Medium" VerticalAlignment="Center" />
                     </StackPanel>
                     
                     <!-- Refresh Button has been removed due to thread-safety issues -->

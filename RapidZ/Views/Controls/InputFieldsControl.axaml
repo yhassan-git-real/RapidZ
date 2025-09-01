@@ -3,17 +3,27 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:RapidZ.Views.ViewModels"
+             xmlns:material="using:Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="RapidZ.Views.Controls.InputFieldsControl"
              x:DataType="vm:MainViewModel">
 
     <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,*" Margin="0,2,0,0">
         <!-- HS CODE -->
-        <TextBlock Grid.Row="0" Grid.Column="0"
-                   Text="HS CODE"
-                   Classes="FieldLabel"
+        <StackPanel Grid.Row="0" Grid.Column="0" 
+                   Orientation="Horizontal" 
+                   Spacing="6" 
                    HorizontalAlignment="Left"
-                   Margin="0,0,12,0" />
+                   Margin="0,0,12,0">
+            <material:MaterialIcon Kind="Barcode" 
+                                 Foreground="#666666" 
+                                 Width="14" 
+                                 Height="14" 
+                                 VerticalAlignment="Center" />
+            <TextBlock Text="HS CODE"
+                       Classes="FieldLabel"
+                       VerticalAlignment="Center" />
+        </StackPanel>
         <TextBox Grid.Row="0" Grid.Column="1"
                  Text="{Binding ExportDataFilter.HSCode}"
                  Classes="FormInput"
@@ -21,11 +31,20 @@
                  Watermark="Enter HS code" />
 
         <!-- Product -->
-        <TextBlock Grid.Row="1" Grid.Column="0"
-                   Text="Product"
-                   Classes="FieldLabel"
+        <StackPanel Grid.Row="1" Grid.Column="0" 
+                   Orientation="Horizontal" 
+                   Spacing="6" 
                    HorizontalAlignment="Left"
-                   Margin="0,0,12,0" />
+                   Margin="0,0,12,0">
+            <material:MaterialIcon Kind="Package" 
+                                 Foreground="#666666" 
+                                 Width="14" 
+                                 Height="14" 
+                                 VerticalAlignment="Center" />
+            <TextBlock Text="Product"
+                       Classes="FieldLabel"
+                       VerticalAlignment="Center" />
+        </StackPanel>
         <TextBox Grid.Row="1" Grid.Column="1"
                  Text="{Binding ExportDataFilter.Product}"
                  Classes="FormInput"
@@ -33,11 +52,20 @@
                  Watermark="Enter product name" />
 
         <!-- Exporter/Importer (dynamic based on mode) -->
-        <TextBlock Grid.Row="2" Grid.Column="0"
-                   Text="{Binding ExporterLabelText}"
-                   Classes="FieldLabel"
+        <StackPanel Grid.Row="2" Grid.Column="0" 
+                   Orientation="Horizontal" 
+                   Spacing="6" 
                    HorizontalAlignment="Left"
-                   Margin="0,0,12,0" />
+                   Margin="0,0,12,0">
+            <material:MaterialIcon Kind="AccountTie" 
+                                 Foreground="#666666" 
+                                 Width="14" 
+                                 Height="14" 
+                                 VerticalAlignment="Center" />
+            <TextBlock Text="{Binding ExporterLabelText}"
+                       Classes="FieldLabel"
+                       VerticalAlignment="Center" />
+        </StackPanel>
         <TextBox Grid.Row="2" Grid.Column="1"
                  Text="{Binding ExportDataFilter.Exporter}"
                  Classes="FormInput"
@@ -45,11 +73,20 @@
                  Watermark="Enter name" />
 
         <!-- IEC -->
-        <TextBlock Grid.Row="3" Grid.Column="0"
-                   Text="IEC"
-                   Classes="FieldLabel"
+        <StackPanel Grid.Row="3" Grid.Column="0" 
+                   Orientation="Horizontal" 
+                   Spacing="6" 
                    HorizontalAlignment="Left"
-                   Margin="0,0,12,0" />
+                   Margin="0,0,12,0">
+            <material:MaterialIcon Kind="Certificate" 
+                                 Foreground="#666666" 
+                                 Width="14" 
+                                 Height="14" 
+                                 VerticalAlignment="Center" />
+            <TextBlock Text="IEC"
+                       Classes="FieldLabel"
+                       VerticalAlignment="Center" />
+        </StackPanel>
         <TextBox Grid.Row="3" Grid.Column="1"
                  Text="{Binding ExportDataFilter.IEC}"
                  Classes="FormInput"
@@ -57,11 +94,20 @@
                  Watermark="Enter IEC number" />
 
         <!-- Foreign Party -->
-        <TextBlock Grid.Row="4" Grid.Column="0"
-                   Text="Foreign Party"
-                   Classes="FieldLabel"
+        <StackPanel Grid.Row="4" Grid.Column="0" 
+                   Orientation="Horizontal" 
+                   Spacing="6" 
                    HorizontalAlignment="Left"
-                   Margin="0,0,12,0" />
+                   Margin="0,0,12,0">
+            <material:MaterialIcon Kind="AccountGroup" 
+                                 Foreground="#666666" 
+                                 Width="14" 
+                                 Height="14" 
+                                 VerticalAlignment="Center" />
+            <TextBlock Text="Foreign Party"
+                       Classes="FieldLabel"
+                       VerticalAlignment="Center" />
+        </StackPanel>
         <TextBox Grid.Row="4" Grid.Column="1"
                  Text="{Binding ExportDataFilter.ForeignParty}"
                  Classes="FormInput"
@@ -69,11 +115,20 @@
                  Watermark="Enter foreign party name" />
 
         <!-- Foreign Country -->
-        <TextBlock Grid.Row="5" Grid.Column="0"
-                   Text="Foreign Country"
-                   Classes="FieldLabel"
+        <StackPanel Grid.Row="5" Grid.Column="0" 
+                   Orientation="Horizontal" 
+                   Spacing="6" 
                    HorizontalAlignment="Left"
-                   Margin="0,0,12,0" />
+                   Margin="0,0,12,0">
+            <material:MaterialIcon Kind="Earth" 
+                                 Foreground="#666666" 
+                                 Width="14" 
+                                 Height="14" 
+                                 VerticalAlignment="Center" />
+            <TextBlock Text="Foreign Country"
+                       Classes="FieldLabel"
+                       VerticalAlignment="Center" />
+        </StackPanel>
         <TextBox Grid.Row="5" Grid.Column="1"
                  Text="{Binding ExportDataFilter.ForeignCountry}"
                  Classes="FormInput"
@@ -81,11 +136,20 @@
                  Watermark="Enter country name" />
                  
         <!-- PORT -->
-        <TextBlock Grid.Row="6" Grid.Column="0"
-                   Text="PORT"
-                   Classes="FieldLabel"
+        <StackPanel Grid.Row="6" Grid.Column="0" 
+                   Orientation="Horizontal" 
+                   Spacing="6" 
                    HorizontalAlignment="Left"
-                   Margin="0,0,12,0" />
+                   Margin="0,0,12,0">
+            <material:MaterialIcon Kind="Ferry" 
+                                 Foreground="#666666" 
+                                 Width="14" 
+                                 Height="14" 
+                                 VerticalAlignment="Center" />
+            <TextBlock Text="PORT"
+                       Classes="FieldLabel"
+                       VerticalAlignment="Center" />
+        </StackPanel>
         <TextBox Grid.Row="6" Grid.Column="1"
                  Text="{Binding ExportDataFilter.Port}"
                  Classes="FormInput"
@@ -93,11 +157,20 @@
                  Watermark="Enter port name" />
                  
         <!-- Custom File Location -->
-        <TextBlock Grid.Row="7" Grid.Column="0"
-                   Text="{Binding FileLocationLabelText}"
-                   Classes="FieldLabel"
+        <StackPanel Grid.Row="7" Grid.Column="0" 
+                   Orientation="Horizontal" 
+                   Spacing="6" 
                    HorizontalAlignment="Left"
-                   Margin="0,0,12,0" />
+                   Margin="0,0,12,0">
+            <material:MaterialIcon Kind="FolderOpen" 
+                                 Foreground="#666666" 
+                                 Width="14" 
+                                 Height="14" 
+                                 VerticalAlignment="Center" />
+            <TextBlock Text="{Binding FileLocationLabelText}"
+                       Classes="FieldLabel"
+                       VerticalAlignment="Center" />
+        </StackPanel>
         <StackPanel Grid.Row="7" Grid.Column="1" 
                     Orientation="Vertical" 
                     Spacing="4"

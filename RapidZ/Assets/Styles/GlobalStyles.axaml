@@ -1,17 +1,39 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:customControls="using:RapidZ.Views.Controls">
-    <!-- Card Style -->
+        xmlns:customControls="using:RapidZ.Views.Controls"
+        xmlns:material="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia">
+    <!-- Enhanced Card Style -->
     <Style Selector="Border.Card">
-        <Setter Property="Background" Value="#E5FFFFFF"/>
-        <Setter Property="CornerRadius" Value="12"/>
-        <Setter Property="Padding" Value="8"/>
-        <Setter Property="BoxShadow" Value="0 2 8 0 #25000000"/>
-        <Setter Property="Margin" Value="4"/>
-    </Style>
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#FFFFFF" Offset="0" />
+                <GradientStop Color="#FAFBFC" Offset="1" />
+            </LinearGradientBrush>
+        </Setter>
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="24" />
 
+        <Setter Property="Margin" Value="0,0,0,20" />
+        <Setter Property="BorderBrush" Value="#E8EDF7" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Transitions">
+            <Transitions>
+                
+                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3" Easing="CubicEaseOut" />
+                <BrushTransition Property="Background" Duration="0:0:0.3" />
+            </Transitions>
+        </Setter>
+    </Style>
+    
     <Style Selector="Border.Card:pointerover">
-        <Setter Property="BoxShadow" Value="0 3 12 0 #30000000"/>
+
+        <Setter Property="RenderTransform" Value="translateY(-2px)" />
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#FFFFFF" Offset="0" />
+                <GradientStop Color="#F8FAFC" Offset="1" />
+            </LinearGradientBrush>
+        </Setter>
     </Style>
     
     <!-- Header Style -->
@@ -38,7 +60,7 @@
         <Setter Property="Padding" Value="10,8,10,8"/>
         <Setter Property="Margin" Value="-8,-8,-8,8"/>
         <Setter Property="CornerRadius" Value="12,12,0,0"/>
-        <Setter Property="BoxShadow" Value="0 1 3 0 #20000000"/>
+
     </Style>
     
     <!-- Section Title Style -->
@@ -111,39 +133,73 @@
         <Setter Property="BorderBrush" Value="#3A5BDC"/>
         <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="Background" Value="#FAFAFA"/>
-        <Setter Property="BoxShadow" Value="0 0 3 0 #203A5BDC"/>
+
     </Style>
     
-    <!-- Radio Button Style -->
+    <!-- Enhanced Radio Button Style with Transitions -->
     <Style Selector="RadioButton.FormRadio">
         <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Transitions">
+            <Setter.Value>
+                <Transitions>
+                    <BrushTransition Property="Foreground" Duration="0:0:0.2"/>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+                </Transitions>
+            </Setter.Value>
+        </Setter>
         <Setter Property="Margin" Value="0,0,12,0"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
     
-    <!-- Primary Button Style (Generate Report - Green) -->
+    <!-- Enhanced Primary Button (Generate Report) -->
     <Style Selector="Button.PrimaryButton">
-        <Setter Property="Background" Value="#4CAF50"/>
-        <Setter Property="Foreground" Value="White"/>
-        <Setter Property="Padding" Value="14,8"/>
-        <Setter Property="CornerRadius" Value="6"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="FontSize" Value="13"/>
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#28A745" Offset="0" />
+                <GradientStop Color="#20963D" Offset="1" />
+            </LinearGradientBrush>
+        </Setter>
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Padding" Value="18,12" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Cursor" Value="Hand" />
+
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
         <Setter Property="Margin" Value="0,0,6,0"/>
         <Setter Property="Transitions">
             <Setter.Value>
                 <Transitions>
-                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+                    <BrushTransition Property="Background" Duration="0:0:0.3" />
+
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" />
                 </Transitions>
             </Setter.Value>
         </Setter>
     </Style>
     
     <Style Selector="Button.PrimaryButton:pointerover">
-        <Setter Property="Background" Value="#45A049"/>
-        <Setter Property="RenderTransform" Value="scale(1.03)"/>
-        <Setter Property="Effect" Value="drop-shadow(0 2 5 #30000000)"/>
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#2EBD4F" Offset="0" />
+                <GradientStop Color="#26A142" Offset="1" />
+            </LinearGradientBrush>
+        </Setter>
+
+        <Setter Property="RenderTransform" Value="translateY(-1px)" />
+    </Style>
+    
+    <Style Selector="Button.PrimaryButton:pressed">
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#1E7E34" Offset="0" />
+                <GradientStop Color="#196F2E" Offset="1" />
+            </LinearGradientBrush>
+        </Setter>
+        <Setter Property="RenderTransform" Value="translateY(0px)" />
+
     </Style>
     
     <Style Selector="Button.PrimaryButton:disabled">
@@ -151,36 +207,68 @@
         <Setter Property="Opacity" Value="0.7"/>
     </Style>
     
-    <!-- Secondary Button Style (Cancel - Red) -->
+    <!-- Enhanced Secondary Button Style (Cancel - Red) -->
     <Style Selector="Button.SecondaryButton">
-        <Setter Property="Background" Value="#F44336"/>
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#F44336" Offset="0" />
+                <GradientStop Color="#E53935" Offset="1" />
+            </LinearGradientBrush>
+        </Setter>
         <Setter Property="Foreground" Value="White"/>
-        <Setter Property="Padding" Value="14,8"/>
-        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Padding" Value="18,12"/>
+        <Setter Property="CornerRadius" Value="8"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="FontSize" Value="13"/>
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Cursor" Value="Hand" />
+
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Margin" Value="0,0,6,0"/>
         <Setter Property="Transitions">
             <Setter.Value>
                 <Transitions>
-                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+                    <BrushTransition Property="Background" Duration="0:0:0.3" />
+
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2"/>
                 </Transitions>
             </Setter.Value>
         </Setter>
     </Style>
     
     <Style Selector="Button.SecondaryButton:pointerover">
-        <Setter Property="Background" Value="#E53935"/>
-        <Setter Property="RenderTransform" Value="scale(1.03)"/>
-        <Setter Property="Effect" Value="drop-shadow(0 2 5 #30000000)"/>
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#F55A4E" Offset="0" />
+                <GradientStop Color="#E53935" Offset="1" />
+            </LinearGradientBrush>
+        </Setter>
+
+        <Setter Property="RenderTransform" Value="translateY(-1px)"/>
+    </Style>
+    
+    <Style Selector="Button.SecondaryButton:pressed">
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#D32F2F" Offset="0" />
+                <GradientStop Color="#C62828" Offset="1" />
+            </LinearGradientBrush>
+        </Setter>
+        <Setter Property="RenderTransform" Value="translateY(0px)" />
+
     </Style>
     
     <Style Selector="Button.SecondaryButton:disabled">
-        <Setter Property="Background" Value="#FFCDD2"/>
-        <Setter Property="Opacity" Value="0.7"/>
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#F44336" Offset="0" />
+                <GradientStop Color="#E53935" Offset="1" />
+            </LinearGradientBrush>
+        </Setter>
+        <Setter Property="Opacity" Value="1"/>
     </Style>
     
-    <!-- ComboBox Style -->
+    <!-- Enhanced ComboBox Style with Transitions -->
     <Style Selector="ComboBox">
         <Setter Property="Height" Value="28"/>
         <Setter Property="FontSize" Value="13"/>
@@ -189,30 +277,78 @@
         <Setter Property="FontFamily" Value="Segoe UI, Arial, sans-serif"/>
         <Setter Property="Foreground" Value="#333333"/>
         <Setter Property="BorderThickness" Value="1"/>
-    </Style>
-    
-    <!-- Reset Button Style (Blue) -->
-    <Style Selector="Button.ResetButton">
-        <Setter Property="Background" Value="#2196F3"/>
-        <Setter Property="Foreground" Value="White"/>
-        <Setter Property="Padding" Value="14,8"/>
-        <Setter Property="CornerRadius" Value="6"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="FontSize" Value="13"/>
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="BorderBrush" Value="#C0C0C0"/>
+        <Setter Property="Background" Value="#FFFFFF"/>
         <Setter Property="Transitions">
             <Setter.Value>
                 <Transitions>
-                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
+                    <BrushTransition Property="Background" Duration="0:0:0.2"/>
+                </Transitions>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <Style Selector="ComboBox:pointerover">
+        <Setter Property="BorderBrush" Value="#3A5BDC"/>
+        <Setter Property="Background" Value="#FAFAFA"/>
+    </Style>
+    
+    <Style Selector="ComboBox:focus">
+        <Setter Property="BorderBrush" Value="#3A5BDC"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="Background" Value="#FAFAFA"/>
+
+    </Style>
+    
+    <!-- Enhanced Reset Button Style (Blue) -->
+    <Style Selector="Button.ResetButton">
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#2196F3" Offset="0" />
+                <GradientStop Color="#1976D2" Offset="1" />
+            </LinearGradientBrush>
+        </Setter>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Padding" Value="18,12"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Cursor" Value="Hand" />
+
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Transitions">
+            <Setter.Value>
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.3" />
+
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2"/>
                 </Transitions>
             </Setter.Value>
         </Setter>
     </Style>
     
     <Style Selector="Button.ResetButton:pointerover">
-        <Setter Property="Background" Value="#1E88E5"/>
-        <Setter Property="RenderTransform" Value="scale(1.03)"/>
-        <Setter Property="Effect" Value="drop-shadow(0 2 5 #30000000)"/>
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#42A5F5" Offset="0" />
+                <GradientStop Color="#1E88E5" Offset="1" />
+            </LinearGradientBrush>
+        </Setter>
+
+        <Setter Property="RenderTransform" Value="translateY(-1px)"/>
+    </Style>
+    
+    <Style Selector="Button.ResetButton:pressed">
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#1565C0" Offset="0" />
+                <GradientStop Color="#0D47A1" Offset="1" />
+            </LinearGradientBrush>
+        </Setter>
+        <Setter Property="RenderTransform" Value="translateY(0px)" />
+
     </Style>
     
     <Style Selector="Button.ResetButton:disabled">
@@ -245,7 +381,7 @@
         <Setter Property="BorderBrush" Value="#F44336"/>
         <Setter Property="BorderThickness" Value="2"/>
         <Setter Property="Background" Value="#FFF5F5"/>
-        <Setter Property="BoxShadow" Value="0 0 3 0 #20F44336"/>
+
     </Style>
     
     <!-- Validation Message Style -->
@@ -257,12 +393,26 @@
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
     
-    <!-- CheckBox Style -->
+    <!-- Enhanced CheckBox Style with Transitions -->
     <Style Selector="CheckBox.FormCheckBox">
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Margin" Value="8,0,0,0"/>
         <Setter Property="FontFamily" Value="Segoe UI, Arial, sans-serif"/>
+        <Setter Property="Transitions">
+            <Setter.Value>
+                <Transitions>
+                    <BrushTransition Property="Foreground" Duration="0:0:0.2"/>
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
+                    <BrushTransition Property="Background" Duration="0:0:0.2"/>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+                </Transitions>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <Style Selector="CheckBox.FormCheckBox:pointerover">
+        <Setter Property="RenderTransform" Value="scale(1.02)"/>
     </Style>
     
     <!-- CheckBox Highlight Required Style -->
@@ -278,6 +428,51 @@
     <Style Selector="StackPanel.FileLocationContainer">
         <Setter Property="Orientation" Value="Horizontal"/>
         <Setter Property="Spacing" Value="0"/>
+    </Style>
+    
+    <!-- Material Icon Transitions -->
+    <Style Selector="material|MaterialIcon">
+        <Setter Property="Transitions">
+            <Setter.Value>
+                <Transitions>
+                    <BrushTransition Property="Foreground" Duration="0:0:0.2"/>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2"/>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+                </Transitions>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <Style Selector="material|MaterialIcon:pointerover">
+        <Setter Property="RenderTransform" Value="scale(1.02)"/>
+        <Setter Property="Opacity" Value="0.9"/>
+    </Style>
+    
+    <!-- Smooth Fade-in Animation for Controls -->
+    <Style Selector="UserControl">
+        <Setter Property="Transitions">
+            <Setter.Value>
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.3"/>
+                </Transitions>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <!-- Enhanced Border Card Hover Effects -->
+    <Style Selector="Border.Card:pointerover">
+        <Setter Property="RenderTransform" Value="translateY(-1px)"/>
+    </Style>
+    
+    <!-- Smooth Grid Transitions -->
+    <Style Selector="Grid">
+        <Setter Property="Transitions">
+            <Setter.Value>
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+                </Transitions>
+            </Setter.Value>
+        </Setter>
     </Style>
     
 </Styles>

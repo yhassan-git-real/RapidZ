@@ -57,9 +57,14 @@
             </Border.Background>
         </Border>
 
-        <!-- Main Content Area with top margin for spacing -->
-        <controls:FilterControl Grid.Row="1" 
-                               DataContext="{Binding}" Margin="0,12,0,0" />
+        <!-- Main Content Area -->
+        <Border Grid.Row="1" 
+               Background="#FFFFFF" 
+               CornerRadius="8" 
+               Margin="0,8,0,8" 
+               Padding="0">
+            <controls:FilterControl DataContext="{Binding}" Margin="0,12,0,0" />
+        </Border>
                                
         <!-- Footer -->
         <controls:FooterControl Grid.Row="2" 

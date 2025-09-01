@@ -4,62 +4,220 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:RapidZ.Views.ViewModels"
              xmlns:converters="using:RapidZ.Views.Converters"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
              x:Class="RapidZ.Views.Controls.LoadingControl"
              x:DataType="vm:MainViewModel">
 
     <Grid IsVisible="{Binding IsBusy}"
           Background="#90000000">
+        <Grid.Transitions>
+            <Transitions>
+                <DoubleTransition Property="Opacity" Duration="0:0:0.3" />
+            </Transitions>
+        </Grid.Transitions>
+        
         <Border Background="#FFFFFF"
-                CornerRadius="16"
-                BoxShadow="0 4 20 0 #40000000"
-                Width="260"
-                Height="110"
+                CornerRadius="20"
+    
+                Width="320"
+                Height="140"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center">
+            <Border.Transitions>
+                <Transitions>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.4" Easing="CubicEaseOut" />
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.3" />
+                </Transitions>
+            </Border.Transitions>
+            <Border.RenderTransform>
+                <ScaleTransform ScaleX="1" ScaleY="1" />
+            </Border.RenderTransform>
+            
             <Grid>
+                <!-- Subtle background gradient -->
+                <Border CornerRadius="20" Opacity="0.05">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                            <GradientStop Color="#3A5BDC" Offset="0.0" />
+                            <GradientStop Color="#7B8AF7" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                </Border>
+                
                 <StackPanel HorizontalAlignment="Center"
                             VerticalAlignment="Center"
-                            Spacing="14">
+                            Spacing="18">
+                    <!-- Loading Icon with Animation -->
+                    <Grid Width="48" Height="48" HorizontalAlignment="Center">
+                        <Border Background="#F0F6FF" 
+                                CornerRadius="24" 
+                                Width="48" 
+                                Height="48">
+                            <Border.Transitions>
+                                <Transitions>
+                                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:2" />
+                                </Transitions>
+                            </Border.Transitions>
+                            <Border.RenderTransform>
+                                <RotateTransform Angle="0" />
+                            </Border.RenderTransform>
+                        </Border>
+                        <materialIcons:MaterialIcon Kind="Sync" 
+                                                   Width="24" 
+                                                   Height="24"
+                                                   Foreground="#3A5BDC"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center">
+                            <materialIcons:MaterialIcon.RenderTransform>
+                                <RotateTransform Angle="0" />
+                            </materialIcons:MaterialIcon.RenderTransform>
+                            <materialIcons:MaterialIcon.Styles>
+                                <Style Selector="materialIcons|MaterialIcon">
+                                    <Style.Animations>
+                                        <Animation Duration="0:0:1.5" IterationCount="INFINITE">
+                                            <KeyFrame Cue="0%">
+                                                <Setter Property="RenderTransform" Value="rotate(0deg)" />
+                                            </KeyFrame>
+                                            <KeyFrame Cue="100%">
+                                                <Setter Property="RenderTransform" Value="rotate(360deg)" />
+                                            </KeyFrame>
+                                        </Animation>
+                                    </Style.Animations>
+                                </Style>
+                            </materialIcons:MaterialIcon.Styles>
+                        </materialIcons:MaterialIcon>
+                    </Grid>
+                    
                     <Grid>
                         <ProgressBar IsIndeterminate="{Binding ProgressPercentage, Converter={x:Static converters:ProgressToIndeterminateConverter.Instance}}"
                                      Value="{Binding ProgressPercentage}"
-                                     Width="200"
-                                     Height="5"
+                                     Width="240"
+                                     Height="6"
                                      Foreground="#3A5BDC"
-                                     Background="#E0E0E0"
-                                     CornerRadius="3" />
+                                     Background="#E8EDF7"
+                                     CornerRadius="3">
+                            <ProgressBar.Transitions>
+                                <Transitions>
+                                    <DoubleTransition Property="Value" Duration="0:0:0.3" Easing="CubicEaseOut" />
+                                </Transitions>
+                            </ProgressBar.Transitions>
+                        </ProgressBar>
+                        
+                        <!-- Progress glow effect -->
+                        <Border Height="6" 
+                                Width="240" 
+                                CornerRadius="3" 
+                                Background="#203A5BDC" 
+                                Opacity="0.3">
+                            <Border.Styles>
+                                <Style Selector="Border">
+                                    <Style.Animations>
+                                        <Animation Duration="0:0:2" IterationCount="INFINITE">
+                                            <KeyFrame Cue="0%">
+                                                <Setter Property="Opacity" Value="0.2" />
+                                            </KeyFrame>
+                                            <KeyFrame Cue="50%">
+                                                <Setter Property="Opacity" Value="0.4" />
+                                            </KeyFrame>
+                                            <KeyFrame Cue="100%">
+                                                <Setter Property="Opacity" Value="0.2" />
+                                            </KeyFrame>
+                                        </Animation>
+                                    </Style.Animations>
+                                </Style>
+                            </Border.Styles>
+                        </Border>
                     </Grid>
-                    <StackPanel Spacing="8">
-                        <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
-                            <Canvas Width="18" Height="18">
-                                <Path Fill="#3A5BDC" Data="M13,3H11V13H13V3M13,17H11V21H13V17Z" />
-                            </Canvas>
-                            <TextBlock Text="Processing... Please wait."
-                                       Foreground="#333333"
-                                       FontSize="13"
-                                       FontWeight="Medium"
-                                       VerticalAlignment="Center" />
-                        </StackPanel>
-                        
-                        <!-- Progress percentage display -->
-                        <TextBlock Text="{Binding ProgressPercentage, StringFormat='{}{0:F1}%'}"
-                                   Foreground="#666666"
-                                   FontSize="11"
+                    
+                    <!-- Enhanced loading message with typing animation -->
+                    <StackPanel Orientation="Horizontal" 
+                               HorizontalAlignment="Center" 
+                               Spacing="8">
+                        <TextBlock Text="{Binding ProgressMessage}"
+                                   FontSize="15"
+                                   FontWeight="Medium"
+                                   Foreground="#2C3E50"
                                    HorizontalAlignment="Center"
-                                   IsVisible="{Binding ProgressPercentage, Converter={x:Static converters:ProgressToIndeterminateConverter.Instance}, ConverterParameter=invert}" />
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   MaxWidth="240">
+                            <TextBlock.Transitions>
+                                <Transitions>
+                                    <DoubleTransition Property="Opacity" Duration="0:0:0.4" />
+                                </Transitions>
+                            </TextBlock.Transitions>
+                        </TextBlock>
                         
-                        <!-- Cancel button -->
-                        <Button Content="Cancel"
-                                Click="Cancel_Click" Name="CancelButton"
-                                IsVisible="{Binding CanCancel}"
-                                Width="80"
-                                Height="28"
-                                FontSize="11"
-                                HorizontalAlignment="Center"
-                                Background="#FF6B6B"
-                                Foreground="White"
-                                CornerRadius="4" />
+                        <!-- Animated dots -->
+                        <StackPanel Orientation="Horizontal" Spacing="2" VerticalAlignment="Bottom">
+                            <Ellipse Width="4" Height="4" Fill="#3A5BDC">
+                                <Ellipse.Styles>
+                                    <Style Selector="Ellipse">
+                                        <Style.Animations>
+                                            <Animation Duration="0:0:1.2" IterationCount="INFINITE">
+                                                <KeyFrame Cue="0%">
+                                                    <Setter Property="Opacity" Value="0.3" />
+                                                </KeyFrame>
+                                                <KeyFrame Cue="33%">
+                                                    <Setter Property="Opacity" Value="1" />
+                                                </KeyFrame>
+                                                <KeyFrame Cue="66%">
+                                                    <Setter Property="Opacity" Value="0.3" />
+                                                </KeyFrame>
+                                                <KeyFrame Cue="100%">
+                                                    <Setter Property="Opacity" Value="0.3" />
+                                                </KeyFrame>
+                                            </Animation>
+                                        </Style.Animations>
+                                    </Style>
+                                </Ellipse.Styles>
+                            </Ellipse>
+                            <Ellipse Width="4" Height="4" Fill="#3A5BDC">
+                                <Ellipse.Styles>
+                                    <Style Selector="Ellipse">
+                                        <Style.Animations>
+                                            <Animation Duration="0:0:1.2" IterationCount="INFINITE" Delay="0:0:0.2">
+                                                <KeyFrame Cue="0%">
+                                                    <Setter Property="Opacity" Value="0.3" />
+                                                </KeyFrame>
+                                                <KeyFrame Cue="33%">
+                                                    <Setter Property="Opacity" Value="1" />
+                                                </KeyFrame>
+                                                <KeyFrame Cue="66%">
+                                                    <Setter Property="Opacity" Value="0.3" />
+                                                </KeyFrame>
+                                                <KeyFrame Cue="100%">
+                                                    <Setter Property="Opacity" Value="0.3" />
+                                                </KeyFrame>
+                                            </Animation>
+                                        </Style.Animations>
+                                    </Style>
+                                </Ellipse.Styles>
+                            </Ellipse>
+                            <Ellipse Width="4" Height="4" Fill="#3A5BDC">
+                                <Ellipse.Styles>
+                                    <Style Selector="Ellipse">
+                                        <Style.Animations>
+                                            <Animation Duration="0:0:1.2" IterationCount="INFINITE" Delay="0:0:0.4">
+                                                <KeyFrame Cue="0%">
+                                                    <Setter Property="Opacity" Value="0.3" />
+                                                </KeyFrame>
+                                                <KeyFrame Cue="33%">
+                                                    <Setter Property="Opacity" Value="1" />
+                                                </KeyFrame>
+                                                <KeyFrame Cue="66%">
+                                                    <Setter Property="Opacity" Value="0.3" />
+                                                </KeyFrame>
+                                                <KeyFrame Cue="100%">
+                                                    <Setter Property="Opacity" Value="0.3" />
+                                                </KeyFrame>
+                                            </Animation>
+                                        </Style.Animations>
+                                    </Style>
+                                </Ellipse.Styles>
+                            </Ellipse>
+                        </StackPanel>
                     </StackPanel>
                 </StackPanel>
             </Grid>
