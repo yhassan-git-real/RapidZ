@@ -30,7 +30,7 @@ namespace RapidZ.Core.Services
         private readonly SharedDatabaseSettings _dbSettings;
         private bool _isPaused = false; // Flag to pause connection checks
         private int _lastResponseTime = 0;
-        private bool _isStartupTestMode = false; // Flag for startup testing
+
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -205,7 +205,6 @@ namespace RapidZ.Core.Services
         // Startup testing method - test connection once and disconnect (optimized)
         public async Task<bool> TestConnectionOnStartupAsync()
         {
-            _isStartupTestMode = true;
             
             try
             {
@@ -237,7 +236,6 @@ namespace RapidZ.Core.Services
                 ConnectionInfo = disconnectedInfo;
                 OnPropertyChanged(nameof(ConnectionInfo));
                 
-                _isStartupTestMode = false;
                 return true;
             }
             catch (Exception)
@@ -257,7 +255,6 @@ namespace RapidZ.Core.Services
                 ConnectionInfo = failedInfo;
                 OnPropertyChanged(nameof(ConnectionInfo));
                 
-                _isStartupTestMode = false;
                 return false;
             }
         }

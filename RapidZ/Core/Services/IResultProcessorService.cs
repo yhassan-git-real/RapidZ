@@ -62,7 +62,7 @@ namespace RapidZ.Core.Services
             ProcessingCounters counters, 
             string operationType, 
             TimeSpan processingTime, 
-            System.Collections.Generic.List<string> fileNames = null);
+            System.Collections.Generic.List<string>? fileNames = null);
     }
 
     /// <summary>

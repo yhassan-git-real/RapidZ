@@ -124,7 +124,7 @@ namespace RapidZ.Core.Services
                 {
                     // Export mode - use ExportController
                     var exportInputs = ConvertToExportInputs(exportFilter!);
-                    await _exportController.RunAsync(exportInputs, _currentCancellationSource.Token, _selectedView, _selectedStoredProcedure, GetCustomOutputPath(exportFilter));
+                    await _exportController.RunAsync(exportInputs, _currentCancellationSource.Token, _selectedView, _selectedStoredProcedure, GetCustomOutputPath(exportFilter!));
                 }
             }
             catch (OperationCanceledException)
@@ -133,7 +133,9 @@ namespace RapidZ.Core.Services
             }
             catch (Exception ex)
             {
-                // Log error
+                // Log error to monitoring service if available
+                _serviceContainer?.MonitoringService?.AddLog(RapidZ.Features.Monitoring.Models.LogLevel.Error, 
+                    $"Error during operation: {ex.Message}", "UIAction");
             }
             finally
             {

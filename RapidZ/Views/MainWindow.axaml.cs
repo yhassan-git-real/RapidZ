@@ -7,7 +7,13 @@ namespace RapidZ.Views;
 
 public partial class MainWindow : Window
 {
-    private ServiceContainer _services;
+    private ServiceContainer? _services;
+
+    // Parameterless constructor for XAML compatibility
+    public MainWindow()
+    {
+        InitializeComponent();
+    }
 
     public MainWindow(ServiceContainer services)
     {
@@ -27,5 +33,5 @@ public partial class MainWindow : Window
     }
     
     // Expose services for UI access
-    public ServiceContainer Services => _services;
+    public ServiceContainer? Services => _services;
 }

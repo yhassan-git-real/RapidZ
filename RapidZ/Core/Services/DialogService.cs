@@ -36,7 +36,7 @@ namespace RapidZ.Core.Services
             int fileCount, 
             int parameterCount, 
             int combinationCount,
-            List<string> fileNames = null,
+            List<string>? fileNames = null,
             TimeSpan? processingTime = null)
         {
             await Dispatcher.UIThread.InvokeAsync(async () =>

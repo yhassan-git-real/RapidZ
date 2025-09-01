@@ -108,7 +108,7 @@ public class DatabaseService : INotifyPropertyChanged, IDisposable
     }
     
     // Check database connection status (for compatibility)
-    public async Task CheckConnectionAsync()
+    public Task CheckConnectionAsync()
     {
         try
         {
@@ -134,6 +134,8 @@ public class DatabaseService : INotifyPropertyChanged, IDisposable
             
             _logger.LogError(ex, "Database connection status update failed");
         }
+        
+        return Task.CompletedTask;
     }
     
     public bool IsConnected

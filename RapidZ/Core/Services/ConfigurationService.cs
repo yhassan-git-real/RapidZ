@@ -8,12 +8,12 @@ namespace RapidZ.Core.Services;
 // Service to handle configuration loading and access
 public class ConfigurationService
 {
-    private readonly ILogger<ConfigurationService> _logger;
+    private readonly ILogger<ConfigurationService>? _logger;
     private readonly IConfiguration _configuration;
 
 
 
-    public ConfigurationService(ILogger<ConfigurationService> logger = null)
+    public ConfigurationService(ILogger<ConfigurationService>? logger = null)
     {
         _logger = logger; // May be null, handle carefully in log calls
         

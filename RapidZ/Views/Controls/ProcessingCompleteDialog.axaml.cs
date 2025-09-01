@@ -168,7 +168,7 @@ namespace RapidZ.Views.Controls
             int fileCount,
             int parameterCount,
             int combinationCount,
-            List<string> fileNames = null,
+            List<string>? fileNames = null,
             TimeSpan? processingTime = null)
         {
             var dialog = new ProcessingCompleteDialog
