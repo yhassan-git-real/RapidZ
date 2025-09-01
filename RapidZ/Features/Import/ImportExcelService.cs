@@ -286,11 +286,13 @@ namespace RapidZ.Features.Import
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                // Apply border to entire range
-                dataRange.Style.Border.Top.Style = ExcelBorderStyle.Thin;
-                dataRange.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                dataRange.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                dataRange.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                // Apply border to entire range using configurable border style
+                var borderStyle = (_formatSettings.BorderStyle?.Equals("none", StringComparison.OrdinalIgnoreCase) == true)
+                    ? ExcelBorderStyle.None : ExcelBorderStyle.Thin;
+                dataRange.Style.Border.Top.Style = borderStyle;
+                dataRange.Style.Border.Bottom.Style = borderStyle;
+                dataRange.Style.Border.Left.Style = borderStyle;
+                dataRange.Style.Border.Right.Style = borderStyle;
 
                 cancellationToken.ThrowIfCancellationRequested();
 

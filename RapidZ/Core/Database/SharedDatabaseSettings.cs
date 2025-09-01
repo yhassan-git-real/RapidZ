@@ -9,6 +9,6 @@ namespace RapidZ.Core.Database
     {
         public string ConnectionString { get; set; } = string.Empty;
         public string LogDirectory { get; set; } = string.Empty;
-        public int CommandTimeoutSeconds { get; set; } = 3600;
+        public int CommandTimeoutSeconds { get; set; }
     }
 }

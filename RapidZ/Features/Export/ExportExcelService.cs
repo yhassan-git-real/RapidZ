@@ -78,7 +78,7 @@ public class ExportExcelService
 
 		var parameterSet = ExportParameterHelper.CreateExportParameterSet(fromMonth, toMonth, hsCode, product, iec, exporter, country, name, port);
 		var parameterDisplay = ExportParameterHelper.FormatParametersForDisplay(parameterSet);
-		_logger.LogProcessStart("Excel Export Generation", parameterDisplay, processId);
+		_logger.LogProcessStart(_exportSettings.Logging.OperationLabel, parameterDisplay, processId);
 
 		var reportTimer = Stopwatch.StartNew();
 
@@ -124,7 +124,7 @@ public class ExportExcelService
 					Port = port
 				}
 			});
-					_logger.LogProcessComplete("Excel Export Generation", reportTimer.Elapsed, "No data - skipped", processId);
+					_logger.LogProcessComplete(_exportSettings.Logging.OperationLabel, reportTimer.Elapsed, "No data - skipped", processId);
 					return new ExcelResult { Success = false, SkipReason = SkipReason.NoData, RowCount = 0 };
 				}
 				if (recordCount > ExportParameterHelper.MAX_EXCEL_ROWS)
@@ -151,7 +151,7 @@ public class ExportExcelService
 				}
 			});
 					_logger.LogSkipped(skippedFileName, recordCount, "Excel row limit exceeded", processId);
-					_logger.LogProcessComplete("Excel Export Generation", reportTimer.Elapsed, "Skipped - too many rows", processId);
+					_logger.LogProcessComplete(_exportSettings.Logging.OperationLabel, reportTimer.Elapsed, "Skipped - too many rows", processId);
 					return new ExcelResult { Success = false, SkipReason = SkipReason.ExcelRowLimit, FileName = skippedFileName, RowCount = (int)recordCount };
 				}
 
@@ -214,7 +214,7 @@ public class ExportExcelService
 
 				_logger.LogExcelResult(fileName, excelTimer.Elapsed, recordCount, processId);
 				excelTimer.Stop();
-				_logger.LogProcessComplete("Excel Export Generation", reportTimer.Elapsed, $"Success - {fileName}", processId);
+				_logger.LogProcessComplete(_exportSettings.Logging.OperationLabel, reportTimer.Elapsed, $"Success - {fileName}", processId);
 				// Add to the list of generated files
 				_generatedFileNames.Add(fileName);
 				
@@ -228,7 +228,7 @@ public class ExportExcelService
 		}
 		catch (OperationCanceledException)
 		{
-			_logger.LogProcessComplete("Excel Export Generation", reportTimer.Elapsed, "Cancelled by user", processId);
+			_logger.LogProcessComplete(_exportSettings.Logging.OperationLabel, reportTimer.Elapsed, "Cancelled by user", processId);
 			
 			// Clean up partial file if it exists
 			CancellationCleanupHelper.SafeDeletePartialFile(partialFilePath, processId);
@@ -238,7 +238,7 @@ public class ExportExcelService
 		catch (Exception ex)
 		{
 			_logger.LogError($"Process failed: {ex.Message}", ex, processId);
-			_logger.LogProcessComplete("Excel Export Generation", reportTimer.Elapsed, "Failed with error", processId);
+			_logger.LogProcessComplete(_exportSettings.Logging.OperationLabel, reportTimer.Elapsed, "Failed with error", processId);
 			reportTimer.Stop();
 			throw;
 		}

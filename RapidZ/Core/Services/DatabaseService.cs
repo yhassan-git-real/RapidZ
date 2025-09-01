@@ -2,6 +2,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using RapidZ.Core.Models;
 using RapidZ.Core.DataAccess;
+using RapidZ.Core.Services;
 using RapidZ.Views.Models;
 using RapidZ.Features.Import;
 using System;
@@ -59,16 +60,8 @@ public class DatabaseService : INotifyPropertyChanged, IDisposable
         // Subscribe to connection service property changes
         _connectionService.PropertyChanged += OnConnectionServicePropertyChanged;
         
-        // Create default ImportSettings for ImportDataAccess
-        var importSettings = new RapidZ.Features.Import.ImportSettings
-        {
-            Database = new RapidZ.Features.Import.ImportDatabaseSettings
-            {
-                StoredProcedureName = "ImportJNPTData_New1",
-                ViewName = "IMPDATA",
-                OrderByColumn = "BE_DATE"
-            }
-        };
+        // Use cached import settings from configuration
+        var importSettings = ConfigurationCacheService.GetImportSettings();
         _importDataAccess = new ImportDataAccess(importSettings);
         _connectionStatus = "Checking connection...";
         
