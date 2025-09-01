@@ -66,3 +66,7 @@ appsettings.local.json
 *.log
 EXPORT_EXCEL
 IMPORT_EXCEL
+
+#Exe file
+RapidZ.exe
+Properties
