@@ -473,7 +473,6 @@ public class MainViewModel : ViewModelBase, IDisposable
         {
             // Set status to Failed on error
             SystemStatus = SystemStatus.Failed;
-            Console.WriteLine($"Error in export operation: {ex.Message}");
             
             // Reset to Idle after 5 seconds on error (longer to allow reading)
             await Task.Delay(5000);
@@ -517,7 +516,6 @@ public class MainViewModel : ViewModelBase, IDisposable
         catch (Exception ex)
         {
             SystemStatus = SystemStatus.Failed;
-            Console.WriteLine($"Error clearing filters: {ex.Message}");
             
             await Task.Delay(3000);
             SystemStatus = SystemStatus.Idle;

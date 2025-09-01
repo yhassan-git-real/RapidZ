@@ -15,6 +15,7 @@ using RapidZ.Core.Cancellation;
 using RapidZ.Core.DataAccess;
 using System.Drawing;
 using System.Linq;
+using RapidZ.Config;
 
 namespace RapidZ.Features.Import
 {

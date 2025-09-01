@@ -134,7 +134,6 @@ namespace RapidZ.Core.Services
             catch (Exception ex)
             {
                 // Log error
-                Console.WriteLine($"Error in operation: {ex.Message}");
             }
             finally
             {
@@ -171,10 +170,7 @@ namespace RapidZ.Core.Services
                 // Note: Not resetting FromMonth, ToMonth, or Mode
             }
             
-            Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                Console.WriteLine("Reset Complete: Input parameter fields have been cleared while preserving date fields, database selections, and mode.");
-            });
+            // Reset operation completed
         }
 
         private ExportDataFilter? GetCurrentExportFilter()

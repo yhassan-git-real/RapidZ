@@ -53,6 +53,5 @@ public class ConfigurationService
         // Configuration service now only manages the IConfiguration instance
         // Individual services load their own settings as needed
         _logger?.LogInformation("Configuration service initialized");
-        System.Diagnostics.Debug.WriteLine("Configuration service initialized");
     }
 }

@@ -66,10 +66,10 @@ namespace RapidZ.Core.Services
         /// <summary>
         /// Get or load ImportExcelFormatSettings with caching (static method like TradeDataHub)
         /// </summary>
-        public static RapidZ.Features.Import.ImportExcelFormatSettings GetImportExcelFormatSettings()
+        public static RapidZ.Config.ImportExcelFormatSettings GetImportExcelFormatSettings()
         {
             const string cacheKey = "ImportExcelFormatSettings";
-            return (RapidZ.Features.Import.ImportExcelFormatSettings)_configCache.GetOrAdd(cacheKey, _ => LoadImportExcelFormatSettings());
+            return (RapidZ.Config.ImportExcelFormatSettings)_configCache.GetOrAdd(cacheKey, _ => LoadImportExcelFormatSettings());
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace RapidZ.Core.Services
             return root.DatabaseConfig;
         }
 
-        private static RapidZ.Features.Import.ImportExcelFormatSettings LoadImportExcelFormatSettings()
+        private static RapidZ.Config.ImportExcelFormatSettings LoadImportExcelFormatSettings()
         {
             const string json = "Config/ImportExcelFormatSettings.json";
             if (!File.Exists(json)) 
@@ -154,7 +154,7 @@ namespace RapidZ.Core.Services
                     .SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile(json, false);
                 var cfg = builder.Build();
-                var settings = cfg.Get<RapidZ.Features.Import.ImportExcelFormatSettings>();
+                var settings = cfg.Get<RapidZ.Config.ImportExcelFormatSettings>();
                 
                 if (settings == null)
                     throw new InvalidOperationException($"Failed to bind ImportExcelFormatSettings from {json}");

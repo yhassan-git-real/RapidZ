@@ -57,19 +57,5 @@ namespace RapidZ.Features.Import
         public string DisplayName { get; set; } = string.Empty;
     }
 
-    public class ImportExcelFormatSettings
-    {
-        public string FontName { get; set; } = "Times New Roman";
-        public int FontSize { get; set; } = 10;
-        public string HeaderBackgroundColor { get; set; } = "#4F81BD";
-        public string BorderStyle { get; set; } = "thin";
-        public string DateFormat { get; set; } = "dd-MMM-yy";
-        public int[] DateColumns { get; set; } = new int[0];
-        public int[] TextColumns { get; set; } = new int[0];
-        public bool WrapText { get; set; } = false;
-        public bool AutoFitColumns { get; set; } = true;
-        public int AutoFitSampleRows { get; set; } = 100;
-        public int AutoFitSampleRowsLarge { get; set; } = 50;
-        public int LargeDatasetThreshold { get; set; } = 100000;
-    }
+
 }

@@ -54,7 +54,6 @@ namespace RapidZ.Core.Services
                 }
                 else
                 {
-                    Console.WriteLine($"[PROCESSING COMPLETE] {operationType}: {fileCount} files, {parameterCount} parameters");
                     System.Diagnostics.Debug.WriteLine($"[PROCESSING COMPLETE] {operationType}: {fileCount} files, {parameterCount} parameters");
                 }
             });

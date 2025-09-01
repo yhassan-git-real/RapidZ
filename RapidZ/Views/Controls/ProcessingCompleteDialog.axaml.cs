@@ -132,9 +132,6 @@ namespace RapidZ.Views.Controls
         {
             InitializeComponent();
             DataContext = this;
-            
-            // Debug: Output property values to ensure they are set
-            Console.WriteLine($"[DEBUG] Dialog Properties: Title={Title}, FilesGeneratedText='{FilesGeneratedText}', TotalProcessedText='{TotalProcessedText}', StatusText='{StatusText}'");
         }
 
         private void InitializeComponent()
@@ -186,8 +183,7 @@ namespace RapidZ.Views.Controls
                 IconBackground = new SolidColorBrush(Color.Parse("#2ecc71"))
             };
             
-            // Debug: Output values after they're set
-            Console.WriteLine($"[DEBUG] Dialog Show: Title={dialog.Title}, FilesGeneratedText='{dialog.FilesGeneratedText}', TotalProcessedText='{dialog.TotalProcessedText}', StatusText='{dialog.StatusText}'");
+
 
             // Show dialog as modal
             if (parent != null)
