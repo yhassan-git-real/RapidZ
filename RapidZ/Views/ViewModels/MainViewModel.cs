@@ -108,27 +108,38 @@ public class MainViewModel : ViewModelBase, IDisposable
                 e.PropertyName == nameof(DatabaseService.ConnectionStatus))
             {
                 // Update the connection info when these properties change
-                ConnectionInfo = _databaseService.GetConnectionInfo();
+                var newConnectionInfo = _databaseService.GetConnectionInfo();
                 
-                // Also raise property changed for status message
-                this.RaisePropertyChanged(nameof(StatusMessage));
+                // Only update if connection info actually changed to reduce UI overhead
+                if (!ConnectionInfoEquals(_connectionInfo, newConnectionInfo))
+                {
+                    ConnectionInfo = newConnectionInfo;
+                    this.RaisePropertyChanged(nameof(StatusMessage));
+                }
             }
         };
         
-        // Set up timer to refresh connection info every minute when not busy
-        // (Less frequent than DB checks, but still responsive enough for the UI)
-        var timer = new System.Timers.Timer(60000); // 1 minute
+        // Set up timer to refresh connection info less frequently to reduce UI overhead
+        // Only refresh when not busy and reduce frequency to 2 minutes
+        var timer = new System.Timers.Timer(120000); // 2 minutes
         timer.Elapsed += (s, e) => 
         {
-            Dispatcher.UIThread.InvokeAsync(() => 
+            // Only update if not busy to avoid unnecessary UI updates during operations
+            if (_databaseService != null && !IsBusy)
             {
-                if (_databaseService != null && !IsBusy)
+                Dispatcher.UIThread.InvokeAsync(() => 
                 {
-                    // Update connection info and ensure status message is refreshed too
-                    ConnectionInfo = _databaseService.GetConnectionInfo();
-                    this.RaisePropertyChanged(nameof(StatusMessage));
-                }
-            });
+                    // Update connection info efficiently
+                    var newConnectionInfo = _databaseService.GetConnectionInfo();
+                    
+                    // Only update if connection info actually changed to reduce UI redraws
+                    if (!ConnectionInfoEquals(_connectionInfo, newConnectionInfo))
+                    {
+                        ConnectionInfo = newConnectionInfo;
+                        this.RaisePropertyChanged(nameof(StatusMessage));
+                    }
+                });
+            }
         };
         timer.AutoReset = true;
         timer.Start();
@@ -267,12 +278,29 @@ public class MainViewModel : ViewModelBase, IDisposable
     
     public string StatusMessage 
     {
-        get => _connectionInfo.StatusMessage;
+        get => _connectionInfo?.StatusMessage ?? "Ready";
         set 
         {
-            _connectionInfo.StatusMessage = value;
-            this.RaisePropertyChanged(nameof(StatusMessage));
+            if (_connectionInfo != null && _connectionInfo.StatusMessage != value)
+            {
+                _connectionInfo.StatusMessage = value;
+                this.RaisePropertyChanged(nameof(StatusMessage));
+            }
         }
+    }
+    
+    // Helper method to compare connection info efficiently
+    private bool ConnectionInfoEquals(ConnectionInfo? info1, ConnectionInfo? info2)
+    {
+        if (info1 == null && info2 == null) return true;
+        if (info1 == null || info2 == null) return false;
+        
+        return info1.ServerName == info2.ServerName &&
+               info1.DatabaseName == info2.DatabaseName &&
+               info1.UserName == info2.UserName &&
+               info1.IsConnected == info2.IsConnected &&
+               info1.ResponseTime == info2.ResponseTime &&
+               info1.StatusMessage == info2.StatusMessage;
     }
     
     // Current mode (Export or Import) property
@@ -469,7 +497,7 @@ public class MainViewModel : ViewModelBase, IDisposable
                 SystemStatus = SystemStatus.Idle;
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Set status to Failed on error
             SystemStatus = SystemStatus.Failed;
@@ -513,7 +541,7 @@ public class MainViewModel : ViewModelBase, IDisposable
             await Task.Delay(1500);
             SystemStatus = SystemStatus.Idle;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             SystemStatus = SystemStatus.Failed;
             

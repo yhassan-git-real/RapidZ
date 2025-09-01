@@ -17,6 +17,7 @@ namespace RapidZ.Core.DataAccess
         private readonly RapidZ.Core.Logging.Abstractions.IModuleLogger _logger;
         private readonly ImportSettings _settings;
         private readonly SharedDatabaseSettings _dbSettings;
+        private readonly OperationalConnectionManager _connectionManager;
 
         public ImportDataAccess(ImportSettings settings)
         {
@@ -24,6 +25,7 @@ namespace RapidZ.Core.DataAccess
             _settings = settings;
             // Use static configuration cache methods like TradeDataHub
             _dbSettings = ConfigurationCacheService.GetSharedDatabaseSettings();
+            _connectionManager = new OperationalConnectionManager();
         }
 
         public Tuple<SqlConnection, SqlDataReader, long> GetDataReader(
@@ -35,11 +37,9 @@ namespace RapidZ.Core.DataAccess
 
             try
             {
-                cancellationToken.ThrowIfCancellationRequested();
-
+                // Create and open connection directly
                 con = new SqlConnection(_dbSettings.ConnectionString);
                 con.Open();
-
                 cancellationToken.ThrowIfCancellationRequested();
 
                 // Determine effective view, stored procedure, and order by column
@@ -69,64 +69,64 @@ namespace RapidZ.Core.DataAccess
                     _logger.LogStep("Parameters", $"fromMonth={fromMonth}, ToMonth={toMonth}, hs={hsCode}, prod={product}, ImpCmp={importer}, forcount={country}, forname={name}, port={port}", processId);
                 }
                 
-                // Execute stored procedure using parameterized query for better performance and security
-                using (var cmd = new SqlCommand(effectiveStoredProcedureName, con))
-                {
-                    currentCommand = cmd;
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.CommandTimeout = _dbSettings.CommandTimeoutSeconds; // Use configurable timeout for long-running operations
+                    // Execute stored procedure using parameterized query for better performance and security
+                    using (var cmd = new SqlCommand(effectiveStoredProcedureName, con))
+                    {
+                        currentCommand = cmd;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandTimeout = _dbSettings.CommandTimeoutSeconds; // Use configurable timeout for long-running operations
 
-                    // Add parameters with correct names matching the stored procedure - use the exact names expected by the SP
-                    cmd.Parameters.AddWithValue("@fromMonth", fromMonth);
-                    cmd.Parameters.AddWithValue("@ToMonth", toMonth);
-                    cmd.Parameters.AddWithValue("@hs", hsCode);        // This is what the SP expects based on error
-                    cmd.Parameters.AddWithValue("@prod", product);     // Keeping naming consistent with original SP
-                    cmd.Parameters.AddWithValue("@Iec", iec);
-                    cmd.Parameters.AddWithValue("@ImpCmp", importer);  // Using original parameter name from SP
-                    cmd.Parameters.AddWithValue("@forcount", country); // Using original parameter name
-                    cmd.Parameters.AddWithValue("@forname", name);     // Using original parameter name
-                    cmd.Parameters.AddWithValue("@port", port);
+                        // Add parameters with correct names matching the stored procedure - use the exact names expected by the SP
+                        cmd.Parameters.AddWithValue("@fromMonth", fromMonth);
+                        cmd.Parameters.AddWithValue("@ToMonth", toMonth);
+                        cmd.Parameters.AddWithValue("@hs", hsCode);        // This is what the SP expects based on error
+                        cmd.Parameters.AddWithValue("@prod", product);     // Keeping naming consistent with original SP
+                        cmd.Parameters.AddWithValue("@Iec", iec);
+                        cmd.Parameters.AddWithValue("@ImpCmp", importer);  // Using original parameter name from SP
+                        cmd.Parameters.AddWithValue("@forcount", country); // Using original parameter name
+                        cmd.Parameters.AddWithValue("@forname", name);     // Using original parameter name
+                        cmd.Parameters.AddWithValue("@port", port);
 
-                    // Register cancellation callback to cancel the command
-                    using var registration = cancellationToken.Register(() => 
+                        // Register cancellation callback to cancel the command
+                        using var registration = cancellationToken.Register(() => 
+                        {
+                            CancellationCleanupHelper.SafeCancelCommand(currentCommand);
+                        });
+
+                        cmd.ExecuteNonQuery();
+                        cancellationToken.ThrowIfCancellationRequested();
+                    }
+
+                    currentCommand = null; // Command completed successfully
+
+                    // Row count
+                    long recordCount = 0;
+                    using (var countCmd = new SqlCommand($"SELECT COUNT(*) FROM {effectiveViewName}", con))
+                    {
+                        currentCommand = countCmd;
+                        countCmd.CommandTimeout = _dbSettings.CommandTimeoutSeconds; // Use configurable timeout for long-running operations
+
+                        using var registration = cancellationToken.Register(() => 
+                        {
+                            CancellationCleanupHelper.SafeCancelCommand(currentCommand);
+                        });
+
+                        recordCount = Convert.ToInt64(countCmd.ExecuteScalar());
+                        cancellationToken.ThrowIfCancellationRequested();
+                    }
+
+                    // Open streaming reader
+                    var dataCmd = new SqlCommand($"SELECT * FROM {effectiveViewName} ORDER BY [{effectiveOrderByColumn}]", con);
+                    currentCommand = dataCmd;
+                    dataCmd.CommandTimeout = _dbSettings.CommandTimeoutSeconds; // Use configurable timeout for long-running operations
+
+                    using var dataRegistration = cancellationToken.Register(() => 
                     {
                         CancellationCleanupHelper.SafeCancelCommand(currentCommand);
                     });
 
-                    cmd.ExecuteNonQuery();
+                    reader = dataCmd.ExecuteReader();
                     cancellationToken.ThrowIfCancellationRequested();
-                }
-
-                currentCommand = null; // Command completed successfully
-
-                // Row count
-                long recordCount = 0;
-                using (var countCmd = new SqlCommand($"SELECT COUNT(*) FROM {effectiveViewName}", con))
-                {
-                    currentCommand = countCmd;
-                    countCmd.CommandTimeout = _dbSettings.CommandTimeoutSeconds; // Use configurable timeout for long-running operations
-
-                    using var registration = cancellationToken.Register(() => 
-                    {
-                        CancellationCleanupHelper.SafeCancelCommand(currentCommand);
-                    });
-
-                    recordCount = Convert.ToInt64(countCmd.ExecuteScalar());
-                    cancellationToken.ThrowIfCancellationRequested();
-                }
-
-                // Open streaming reader
-                var dataCmd = new SqlCommand($"SELECT * FROM {effectiveViewName} ORDER BY [{effectiveOrderByColumn}]", con);
-                currentCommand = dataCmd;
-                dataCmd.CommandTimeout = _dbSettings.CommandTimeoutSeconds; // Use configurable timeout for long-running operations
-
-                using var dataRegistration = cancellationToken.Register(() => 
-                {
-                    CancellationCleanupHelper.SafeCancelCommand(currentCommand);
-                });
-
-                reader = dataCmd.ExecuteReader();
-                cancellationToken.ThrowIfCancellationRequested();
 
                 return new Tuple<SqlConnection, SqlDataReader, long>(con, reader, recordCount);
             }
@@ -134,7 +134,7 @@ namespace RapidZ.Core.DataAccess
             {
                 // Handle cancellation
                 CancellationCleanupHelper.SafeDisposeReader(reader);
-                CancellationCleanupHelper.SafeDisposeConnection(con);
+                con?.Dispose();
                 throw;
             }
             catch

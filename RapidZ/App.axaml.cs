@@ -17,6 +17,8 @@ using RapidZ.Features.Export.Services;
 using RapidZ.Features.Monitoring.Services;
 using OfficeOpenXml; // EPPlus license context
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RapidZ;
 
@@ -95,6 +97,9 @@ public partial class App : Application
         // Build service provider
         _serviceProvider = services.BuildServiceProvider();
         
+        // Perform initial database connection test asynchronously (non-blocking)
+        _ = Task.Run(async () => await PerformStartupConnectionTestAsync());
+        
         // Get the main window from the service provider
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -122,5 +127,29 @@ public partial class App : Application
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    /// <summary>
+    /// Performs initial database connection test during application startup (async, non-blocking)
+    /// </summary>
+    private async Task PerformStartupConnectionTestAsync()
+    {
+        try
+        {
+            // Small delay to allow UI to initialize first
+            await Task.Delay(100);
+            
+            // Get the database connection service instance
+            var connectionService = DatabaseConnectionService.Instance;
+            
+            // Perform startup connection test with timeout
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            await connectionService.TestConnectionOnStartupAsync();
+        }
+        catch (Exception ex)
+        {
+            // Log the error but don't prevent application startup
+            System.Diagnostics.Debug.WriteLine($"Startup connection test failed: {ex.Message}");
+        }
     }
 }

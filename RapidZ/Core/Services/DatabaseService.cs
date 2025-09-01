@@ -11,8 +11,6 @@ using System.ComponentModel;
 using System.Data;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-
-using System.Timers;
 using System.Threading;
 using RapidZ.Core.Parameters;
 
@@ -26,9 +24,9 @@ public class DatabaseService : INotifyPropertyChanged, IDisposable
     private readonly ExportDataAccess _exportDataAccess;
     private readonly ImportDataAccess _importDataAccess;
     private readonly DatabaseConnectionService _connectionService;
+    private readonly OperationalConnectionManager _operationalConnectionManager;
     private bool _isConnected;
     private string _connectionStatus;
-    private readonly System.Timers.Timer _connectionCheckTimer;
 
     // PropertyChanged event for UI binding
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -56,6 +54,7 @@ public class DatabaseService : INotifyPropertyChanged, IDisposable
         _configService = configService;
         _exportDataAccess = new ExportDataAccess();
         _connectionService = DatabaseConnectionService.Instance;
+        _operationalConnectionManager = new OperationalConnectionManager();
         
         // Subscribe to connection service property changes
         _connectionService.PropertyChanged += OnConnectionServicePropertyChanged;
@@ -63,18 +62,8 @@ public class DatabaseService : INotifyPropertyChanged, IDisposable
         // Use cached import settings from configuration
         var importSettings = ConfigurationCacheService.GetImportSettings();
         _importDataAccess = new ImportDataAccess(importSettings);
-        _connectionStatus = "Checking connection...";
-        
-
-        
-        // Initialize timer to check connection status every 30 seconds
-        _connectionCheckTimer = new System.Timers.Timer(30000);
-        _connectionCheckTimer.Elapsed += async (s, e) => await CheckConnectionAsync();
-        _connectionCheckTimer.AutoReset = true;
-        _connectionCheckTimer.Start();
-        
-        // Check connection initially
-        Task.Run(async () => await CheckConnectionAsync());
+        _connectionStatus = "Disconnected";
+        _isConnected = false;
     }
     
     // Gets database info from connection string
@@ -118,14 +107,11 @@ public class DatabaseService : INotifyPropertyChanged, IDisposable
         return _connectionService.ConnectionInfo;
     }
     
-    // Check database connection status
+    // Check database connection status (for compatibility)
     public async Task CheckConnectionAsync()
     {
         try
         {
-            // Delegate to the connection service for consistency
-            await _connectionService.CheckConnectionStatusAsync();
-            
             // Update local connection status from the connection service
             var connInfo = _connectionService.ConnectionInfo;
             IsConnected = connInfo.ConnectionStatus == "Connected";
@@ -135,7 +121,7 @@ public class DatabaseService : INotifyPropertyChanged, IDisposable
             OnPropertyChanged(nameof(IsConnected));
             OnPropertyChanged(nameof(ConnectionStatus));
             
-            _logger.LogInformation("Database connection check completed");
+            _logger.LogInformation("Database connection status updated");
         }
         catch (Exception ex)
         {
@@ -146,7 +132,7 @@ public class DatabaseService : INotifyPropertyChanged, IDisposable
             OnPropertyChanged(nameof(IsConnected));
             OnPropertyChanged(nameof(ConnectionStatus));
             
-            _logger.LogError(ex, "Database connection check failed");
+            _logger.LogError(ex, "Database connection status update failed");
         }
     }
     
@@ -232,8 +218,8 @@ public class DatabaseService : INotifyPropertyChanged, IDisposable
     // Dispose resources
     public void Dispose()
     {
-        _connectionCheckTimer?.Stop();
-        _connectionCheckTimer?.Dispose();
+        // Dispose operational connection manager
+        _operationalConnectionManager?.Dispose();
         
         // Unsubscribe from connection service events
         if (_connectionService != null)

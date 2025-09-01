@@ -13,7 +13,7 @@ namespace RapidZ.Core.Services
         private readonly string _basePath;
         private readonly string _logDirectory;
         
-        public LogParserService(string basePath = null)
+        public LogParserService(string? basePath = null)
         {
             // If no base path is provided, use the application directory
             _basePath = basePath ?? AppDomain.CurrentDomain.BaseDirectory;

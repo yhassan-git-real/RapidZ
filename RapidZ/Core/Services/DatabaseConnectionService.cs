@@ -25,11 +25,12 @@ namespace RapidZ.Core.Services
     public class DatabaseConnectionService : INotifyPropertyChanged
     {
         private static DatabaseConnectionService? _instance;
-        private readonly Timer _connectionCheckTimer;
+        private Timer? _connectionCheckTimer;
         private DatabaseConnectionInfo _connectionInfo;
         private readonly SharedDatabaseSettings _dbSettings;
         private bool _isPaused = false; // Flag to pause connection checks
         private int _lastResponseTime = 0;
+        private bool _isStartupTestMode = false; // Flag for startup testing
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -58,8 +59,7 @@ namespace RapidZ.Core.Services
             // Parse connection string initially
             ParseConnectionString();
             
-            // Start timer to check connection every 5 minutes (reduced frequency for better performance)
-            _connectionCheckTimer = new Timer(CheckConnectionStatus, null, TimeSpan.Zero, TimeSpan.FromMinutes(5));
+            // Don't start timer automatically - will be controlled by startup test
         }
 
         public DatabaseConnectionInfo ConnectionInfo
@@ -109,8 +109,8 @@ namespace RapidZ.Core.Services
                     UserAccount = !string.IsNullOrEmpty(connectionStringBuilder.UserID) 
                         ? connectionStringBuilder.UserID 
                         : connectionStringBuilder.IntegratedSecurity ? "Windows Auth" : "Unknown",
-                    ConnectionStatus = "Checking...",
-                    StatusColor = "#ffc107", // Yellow for checking
+                    ConnectionStatus = "Disconnected",
+                    StatusColor = "#dc3545", // Red for disconnected initially
                     LastChecked = DateTime.Now
                 };
 
@@ -202,6 +202,119 @@ namespace RapidZ.Core.Services
 
 
 
+        // Startup testing method - test connection once and disconnect (optimized)
+        public async Task<bool> TestConnectionOnStartupAsync()
+        {
+            _isStartupTestMode = true;
+            
+            try
+            {
+                // Test the connection with optimized timeout
+                var startTime = DateTime.Now;
+                
+                // Create connection string with reduced timeout for faster startup
+                var connectionStringBuilder = new SqlConnectionStringBuilder(_dbSettings.ConnectionString)
+                {
+                    ConnectTimeout = 3 // Reduced timeout for faster startup
+                };
+                
+                using var connection = new SqlConnection(connectionStringBuilder.ConnectionString);
+                await connection.OpenAsync();
+                _lastResponseTime = (int)(DateTime.Now - startTime).TotalMilliseconds;
+                
+                // Connection successful - set to disconnected (as per requirement)
+                var disconnectedInfo = new DatabaseConnectionInfo
+                {
+                    ServerName = ConnectionInfo.ServerName,
+                    DatabaseName = ConnectionInfo.DatabaseName,
+                    UserAccount = ConnectionInfo.UserAccount,
+                    ConnectionStatus = "Ready",
+                    StatusColor = "#28a745", // Green for ready
+                    LastChecked = DateTime.Now,
+                    ResponseTime = _lastResponseTime
+                };
+
+                ConnectionInfo = disconnectedInfo;
+                OnPropertyChanged(nameof(ConnectionInfo));
+                
+                _isStartupTestMode = false;
+                return true;
+            }
+            catch (Exception)
+            {
+                // Connection failed - set minimal info to avoid UI delays
+                var failedInfo = new DatabaseConnectionInfo
+                {
+                    ServerName = ConnectionInfo.ServerName,
+                    DatabaseName = ConnectionInfo.DatabaseName,
+                    UserAccount = ConnectionInfo.UserAccount,
+                    ConnectionStatus = "Connection Failed",
+                    StatusColor = "#dc3545", // Red for failed
+                    LastChecked = DateTime.Now,
+                    ResponseTime = 0
+                };
+
+                ConnectionInfo = failedInfo;
+                OnPropertyChanged(nameof(ConnectionInfo));
+                
+                _isStartupTestMode = false;
+                return false;
+            }
+        }
+
+        // Operational connection methods for active database operations
+        public void SetOperationalConnected()
+        {
+            var connectedInfo = new DatabaseConnectionInfo
+            {
+                ServerName = ConnectionInfo.ServerName,
+                DatabaseName = ConnectionInfo.DatabaseName,
+                UserAccount = ConnectionInfo.UserAccount,
+                ConnectionStatus = "Connected",
+                StatusColor = "#28a745", // Green for connected
+                LastChecked = DateTime.Now,
+                ResponseTime = _lastResponseTime
+            };
+
+            ConnectionInfo = connectedInfo;
+            OnPropertyChanged(nameof(ConnectionInfo));
+        }
+
+        public void SetOperationalDisconnected()
+        {
+            var disconnectedInfo = new DatabaseConnectionInfo
+            {
+                ServerName = ConnectionInfo.ServerName,
+                DatabaseName = ConnectionInfo.DatabaseName,
+                UserAccount = ConnectionInfo.UserAccount,
+                ConnectionStatus = "Disconnected",
+                StatusColor = "#dc3545", // Red for disconnected
+                LastChecked = DateTime.Now,
+                ResponseTime = _lastResponseTime
+            };
+
+            ConnectionInfo = disconnectedInfo;
+            OnPropertyChanged(nameof(ConnectionInfo));
+        }
+
+        // Start continuous monitoring with optimized frequency
+        public void StartContinuousMonitoring()
+        {
+            if (_connectionCheckTimer == null)
+            {
+                // Increase interval to 10 minutes to reduce overhead
+                // Start after 30 seconds instead of immediately to avoid startup conflicts
+                _connectionCheckTimer = new Timer(CheckConnectionStatus, null, TimeSpan.FromSeconds(30), TimeSpan.FromMinutes(10));
+            }
+        }
+
+        // Stop continuous monitoring
+        public void StopContinuousMonitoring()
+        {
+            _connectionCheckTimer?.Dispose();
+            _connectionCheckTimer = null;
+        }
+
         // Methods to pause and resume connection checks during operations
         public void PauseConnectionChecks()
         {
@@ -212,8 +325,18 @@ namespace RapidZ.Core.Services
         {
             _isPaused = false;
             
-            // Immediately check connection state when resuming
-            Task.Run(async () => await CheckConnectionStatusAsync());
+            // Only check if timer is running and avoid immediate check to prevent UI blocking
+            if (_connectionCheckTimer != null)
+            {
+                // Delay the check by 2 seconds to allow UI to settle after operations
+                Task.Delay(2000).ContinueWith(async _ => 
+                {
+                    if (!_isPaused) // Double-check pause state
+                    {
+                        await CheckConnectionStatusAsync();
+                    }
+                });
+            }
         }
         
         public void Dispose()

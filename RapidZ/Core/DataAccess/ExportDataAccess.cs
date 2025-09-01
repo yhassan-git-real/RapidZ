@@ -3,7 +3,6 @@ using System.Data;
 using System.Linq;
 using Microsoft.Data.SqlClient;
 using RapidZ.Core.Logging.Services;
-
 using RapidZ.Core.Models;
 using Microsoft.Extensions.Configuration;
 using System.IO;
@@ -19,6 +18,7 @@ namespace RapidZ.Core.DataAccess
         private readonly RapidZ.Core.Logging.Abstractions.IModuleLogger _logger;
         private readonly RapidZ.Features.Export.ExportSettings _exportSettings;
         private readonly SharedDatabaseSettings _dbSettings;
+        private readonly OperationalConnectionManager _connectionManager;
 
         public ExportDataAccess()
         {
@@ -26,6 +26,7 @@ namespace RapidZ.Core.DataAccess
             // Use static configuration cache methods like TradeDataHub
             _exportSettings = ConfigurationCacheService.GetExportSettings();
             _dbSettings = ConfigurationCacheService.GetSharedDatabaseSettings();
+            _connectionManager = new OperationalConnectionManager();
         }
 
         public (SqlConnection connection, SqlDataReader reader, long recordCount) GetDataReader(string fromMonth, string toMonth, string hsCode, string product, string iec, string exporter, string country, string name, string port, CancellationToken cancellationToken = default, string? viewName = null, string? storedProcedureName = null)
@@ -36,11 +37,9 @@ namespace RapidZ.Core.DataAccess
 
             try
             {
-                cancellationToken.ThrowIfCancellationRequested();
-
+                // Create and open connection directly
                 con = new SqlConnection(_dbSettings.ConnectionString);
                 con.Open();
-
                 cancellationToken.ThrowIfCancellationRequested();
 
                 string effectiveStoredProcedureName = storedProcedureName ?? _exportSettings.Operation.StoredProcedureName;
@@ -120,7 +119,7 @@ namespace RapidZ.Core.DataAccess
             {
                 // Handle cancellation
                 CancellationCleanupHelper.SafeDisposeReader(reader);
-                CancellationCleanupHelper.SafeDisposeConnection(con);
+                con?.Dispose();
                 throw;
             }
             catch
