@@ -87,6 +87,9 @@ public partial class App : Application
         services.AddSingleton<IExportController, ExportController>(provider => provider.GetRequiredService<ExportController>());
         services.AddSingleton<IImportController, ImportController>(provider => provider.GetRequiredService<ImportController>());
         
+        // Register validation services
+        services.AddSingleton<PathValidationService>();
+        
         // Register view models
         services.AddSingleton<ImportViewModel>();
         services.AddSingleton<MainViewModel>();

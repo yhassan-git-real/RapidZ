@@ -7,12 +7,13 @@
              x:Class="RapidZ.Views.Controls.InputFieldsControl"
              x:DataType="vm:MainViewModel">
 
-    <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="120,*" Margin="0,2,0,0">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,*" Margin="0,2,0,0">
         <!-- HS CODE -->
         <TextBlock Grid.Row="0" Grid.Column="0"
                    Text="HS CODE"
                    Classes="FieldLabel"
-                   HorizontalAlignment="Left" />
+                   HorizontalAlignment="Left"
+                   Margin="0,0,12,0" />
         <TextBox Grid.Row="0" Grid.Column="1"
                  Text="{Binding ExportDataFilter.HSCode}"
                  Classes="FormInput"
@@ -23,7 +24,8 @@
         <TextBlock Grid.Row="1" Grid.Column="0"
                    Text="Product"
                    Classes="FieldLabel"
-                   HorizontalAlignment="Left" />
+                   HorizontalAlignment="Left"
+                   Margin="0,0,12,0" />
         <TextBox Grid.Row="1" Grid.Column="1"
                  Text="{Binding ExportDataFilter.Product}"
                  Classes="FormInput"
@@ -34,7 +36,8 @@
         <TextBlock Grid.Row="2" Grid.Column="0"
                    Text="{Binding ExporterLabelText}"
                    Classes="FieldLabel"
-                   HorizontalAlignment="Left" />
+                   HorizontalAlignment="Left"
+                   Margin="0,0,12,0" />
         <TextBox Grid.Row="2" Grid.Column="1"
                  Text="{Binding ExportDataFilter.Exporter}"
                  Classes="FormInput"
@@ -45,7 +48,8 @@
         <TextBlock Grid.Row="3" Grid.Column="0"
                    Text="IEC"
                    Classes="FieldLabel"
-                   HorizontalAlignment="Left" />
+                   HorizontalAlignment="Left"
+                   Margin="0,0,12,0" />
         <TextBox Grid.Row="3" Grid.Column="1"
                  Text="{Binding ExportDataFilter.IEC}"
                  Classes="FormInput"
@@ -56,7 +60,8 @@
         <TextBlock Grid.Row="4" Grid.Column="0"
                    Text="Foreign Party"
                    Classes="FieldLabel"
-                   HorizontalAlignment="Left" />
+                   HorizontalAlignment="Left"
+                   Margin="0,0,12,0" />
         <TextBox Grid.Row="4" Grid.Column="1"
                  Text="{Binding ExportDataFilter.ForeignParty}"
                  Classes="FormInput"
@@ -67,7 +72,8 @@
         <TextBlock Grid.Row="5" Grid.Column="0"
                    Text="Foreign Country"
                    Classes="FieldLabel"
-                   HorizontalAlignment="Left" />
+                   HorizontalAlignment="Left"
+                   Margin="0,0,12,0" />
         <TextBox Grid.Row="5" Grid.Column="1"
                  Text="{Binding ExportDataFilter.ForeignCountry}"
                  Classes="FormInput"
@@ -78,12 +84,42 @@
         <TextBlock Grid.Row="6" Grid.Column="0"
                    Text="PORT"
                    Classes="FieldLabel"
-                   HorizontalAlignment="Left" />
+                   HorizontalAlignment="Left"
+                   Margin="0,0,12,0" />
         <TextBox Grid.Row="6" Grid.Column="1"
                  Text="{Binding ExportDataFilter.Port}"
                  Classes="FormInput"
-                 Margin="0,0,0,0"
+                 Margin="0,0,0,4"
                  Watermark="Enter port name" />
+                 
+        <!-- Custom File Location -->
+        <TextBlock Grid.Row="7" Grid.Column="0"
+                   Text="{Binding FileLocationLabelText}"
+                   Classes="FieldLabel"
+                   HorizontalAlignment="Left"
+                   Margin="0,0,12,0" />
+        <StackPanel Grid.Row="7" Grid.Column="1" 
+                    Orientation="Vertical" 
+                    Spacing="4"
+                    Margin="0,0,0,0">
+            <Grid Classes="FileLocationContainer" ColumnDefinitions="*,Auto">
+                <TextBox Grid.Column="0"
+                         Text="{Binding ExportDataFilter.CustomFilePath}"
+                         Classes="FormInput"
+                         Classes.Error="{Binding !IsCustomPathValid}"
+                         MinWidth="150"
+                         Margin="0,0,8,0"
+                         Watermark="Enter custom file path..." />
+                <CheckBox Grid.Column="1"
+                          IsChecked="{Binding ExportDataFilter.UseCustomPath}"
+                          Content="Use Custom Path"
+                          Classes="FormCheckBox"
+                          VerticalAlignment="Center" />
+            </Grid>
+            <TextBlock Text="{Binding CustomPathValidationMessage}" 
+                       Classes="ValidationMessage"
+                       IsVisible="{Binding !IsCustomPathValid}"/>
+        </StackPanel>
     </Grid>
     
 </UserControl>

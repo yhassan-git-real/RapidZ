@@ -118,13 +118,13 @@ namespace RapidZ.Core.Services
                 {
                     // Import mode - use ImportController
                     var importInputs = ConvertToImportInputs(exportFilter);
-                    await _importController.RunAsync(importInputs, _currentCancellationSource.Token, _selectedView, _selectedStoredProcedure);
+                    await _importController.RunAsync(importInputs, _currentCancellationSource.Token, _selectedView, _selectedStoredProcedure, GetCustomOutputPath(exportFilter));
                 }
                 else
                 {
                     // Export mode - use ExportController
                     var exportInputs = ConvertToExportInputs(exportFilter!);
-                    await _exportController.RunAsync(exportInputs, _currentCancellationSource.Token, _selectedView, _selectedStoredProcedure);
+                    await _exportController.RunAsync(exportInputs, _currentCancellationSource.Token, _selectedView, _selectedStoredProcedure, GetCustomOutputPath(exportFilter));
                 }
             }
             catch (OperationCanceledException)
@@ -165,6 +165,8 @@ namespace RapidZ.Core.Services
                 _currentExportFilter.ForeignParty = string.Empty;
                 _currentExportFilter.ForeignCountry = string.Empty;
                 _currentExportFilter.Port = string.Empty;
+                _currentExportFilter.CustomFilePath = string.Empty;
+                _currentExportFilter.UseCustomPath = false;
                 
                 // Preserve date fields, database selections, and mode
                 // Note: Not resetting FromMonth, ToMonth, or Mode
@@ -249,6 +251,18 @@ namespace RapidZ.Core.Services
             return input.Split(',', StringSplitOptions.RemoveEmptyEntries)
                        .Select(s => s.Trim())
                        .ToList();
+        }
+        
+        private string? GetCustomOutputPath(ExportDataFilter filter)
+        {
+            // Return custom path if checkbox is checked and path is provided
+            if (filter.UseCustomPath && !string.IsNullOrWhiteSpace(filter.CustomFilePath))
+            {
+                return filter.CustomFilePath;
+            }
+            
+            // Return null to use default path
+            return null;
         }
     }
 }

@@ -234,4 +234,50 @@
         <Setter Property="Height" Value="36"/>
     </Style>
     
+    <!-- Error State TextBox Style -->
+    <Style Selector="TextBox.FormInput.Error">
+        <Setter Property="BorderBrush" Value="#F44336"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="Background" Value="#FFF5F5"/>
+    </Style>
+    
+    <Style Selector="TextBox.FormInput.Error:focus /template/ Border#PART_BorderElement">
+        <Setter Property="BorderBrush" Value="#F44336"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="Background" Value="#FFF5F5"/>
+        <Setter Property="BoxShadow" Value="0 0 3 0 #20F44336"/>
+    </Style>
+    
+    <!-- Validation Message Style -->
+    <Style Selector="TextBlock.ValidationMessage">
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Foreground" Value="#F44336"/>
+        <Setter Property="Margin" Value="0,2,0,0"/>
+        <Setter Property="FontFamily" Value="Segoe UI, Arial, sans-serif"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+    
+    <!-- CheckBox Style -->
+    <Style Selector="CheckBox.FormCheckBox">
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="8,0,0,0"/>
+        <Setter Property="FontFamily" Value="Segoe UI, Arial, sans-serif"/>
+    </Style>
+    
+    <!-- CheckBox Highlight Required Style -->
+    <Style Selector="CheckBox.FormCheckBox.HighlightRequired">
+        <Setter Property="Foreground" Value="#DC3545"/>
+        <Setter Property="BorderBrush" Value="#DC3545"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="Background" Value="#FFF5F5"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+    
+    <!-- File Location Container Style -->
+    <Style Selector="StackPanel.FileLocationContainer">
+        <Setter Property="Orientation" Value="Horizontal"/>
+        <Setter Property="Spacing" Value="0"/>
+    </Style>
+    
 </Styles>

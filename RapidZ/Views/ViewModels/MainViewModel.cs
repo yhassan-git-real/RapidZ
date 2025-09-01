@@ -29,6 +29,7 @@ public class MainViewModel : ViewModelBase, IDisposable
     private readonly ExportController? _exportController;
     private readonly ImportController? _importController;
     private readonly LogParserService? _logParserService;
+    private readonly PathValidationService? _pathValidationService;
     
     private ServiceContainer? _services;
     
@@ -79,13 +80,15 @@ public class MainViewModel : ViewModelBase, IDisposable
         ImportViewModel importViewModel,
         DatabaseService databaseService,
         ExportController exportController,
-        ImportController importController)
+        ImportController importController,
+        PathValidationService pathValidationService)
     {
         _configService = configService;
         _importViewModel = importViewModel;
         _databaseService = databaseService;
         _exportController = exportController;
         _importController = importController;
+        _pathValidationService = pathValidationService;
         _logParserService = new LogParserService(AppDomain.CurrentDomain.BaseDirectory);
         
         // Initialize defaults first
@@ -97,6 +100,16 @@ public class MainViewModel : ViewModelBase, IDisposable
         
         // Ensure we have a valid execution summary to avoid null reference exceptions
         _lastExecution = ExecutionSummary.Empty;
+        
+        // Subscribe to ExportDataFilter property changes for validation
+        ExportDataFilter.PropertyChanged += (s, e) =>
+        {
+            if (e.PropertyName == nameof(ExportDataFilter.UseCustomPath) || 
+                e.PropertyName == nameof(ExportDataFilter.CustomFilePath))
+            {
+                ValidateCustomPath();
+            }
+        };
         
         // Initialize connection info
         _connectionInfo = _databaseService.GetConnectionInfo();
@@ -321,6 +334,7 @@ public class MainViewModel : ViewModelBase, IDisposable
                 // Notify UI that export filter mode has changed
                 ExportDataFilter.Mode = value;
                 this.RaisePropertyChanged(nameof(ExporterLabelText));
+                this.RaisePropertyChanged(nameof(FileLocationLabelText));
                 
                 // Raise property change for all filter properties to refresh UI
                 this.RaisePropertyChanged(nameof(ExportDataFilter));
@@ -330,6 +344,73 @@ public class MainViewModel : ViewModelBase, IDisposable
     
     // Dynamic label for Exporter/Importer field
     public string ExporterLabelText => CurrentMode == "Import" ? "Importer" : "Exporter";
+    
+    // Dynamic label for File Location field
+    public string FileLocationLabelText => CurrentMode == "Import" ? "Import File Location" : "Export File Location";
+    
+    // Validation state for custom file path
+    private bool _isCustomPathValid = true;
+    public bool IsCustomPathValid
+    {
+        get => _isCustomPathValid;
+        set => this.RaiseAndSetIfChanged(ref _isCustomPathValid, value);
+    }
+    
+    // Validation message for custom file path
+    private string _customPathValidationMessage = string.Empty;
+    public string CustomPathValidationMessage
+    {
+        get => _customPathValidationMessage;
+        set => this.RaiseAndSetIfChanged(ref _customPathValidationMessage, value);
+    }
+    
+    // Property to highlight checkbox when path is provided but checkbox not selected
+    private bool _shouldHighlightCheckbox = false;
+    public bool ShouldHighlightCheckbox
+    {
+        get => _shouldHighlightCheckbox;
+        set => this.RaiseAndSetIfChanged(ref _shouldHighlightCheckbox, value);
+    }
+    
+    // Method to validate custom path settings
+    private async void ValidateCustomPath()
+    {
+        // Check if path is provided but checkbox not selected - highlight checkbox
+        if (!string.IsNullOrWhiteSpace(ExportDataFilter.CustomFilePath) && !ExportDataFilter.UseCustomPath)
+        {
+            ShouldHighlightCheckbox = true;
+            IsCustomPathValid = false;
+            CustomPathValidationMessage = "Please check 'Use Custom Path' to use the specified custom file path.";
+            return;
+        }
+        else
+        {
+            ShouldHighlightCheckbox = false;
+        }
+        
+        if (ExportDataFilter.UseCustomPath)
+        {
+            if (string.IsNullOrWhiteSpace(ExportDataFilter.CustomFilePath))
+            {
+                IsCustomPathValid = false;
+                CustomPathValidationMessage = "Custom file path is required when 'Use Custom Path' is checked.";
+                return;
+            }
+            
+            // Use PathValidationService to validate the directory
+            if (_pathValidationService != null)
+            {
+                var validationResult = await _pathValidationService.ValidateDirectoryPathAsync(ExportDataFilter.CustomFilePath);
+                IsCustomPathValid = validationResult.IsValid;
+                CustomPathValidationMessage = validationResult.ErrorMessage ?? string.Empty;
+            }
+        }
+        else
+        {
+            IsCustomPathValid = true;
+            CustomPathValidationMessage = string.Empty;
+        }
+    }
     
     // Date properties for UI binding
     public int FromYear
@@ -477,6 +558,31 @@ public class MainViewModel : ViewModelBase, IDisposable
     {
         try
         {
+            // Validate custom path settings before proceeding
+            if (!string.IsNullOrWhiteSpace(ExportDataFilter.CustomFilePath) && !ExportDataFilter.UseCustomPath)
+            {
+                // Custom path provided but checkbox not selected
+                IsCustomPathValid = false;
+                CustomPathValidationMessage = "Please check 'Use Custom Path' to use the specified custom file path.";
+                SystemStatus = SystemStatus.Failed;
+                
+                // Reset to Idle after showing error
+                await Task.Delay(3000);
+                SystemStatus = SystemStatus.Idle;
+                return;
+            }
+            
+            // Validate that custom path is valid when checkbox is selected
+            if (ExportDataFilter.UseCustomPath && !IsCustomPathValid)
+            {
+                SystemStatus = SystemStatus.Failed;
+                
+                // Reset to Idle after showing error
+                await Task.Delay(3000);
+                SystemStatus = SystemStatus.Idle;
+                return;
+            }
+            
             // Set system status to Processing
             SystemStatus = SystemStatus.Processing;
             
@@ -923,6 +1029,7 @@ public class MainViewModel : ViewModelBase, IDisposable
             
             // Update ExporterLabelText
             this.RaisePropertyChanged(nameof(ExporterLabelText));
+            this.RaisePropertyChanged(nameof(FileLocationLabelText));
         }
         catch (Exception ex)
         {

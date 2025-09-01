@@ -38,7 +38,7 @@ namespace RapidZ.Core.Controllers
             _dispatcher = Dispatcher.UIThread;
         }
 
-        public async Task RunAsync(ImportInputs importInputs, CancellationToken cancellationToken, string selectedView, string selectedStoredProcedure)
+        public async Task RunAsync(ImportInputs importInputs, CancellationToken cancellationToken, string selectedView, string selectedStoredProcedure, string? customOutputPath = null)
         {
             // Track start time for performance metrics
             var startTime = DateTime.Now;
@@ -124,7 +124,8 @@ namespace RapidZ.Core.Controllers
                                                     port, 
                                                     cancellationToken,
                                                     selectedView,
-                                                    selectedStoredProcedure);
+                                                    selectedStoredProcedure,
+                                                    customOutputPath);
                                                 
                                                 // Process the result using ResultProcessorService
                                                 _resultProcessorService.ProcessImportResult(counters, result, counters.CombinationsProcessed, _monitoringService);

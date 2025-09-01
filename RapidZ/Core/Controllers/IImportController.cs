@@ -17,7 +17,8 @@ namespace RapidZ.Core.Controllers
         /// <param name="cancellationToken">Cancellation token for the operation</param>
         /// <param name="selectedView">The selected database view name</param>
         /// <param name="selectedStoredProcedure">The selected stored procedure name</param>
+        /// <param name="customOutputPath">Optional custom output directory path</param>
         /// <returns>Task representing the async operation</returns>
-        Task RunAsync(ImportInputs importInputs, CancellationToken cancellationToken, string selectedView, string selectedStoredProcedure);
+        Task RunAsync(ImportInputs importInputs, CancellationToken cancellationToken, string selectedView, string selectedStoredProcedure, string? customOutputPath = null);
     }
 }

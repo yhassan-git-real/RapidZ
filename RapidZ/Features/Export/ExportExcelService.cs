@@ -72,7 +72,7 @@ public class ExportExcelService
     public void ClearGeneratedFiles()
     {
         _generatedFileNames = new List<string>();
-    }	public ExcelResult CreateReport(int combinationNumber, string fromMonth, string toMonth, string hsCode, string product, string iec, string exporter, string country, string name, string port, CancellationToken cancellationToken = default, string? viewName = null, string? storedProcedureName = null)
+    }	public ExcelResult CreateReport(int combinationNumber, string fromMonth, string toMonth, string hsCode, string product, string iec, string exporter, string country, string name, string port, CancellationToken cancellationToken = default, string? viewName = null, string? storedProcedureName = null, string? customOutputPath = null)
 	{
 		var processId = _logger.GenerateProcessId();
 
@@ -188,9 +188,10 @@ public class ExportExcelService
 				
 				cancellationToken.ThrowIfCancellationRequested();
 
-				string outputDir = exportSettings.Files.OutputDirectory;
-				Directory.CreateDirectory(outputDir);
-				string outputPath = Path.Combine(outputDir, fileName);
+				// Use custom output path if provided, otherwise use default
+			string outputDir = customOutputPath ?? exportSettings.Files.OutputDirectory;
+			Directory.CreateDirectory(outputDir);
+			string outputPath = Path.Combine(outputDir, fileName);
 				partialFilePath = outputPath; // Track for cleanup if cancelled
 
 				var saveTimer = Stopwatch.StartNew();

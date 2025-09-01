@@ -17,6 +17,8 @@ public class ExportDataFilter : ReactiveObject
     private string _fromMonth = string.Empty;
     private string _toMonth = string.Empty;
     private string _mode = "Export";
+    private string _customFilePath = string.Empty;
+    private bool _useCustomPath = false;
 
     // HS code for product classification
     public string HSCode 
@@ -86,5 +88,19 @@ public class ExportDataFilter : ReactiveObject
     { 
         get => _mode;
         set => this.RaiseAndSetIfChanged(ref _mode, value);
+    }
+    
+    // Custom file path for output
+    public string CustomFilePath 
+    { 
+        get => _customFilePath;
+        set => this.RaiseAndSetIfChanged(ref _customFilePath, value);
+    }
+    
+    // Whether to use custom file path
+    public bool UseCustomPath 
+    { 
+        get => _useCustomPath;
+        set => this.RaiseAndSetIfChanged(ref _useCustomPath, value);
     }
 }

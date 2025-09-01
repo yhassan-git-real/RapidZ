@@ -32,6 +32,7 @@ namespace RapidZ.Core.Services
         public DatabaseObjectValidator DatabaseObjectValidator { get; private set; } = null!;
         public IValidationService ValidationService { get; private set; } = null!;
         public IResultProcessorService ResultProcessorService { get; private set; } = null!;
+        public PathValidationService PathValidationService { get; private set; } = null!;
 
         // Controllers
         public IExportController ExportController { get; private set; } = null!;
@@ -61,6 +62,7 @@ namespace RapidZ.Core.Services
                 ParameterValidator = new ParameterValidator();
                 ValidationService = new ValidationService(ParameterValidator, ExportObjectValidationService, ImportObjectValidationService);
                 ResultProcessorService = new ResultProcessorService();
+                PathValidationService = new PathValidationService();
                 
                 // Initialize core services using the validation services
                 ExcelService = new ExportExcelService(ExportObjectValidationService, new RapidZ.Core.DataAccess.ExportDataAccess());

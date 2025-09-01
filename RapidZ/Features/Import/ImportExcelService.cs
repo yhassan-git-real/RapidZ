@@ -61,7 +61,7 @@ namespace RapidZ.Features.Import
             string fromMonth, string toMonth, string hsCode, string product, 
             string iec, string importer, string country, string name, string port,
             CancellationToken cancellationToken = default, string? viewName = null, 
-            string? storedProcedureName = null)
+            string? storedProcedureName = null, string? customOutputPath = null)
         {
             var result = new ImportExcelResult();
             string processId = _logger.GenerateProcessId();
@@ -180,9 +180,10 @@ namespace RapidZ.Features.Import
                         fromMonth, toMonth, hsCode, product, iec, importer, country, name, port, 
                         _settings.Files.FileSuffix);
                         
-                    // Ensure output directory exists (no logging)
-                    Directory.CreateDirectory(_settings.Files.OutputDirectory);
-                    var filePath = Path.Combine(_settings.Files.OutputDirectory, fileName);
+                    // Use custom output path if provided, otherwise use default
+                    string outputDir = customOutputPath ?? _settings.Files.OutputDirectory;
+                    Directory.CreateDirectory(outputDir);
+                    var filePath = Path.Combine(outputDir, fileName);
                     
                     _logger.LogExcelFileCreationStart(fileName, processId);
                     var excelTimer = Stopwatch.StartNew();
