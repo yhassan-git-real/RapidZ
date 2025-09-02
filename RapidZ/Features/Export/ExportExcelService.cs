@@ -171,14 +171,8 @@ public class ExportExcelService
 				
 				cancellationToken.ThrowIfCancellationRequested();
 
-				// Add headers first
-				for (int col = 0; col < fieldCount; col++)
-					worksheet.Cells[1, col + 1].Value = reader.GetName(col);
-				
-				cancellationToken.ThrowIfCancellationRequested();
-
 				// Load data from reader
-				worksheet.Cells[2, 1].LoadFromDataReader(reader, false);
+				worksheet.Cells["A1"].LoadFromDataReader(reader, true);
 				
 				cancellationToken.ThrowIfCancellationRequested();
 				
