@@ -278,6 +278,16 @@ public class ExportExcelService
 			headerRange.Style.Border.Left.Style = borderStyle;
 			headerRange.Style.Border.Right.Style = borderStyle;
 			headerRange.Style.Border.Bottom.Style = borderStyle;
+			
+			// Apply header alignment
+			headerRange.Style.HorizontalAlignment = GetHorizontalAlignment(formatSettings.HeaderHorizontalAlignment);
+			headerRange.Style.VerticalAlignment = GetVerticalAlignment(formatSettings.HeaderVerticalAlignment);
+			
+			// Apply freeze pane if enabled
+			if (formatSettings.FreezeTopRow)
+			{
+				worksheet.View.FreezePanes(2, 1);
+			}
 
 			// Apply data formatting to entire data range at once
 			if (lastRow > 1)
@@ -304,5 +314,28 @@ public class ExportExcelService
 			_logger.LogError($"Error applying formatting from JSON configuration: {ex.Message}", ex, "FORMAT");
 			throw; // Re-throw the exception since we no longer have fallback formatting
 		}
+	}
+	
+	private OfficeOpenXml.Style.ExcelHorizontalAlignment GetHorizontalAlignment(string alignment)
+	{
+		return alignment?.ToLower() switch
+		{
+			"left" => OfficeOpenXml.Style.ExcelHorizontalAlignment.Left,
+			"center" => OfficeOpenXml.Style.ExcelHorizontalAlignment.Center,
+			"right" => OfficeOpenXml.Style.ExcelHorizontalAlignment.Right,
+			"justify" => OfficeOpenXml.Style.ExcelHorizontalAlignment.Justify,
+			_ => OfficeOpenXml.Style.ExcelHorizontalAlignment.Center
+		};
+	}
+	
+	private OfficeOpenXml.Style.ExcelVerticalAlignment GetVerticalAlignment(string alignment)
+	{
+		return alignment?.ToLower() switch
+		{
+			"top" => OfficeOpenXml.Style.ExcelVerticalAlignment.Top,
+			"middle" => OfficeOpenXml.Style.ExcelVerticalAlignment.Center,
+			"bottom" => OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom,
+			_ => OfficeOpenXml.Style.ExcelVerticalAlignment.Center
+		};
 	}
 }

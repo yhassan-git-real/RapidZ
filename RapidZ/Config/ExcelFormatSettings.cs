@@ -21,5 +21,12 @@ namespace RapidZ.Config
         // Using List<int> for better flexibility with serialization
         public List<int> DateColumns { get; set; } = new List<int>();
         public List<int> TextColumns { get; set; } = new List<int>();
+        
+        // Header alignment settings
+        public string HeaderHorizontalAlignment { get; set; } = "Center";
+        public string HeaderVerticalAlignment { get; set; } = "Middle";
+        
+        // Freeze pane settings
+        public bool FreezeTopRow { get; set; } = true;
     }
 }

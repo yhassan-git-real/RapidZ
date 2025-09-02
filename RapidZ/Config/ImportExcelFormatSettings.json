@@ -10,5 +10,8 @@
   "DateColumns": [2],
   "TextColumns": [1, 3, 4],
   "WrapText": false,
-  "AutoFitColumns": true
+  "AutoFitColumns": true,
+  "HeaderHorizontalAlignment": "Center",
+  "HeaderVerticalAlignment": "Middle",
+  "FreezeTopRow": true
 }

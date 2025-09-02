@@ -304,6 +304,16 @@ namespace RapidZ.Features.Import
                 headerRange.Style.Font.Bold = true;
                 headerRange.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
                 headerRange.Style.Fill.BackgroundColor.SetColor(ColorTranslator.FromHtml(_formatSettings.HeaderBackgroundColor));
+                
+                // Apply header alignment
+                headerRange.Style.HorizontalAlignment = GetHorizontalAlignment(_formatSettings.HeaderHorizontalAlignment);
+                headerRange.Style.VerticalAlignment = GetVerticalAlignment(_formatSettings.HeaderVerticalAlignment);
+                
+                // Apply freeze pane if enabled
+                if (_formatSettings.FreezeTopRow)
+                {
+                    worksheet.View.FreezePanes(2, 1);
+                }
 
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -326,6 +336,29 @@ namespace RapidZ.Features.Import
             {
                 _logger.LogWarning($"Error applying formatting: {ex.Message}");
             }
+        }
+        
+        private OfficeOpenXml.Style.ExcelHorizontalAlignment GetHorizontalAlignment(string alignment)
+        {
+            return alignment?.ToLower() switch
+            {
+                "left" => OfficeOpenXml.Style.ExcelHorizontalAlignment.Left,
+                "center" => OfficeOpenXml.Style.ExcelHorizontalAlignment.Center,
+                "right" => OfficeOpenXml.Style.ExcelHorizontalAlignment.Right,
+                "justify" => OfficeOpenXml.Style.ExcelHorizontalAlignment.Justify,
+                _ => OfficeOpenXml.Style.ExcelHorizontalAlignment.Center
+            };
+        }
+        
+        private OfficeOpenXml.Style.ExcelVerticalAlignment GetVerticalAlignment(string alignment)
+        {
+            return alignment?.ToLower() switch
+            {
+                "top" => OfficeOpenXml.Style.ExcelVerticalAlignment.Top,
+                "middle" => OfficeOpenXml.Style.ExcelVerticalAlignment.Center,
+                "bottom" => OfficeOpenXml.Style.ExcelVerticalAlignment.Bottom,
+                _ => OfficeOpenXml.Style.ExcelVerticalAlignment.Center
+            };
         }
     }
 }
