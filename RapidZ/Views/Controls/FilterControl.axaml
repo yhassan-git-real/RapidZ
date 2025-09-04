@@ -59,7 +59,31 @@
                             </Border>
                             
                             <!-- Input Fields -->
-                            <controls:InputFieldsControl Grid.Row="1" Margin="0,5,0,0" />
+            <StackPanel Grid.Row="1" Margin="0,5,0,0">
+                <controls:InputFieldsControl />
+                
+                <!-- Input Parameters Validation Message -->
+                <Border IsVisible="{Binding !AreInputParametersValid}"
+                        Background="#FFF3E0" 
+                        BorderBrush="#FF9800" 
+                        BorderThickness="1" 
+                        CornerRadius="4" 
+                        Margin="0,8,0,0" 
+                        Padding="8">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <materialIcons:MaterialIcon Kind="AlertCircle" 
+                                                   Foreground="#FF9800" 
+                                                   Width="16" 
+                                                   Height="16" 
+                                                   VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding InputParametersValidationMessage}" 
+                                  Foreground="#E65100" 
+                                  FontSize="12" 
+                                  FontWeight="Medium" 
+                                  VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
                         </Grid>
                     </Border>
                     
@@ -197,11 +221,13 @@
                                         
                                         <!-- View Selection -->
                                         <TextBlock Grid.Row="1" Grid.Column="0" 
-                                                  Text="View:" 
                                                   VerticalAlignment="Center" 
                                                   FontWeight="SemiBold" 
                                                   FontSize="13" 
-                                                  Margin="0,0,12,0" />
+                                                  Margin="0,0,12,0">
+                                            <Run Text="View:" />
+                                            <Run Text="*" Foreground="#E53E3E" FontWeight="Bold" />
+                                        </TextBlock>
                                         <Grid Grid.Row="1" Grid.Column="1">
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto" />
@@ -241,11 +267,13 @@
                                         
                                         <!-- Stored Procedure Selection -->
                                         <TextBlock Grid.Row="2" Grid.Column="0" 
-                                                  Text="Stored Proc:" 
                                                   VerticalAlignment="Center" 
                                                   FontWeight="SemiBold" 
                                                   FontSize="13" 
-                                                  Margin="0,0,12,0" />
+                                                  Margin="0,0,12,0">
+                                            <Run Text="Stored Proc:" />
+                                            <Run Text="*" Foreground="#E53E3E" FontWeight="Bold" />
+                                        </TextBlock>
                                         <Grid Grid.Row="2" Grid.Column="1">
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto" />
@@ -301,6 +329,8 @@
                                                     <Binding Path="!IsBusy" />
                                                     <Binding Path="IsViewValid" />
                                                     <Binding Path="IsStoredProcedureValid" />
+                                                    <Binding Path="AreMandatoryFieldsValid" />
+                                                    <Binding Path="AreInputParametersValid" />
                                                 </MultiBinding>
                                             </Button.IsEnabled>
                                             <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Left">

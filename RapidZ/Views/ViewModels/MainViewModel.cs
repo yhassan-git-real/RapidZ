@@ -62,6 +62,14 @@ public class MainViewModel : ViewModelBase, IDisposable
     private bool _isStoredProcedureValid = true;
     private string _viewValidationMessage = string.Empty;
     private string _storedProcedureValidationMessage = string.Empty;
+    
+    // Mandatory field validation properties
+    private bool _areMandatoryFieldsValid = false;
+    private string _mandatoryFieldsValidationMessage = string.Empty;
+    
+    // Input parameter validation properties
+    private bool _areInputParametersValid = false;
+    private string _inputParametersValidationMessage = string.Empty;
 
     // Export data filter for binding
     public ExportDataFilter ExportDataFilter { get; set; } = new();
@@ -108,6 +116,18 @@ public class MainViewModel : ViewModelBase, IDisposable
                 e.PropertyName == nameof(ExportDataFilter.CustomFilePath))
             {
                 ValidateCustomPath();
+            }
+            
+            // Validate input parameters when any parameter field changes
+            if (e.PropertyName == nameof(ExportDataFilter.HSCode) ||
+                e.PropertyName == nameof(ExportDataFilter.Product) ||
+                e.PropertyName == nameof(ExportDataFilter.Exporter) ||
+                e.PropertyName == nameof(ExportDataFilter.IEC) ||
+                e.PropertyName == nameof(ExportDataFilter.ForeignParty) ||
+                e.PropertyName == nameof(ExportDataFilter.ForeignCountry) ||
+                e.PropertyName == nameof(ExportDataFilter.Port))
+            {
+                ValidateInputParameters();
             }
         };
         
@@ -501,6 +521,36 @@ public class MainViewModel : ViewModelBase, IDisposable
         private set => this.RaiseAndSetIfChanged(ref _storedProcedureValidationMessage, value);
     }
     
+    public bool AreMandatoryFieldsValid
+    {
+        get => _areMandatoryFieldsValid;
+        private set => this.RaiseAndSetIfChanged(ref _areMandatoryFieldsValid, value);
+    }
+    
+    public string MandatoryFieldsValidationMessage
+    {
+        get => _mandatoryFieldsValidationMessage;
+        set => this.RaiseAndSetIfChanged(ref _mandatoryFieldsValidationMessage, value);
+    }
+    
+    /// <summary>
+    /// Gets or sets whether input parameters are valid (at least one parameter has a value excluding '%')
+    /// </summary>
+    public bool AreInputParametersValid
+    {
+        get => _areInputParametersValid;
+        set => this.RaiseAndSetIfChanged(ref _areInputParametersValid, value);
+    }
+    
+    /// <summary>
+    /// Gets or sets the validation message for input parameters
+    /// </summary>
+    public string InputParametersValidationMessage
+    {
+        get => _inputParametersValidationMessage;
+        set => this.RaiseAndSetIfChanged(ref _inputParametersValidationMessage, value);
+    }
+    
     public ObservableCollection<DbObjectOption>? AvailableViews
     {
         get => _availableViews;
@@ -767,6 +817,13 @@ public class MainViewModel : ViewModelBase, IDisposable
         // Set initial current mode
         _currentMode = "Export";
         
+        // Initialize validation states
+        _areInputParametersValid = false;
+        _inputParametersValidationMessage = string.Empty;
+        
+        // Perform initial input parameter validation
+        ValidateInputParameters();
+        
         // Add sample execution summary for better visual demonstration
         _lastExecution = new ExecutionSummary
         {
@@ -925,6 +982,8 @@ public class MainViewModel : ViewModelBase, IDisposable
         IsStoredProcedureValid = true;
         ViewValidationMessage = string.Empty;
         StoredProcedureValidationMessage = string.Empty;
+        AreMandatoryFieldsValid = false;
+        MandatoryFieldsValidationMessage = string.Empty;
         if (Services == null)
             return;
 
@@ -1060,28 +1119,111 @@ public class MainViewModel : ViewModelBase, IDisposable
     }
     
     /// <summary>
-    /// Validates the selected view and stored procedure against the database
+    /// Validates the selected view and stored procedure against the database and mandatory field requirements
     /// </summary>
     private void ValidateSelectedDatabaseObjects()
     {
-        // If services or DatabaseObjectValidator are not available, can't validate
+        // First, validate mandatory field selection (both fields must be selected)
+        ValidateMandatoryFields();
+        
+        // If services or DatabaseObjectValidator are not available, or objects are not selected, can't validate existence
         if (Services?.DatabaseObjectValidator == null || SelectedView == null || SelectedStoredProcedure == null)
         {
+            // Set validation to false if objects are not selected
+            if (SelectedView == null)
+            {
+                IsViewValid = false;
+                ViewValidationMessage = "View selection is required";
+            }
+            
+            if (SelectedStoredProcedure == null)
+            {
+                IsStoredProcedureValid = false;
+                StoredProcedureValidationMessage = "Stored procedure selection is required";
+            }
+            
             return;
         }
 
         string viewName = SelectedView.Name;
         string procName = SelectedStoredProcedure.Name;
 
-        // Validate the view
+        // Validate the view exists in database
         IsViewValid = Services.DatabaseObjectValidator.ViewExists(viewName);
         ViewValidationMessage = IsViewValid ? string.Empty : 
             "Object does not exist in database";
 
-        // Validate the stored procedure
+        // Validate the stored procedure exists in database
         IsStoredProcedureValid = Services.DatabaseObjectValidator.StoredProcedureExists(procName);
         StoredProcedureValidationMessage = IsStoredProcedureValid ? string.Empty : 
             "Object does not exist in database";
+    }
+    
+    /// <summary>
+    /// Validates that both mandatory fields (View and Stored Procedure) are selected
+    /// </summary>
+    private void ValidateMandatoryFields()
+    {
+        bool viewSelected = SelectedView != null;
+        bool storedProcSelected = SelectedStoredProcedure != null;
+        
+        AreMandatoryFieldsValid = viewSelected && storedProcSelected;
+        
+        if (!AreMandatoryFieldsValid)
+        {
+            if (!viewSelected && !storedProcSelected)
+            {
+                MandatoryFieldsValidationMessage = "Both View and Stored Procedure must be selected";
+            }
+            else if (!viewSelected)
+            {
+                MandatoryFieldsValidationMessage = "View selection is required";
+            }
+            else if (!storedProcSelected)
+            {
+                MandatoryFieldsValidationMessage = "Stored Procedure selection is required";
+            }
+        }
+        else
+        {
+            MandatoryFieldsValidationMessage = string.Empty;
+        }
+    }
+    
+    /// <summary>
+    /// Validates that at least one input parameter field contains a value (excluding '%' wildcard)
+    /// </summary>
+    private void ValidateInputParameters()
+    {
+        // Check if at least one parameter field has a meaningful value (not empty, null, or '%')
+        bool hasValidParameter = HasValidParameterValue(ExportDataFilter.HSCode) ||
+                                HasValidParameterValue(ExportDataFilter.Product) ||
+                                HasValidParameterValue(ExportDataFilter.Exporter) ||
+                                HasValidParameterValue(ExportDataFilter.IEC) ||
+                                HasValidParameterValue(ExportDataFilter.ForeignParty) ||
+                                HasValidParameterValue(ExportDataFilter.ForeignCountry) ||
+                                HasValidParameterValue(ExportDataFilter.Port);
+        
+        AreInputParametersValid = hasValidParameter;
+        
+        if (!AreInputParametersValid)
+        {
+            InputParametersValidationMessage = "At least one input parameter field must contain a value";
+        }
+        else
+        {
+            InputParametersValidationMessage = string.Empty;
+        }
+    }
+    
+    /// <summary>
+    /// Checks if a parameter value is valid (not empty, null, whitespace, or '%' wildcard)
+    /// </summary>
+    /// <param name="value">The parameter value to check</param>
+    /// <returns>True if the value is valid, false otherwise</returns>
+    private bool HasValidParameterValue(string value)
+    {
+        return !string.IsNullOrWhiteSpace(value) && value.Trim() != "%";
     }
 
     /// <summary>
