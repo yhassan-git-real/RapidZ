@@ -1,4 +1,4 @@
-# RapidZ - TradeData Manager
+# RapidZ - TradeData || Indian Edition
 
 ![RapidZ Logo](RapidZ/Assets/Images/favicon.ico)
 
