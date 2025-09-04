@@ -208,23 +208,25 @@
                                                 <RowDefinition Height="Auto" />
                                             </Grid.RowDefinitions>
                                             
-                                            <!-- ComboBox with validation border -->
+                                            <!-- AutoCompleteBox with validation border -->
                                             <Border BorderBrush="{Binding IsViewValid, Converter={StaticResource BoolToValidationBrushConverter}}"
                                                     BorderThickness="1"
                                                     CornerRadius="4">
-                                                <ComboBox ItemsSource="{Binding AvailableViews}"
-                                                         SelectedItem="{Binding SelectedView}"
-                                                         PlaceholderText="Select a view..."
-                                                         HorizontalAlignment="Stretch"
-                                                         Margin="0"
-                                                         Height="32"
-                                                         BorderThickness="0">
-                                                    <ComboBox.ItemTemplate>
+                                                <AutoCompleteBox ItemsSource="{Binding AvailableViews}"
+                                                               SelectedItem="{Binding SelectedView}"
+                                                               Watermark="Search or select a view..."
+                                                               HorizontalAlignment="Stretch"
+                                                               Margin="0"
+                                                               Height="32"
+                                                               BorderThickness="0"
+                                                               FilterMode="Contains"
+                                                               ValueMemberBinding="{Binding DisplayName}">
+                                                    <AutoCompleteBox.ItemTemplate>
                                                         <DataTemplate>
                                                             <TextBlock Text="{Binding DisplayName}" />
                                                         </DataTemplate>
-                                                    </ComboBox.ItemTemplate>
-                                                </ComboBox>
+                                                    </AutoCompleteBox.ItemTemplate>
+                                                </AutoCompleteBox>
                                             </Border>
                                             
                                             <!-- Validation error message -->
@@ -250,23 +252,25 @@
                                                 <RowDefinition Height="Auto" />
                                             </Grid.RowDefinitions>
                                             
-                                            <!-- ComboBox with validation border -->
+                                            <!-- AutoCompleteBox with validation border -->
                                             <Border BorderBrush="{Binding IsStoredProcedureValid, Converter={StaticResource BoolToValidationBrushConverter}}"
                                                     BorderThickness="1"
                                                     CornerRadius="4">
-                                                <ComboBox ItemsSource="{Binding AvailableStoredProcedures}"
-                                                         SelectedItem="{Binding SelectedStoredProcedure}"
-                                                         PlaceholderText="Select a stored procedure..."
-                                                         HorizontalAlignment="Stretch"
-                                                         Height="32"
-                                                         Margin="0"
-                                                         BorderThickness="0">
-                                                    <ComboBox.ItemTemplate>
+                                                <AutoCompleteBox ItemsSource="{Binding AvailableStoredProcedures}"
+                                                               SelectedItem="{Binding SelectedStoredProcedure}"
+                                                               Watermark="Search or select a stored procedure..."
+                                                               HorizontalAlignment="Stretch"
+                                                               Height="32"
+                                                               Margin="0"
+                                                               BorderThickness="0"
+                                                               FilterMode="Contains"
+                                                               ValueMemberBinding="{Binding DisplayName}">
+                                                    <AutoCompleteBox.ItemTemplate>
                                                         <DataTemplate>
                                                             <TextBlock Text="{Binding DisplayName}" />
                                                         </DataTemplate>
-                                                    </ComboBox.ItemTemplate>
-                                                </ComboBox>
+                                                    </AutoCompleteBox.ItemTemplate>
+                                                </AutoCompleteBox>
                                             </Border>
                                             
                                             <!-- Validation error message -->
