@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -36,10 +38,14 @@ public class YearMonthPicker : UserControl
             (o, v) => o.Value = v,
             defaultBindingMode: BindingMode.TwoWay);
     
-    // Internal ComboBox controls
+    // Internal controls
     private readonly ComboBox _yearComboBox;
     private readonly ComboBox _monthComboBox;
     private readonly Grid _mainGrid;
+    
+    // Data collections for filtering
+    private readonly List<string> _allYears;
+    private readonly List<string> _allMonths;
     
     // Property backing fields
     private int _year;
@@ -101,14 +107,20 @@ public class YearMonthPicker : UserControl
         _year = DateTime.Now.Year;
         _month = DateTime.Now.Month;
         
-        // Create year combobox
+        // Initialize data collections
+        _allYears = new List<string>();
+        _allMonths = new List<string>();
+        
+        // Create year combobox with enhanced features
         _yearComboBox = new ComboBox
         {
             MinWidth = 85,
             Width = 90,
             PlaceholderText = "Year",
             Margin = new Thickness(0, 0, 6, 0),
-            HorizontalAlignment = HorizontalAlignment.Left
+            HorizontalAlignment = HorizontalAlignment.Left,
+            MaxDropDownHeight = 200,
+            IsTextSearchEnabled = true
         };
         
         // Create month combobox
@@ -118,7 +130,8 @@ public class YearMonthPicker : UserControl
             Width = 75,
             PlaceholderText = "Month",
             Margin = new Thickness(0, 0, 0, 0),
-            HorizontalAlignment = HorizontalAlignment.Left
+            HorizontalAlignment = HorizontalAlignment.Left,
+            MaxDropDownHeight = 150
         };
         
         // Create main layout grid
@@ -147,17 +160,20 @@ public class YearMonthPicker : UserControl
     // Initialize the control
     private void InitializeControl()
     {
-        // Populate year dropdown (current year -5 to +5)
-        int currentYear = DateTime.Now.Year;
-        for (int year = currentYear - 5; year <= currentYear + 5; year++)
+        // Populate year dropdown (2010 to 2050 as per requirements)
+        for (int year = 2010; year <= 2050; year++)
         {
-            _yearComboBox.Items?.Add(year.ToString());
+            string yearStr = year.ToString();
+            _allYears.Add(yearStr);
+            _yearComboBox.Items?.Add(yearStr);
         }
         
-        // Populate month dropdown
+        // Populate month dropdown (01 to 12)
         for (int month = 1; month <= 12; month++)
         {
-            _monthComboBox.Items?.Add(month.ToString("D2"));
+            string monthStr = month.ToString("D2");
+            _allMonths.Add(monthStr);
+            _monthComboBox.Items?.Add(monthStr);
         }
         
         // Set default selection
@@ -204,10 +220,14 @@ public class YearMonthPicker : UserControl
         UpdateMonthControl();
     }
     
+
     // Update the year combobox selection
     private void UpdateYearControl()
     {
         string yearStr = _year.ToString();
+        
+
+        
         if (_yearComboBox.Items?.Contains(yearStr) == true)
         {
             _yearComboBox.SelectedItem = yearStr;

@@ -373,6 +373,8 @@
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
     
+
+    
     <!-- YearMonthPicker ComboBox Styles -->
     <Style Selector="customControls|YearMonthPicker ComboBox">
         <Setter Property="FontSize" Value="13"/>
@@ -385,11 +387,22 @@
         <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
     
+    <!-- YearMonthPicker ComboBox Focus State -->
+    <Style Selector="customControls|YearMonthPicker ComboBox:focus">
+        <Setter Property="BorderBrush" Value="#4A90E2"/>
+    </Style>
+    
     <!-- Ensure ComboBox items have proper spacing -->
     <Style Selector="customControls|YearMonthPicker ComboBox ComboBoxItem">
         <Setter Property="Padding" Value="10,4"/>
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+    
+    <!-- ComboBox dropdown scrolling styles -->
+    <Style Selector="customControls|YearMonthPicker ComboBox ScrollViewer">
+        <Setter Property="HorizontalScrollBarVisibility" Value="Disabled"/>
+        <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
     </Style>
     
     <!-- Error State TextBox Style -->
