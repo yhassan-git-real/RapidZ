@@ -25,6 +25,11 @@
           "OrderByColumn": "DATE"
         },
         {
+          "Name": "IMPDATA01",
+          "DisplayName": "IMPDATA01",
+          "OrderByColumn": "DATE"
+        },
+        {
           "Name": "IMPDATA_DETAILED",
           "DisplayName": "Detailed Import Data",
           "OrderByColumn": "DATE"
@@ -39,6 +44,10 @@
         {
           "Name": "ImportJNPTData_New1",
           "DisplayName": "ImportJNPTData_New1"
+        },
+        {
+          "Name": "ImportJNPTData_New1-101",
+          "DisplayName": "ImportJNPTData_New1-101"
         },
         {
           "Name": "ImportJNPTData_Detailed",
