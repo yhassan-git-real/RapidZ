@@ -12,7 +12,7 @@ using RapidZ.Core.Logging.Services;
 
 namespace RapidZ.Views.ViewModels;
 
-public class ImportViewModel : ViewModelBase
+public class ImportViewModel : ReactiveObject
 {
     private readonly ImportController _importController;
     private readonly ImportExcelService _importExcelService;

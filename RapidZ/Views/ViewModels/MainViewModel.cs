@@ -21,7 +21,7 @@ using System.Linq;
 
 namespace RapidZ.Views.ViewModels;
 
-public class MainViewModel : ViewModelBase, IDisposable
+public class MainViewModel : ReactiveObject, IDisposable
 {
     private readonly ConfigurationService? _configService;
     private readonly ImportViewModel? _importViewModel;
