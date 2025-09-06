@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Avalonia.Threading;
 using ReactiveUI;
 using RapidZ.Core.Models;
-using RapidZ.Core.Controllers;
 using RapidZ.Features.Import;
 using RapidZ.Core.Logging.Services;
 
@@ -14,7 +13,6 @@ namespace RapidZ.Views.ViewModels;
 
 public class ImportViewModel : ReactiveObject
 {
-    private readonly ImportController _importController;
     private readonly ImportExcelService _importExcelService;
     private readonly RapidZ.Core.Logging.Abstractions.IModuleLogger _logger;
     private CancellationTokenSource? _cancellationTokenSource;
@@ -49,9 +47,8 @@ public class ImportViewModel : ReactiveObject
         set => this.RaiseAndSetIfChanged(ref _canCancel, value);
     }
     
-    public ImportViewModel(ImportController importController, ImportExcelService importExcelService)
+    public ImportViewModel(ImportExcelService importExcelService)
     {
-        _importController = importController ?? throw new ArgumentNullException(nameof(importController));
         _importExcelService = importExcelService ?? throw new ArgumentNullException(nameof(importExcelService));
         _logger = LoggerFactory.GetImportLogger();
     }
